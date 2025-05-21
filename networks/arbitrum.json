@@ -1,0 +1,13 @@
+{
+  "networks": "arbitrum",
+  "contracts": {
+    "Psm3": {
+      "address": "0x2B05F8e1cACC6974fD79A673a341Fe1f58d27266",
+      "startBlock": 302358827
+    },
+    "PollingEmitterArbitrum": {
+      "address": "0x4f4e551b4920a5417F8d4e7f8f099660dAdadcEC",
+      "startBlock": 24755861
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "networks": "baseTenderly",
+  "contracts": {
+    "Psm3": {
+      "address": "0x1601843c5E9bC251A3272907010AFa41Fa18347E",
+      "startBlock": 21452622
+    }
+  }
+}

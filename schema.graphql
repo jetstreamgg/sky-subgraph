@@ -1,0 +1,1192 @@
+type Slate @entity {
+  "Unique Slate ID, produced by hashing the addresses in the slate"
+  id: ID!
+  "Transaction hash of the Slate creation"
+  txnHash: String!
+  "Block number slate was created "
+  creationBlock: BigInt!
+  "Timestamp of block slate was created in"
+  creationTime: BigInt!
+
+  "Spells that are on this slate"
+  yays: [Spell!]!
+}
+
+type SlateV2 @entity {
+  "Unique Slate ID, produced by hashing the addresses in the slate"
+  id: ID!
+  "Transaction hash of the Slate creation"
+  txnHash: String!
+  "Block number slate was created "
+  creationBlock: BigInt!
+  "Timestamp of block slate was created in"
+  creationTime: BigInt!
+
+  "Spells that are on this slate"
+  yays: [SpellV2!]!
+}
+
+# Also referred to as Executive Proposal
+type Spell @entity {
+  "Spell's contract address"
+  id: ID!
+  "Spell description"
+  description: String!
+  "State of the spell"
+  state: SpellState!
+  "Block number spell was created in"
+  creationBlock: BigInt!
+  "Timestamp of block spell was created in"
+  creationTime: BigInt!
+  "Timestamp of spell expiry"
+  expiryTime: BigInt!
+  "Transaction hash of Spell lift"
+  liftedTxnHash: String
+  "Block number spell was lifted in"
+  liftedBlock: BigInt
+  "Timestamp of Spell lift"
+  liftedTime: BigInt
+  "Voting power when lifted"
+  liftedWith: BigInt
+  "Transaction hash of Spell scheduled"
+  scheduledTxnHash: String
+  "Block number spell was scheduled in"
+  scheduledBlock: BigInt
+  "Timestamp of Spell scheduled"
+  scheduledTime: BigInt
+  "Transaction hash of Spell cast"
+  castTxnHash: String
+  "Block number spell was cast in"
+  castBlock: BigInt
+  "Timestamp of Spell cast"
+  castTime: BigInt
+  "Voting power when cast"
+  castWith: BigInt
+  "Number of votes for the Spell"
+  totalVotes: BigInt!
+  "Weighted voting power for the Spell"
+  totalWeightedVotes: BigInt!
+  "Votes associated to this spell"
+  votes: [ExecutiveVote!]! @derivedFrom(field: "spell")
+}
+
+# Also referred to as Executive Proposal
+type SpellV2 @entity {
+  "Spell's contract address"
+  id: ID!
+  "Spell description"
+  description: String!
+  "State of the spell"
+  state: SpellState!
+  "Block number spell was created in"
+  creationBlock: BigInt!
+  "Timestamp of block spell was created in"
+  creationTime: BigInt!
+  "Timestamp of spell expiry"
+  expiryTime: BigInt!
+  "Transaction hash of Spell lift"
+  liftedTxnHash: String
+  "Block number spell was lifted in"
+  liftedBlock: BigInt
+  "Timestamp of Spell lift"
+  liftedTime: BigInt
+  "Voting power when lifted"
+  liftedWith: BigInt
+  "Transaction hash of Spell scheduled"
+  scheduledTxnHash: String
+  "Block number spell was scheduled in"
+  scheduledBlock: BigInt
+  "Timestamp of Spell scheduled"
+  scheduledTime: BigInt
+  "Transaction hash of Spell cast"
+  castTxnHash: String
+  "Block number spell was cast in"
+  castBlock: BigInt
+  "Timestamp of Spell cast"
+  castTime: BigInt
+  "Voting power when cast"
+  castWith: BigInt
+  "Number of votes for the Spell"
+  totalVotes: BigInt!
+  "Weighted voting power for the Spell"
+  totalWeightedVotes: BigInt!
+  "Votes associated to this spell"
+  votes: [ExecutiveVoteV2!]! @derivedFrom(field: "spell")
+}
+
+enum SpellState {
+  ACTIVE
+  LIFTED
+  SCHEDULED
+  CAST
+}
+
+type DelegateAdmin @entity {
+  "A delegate admin is an address that controls a delegate contract"
+  id: String!
+
+  "Delegate contracts addresses"
+  delegateContract: Delegate!
+}
+
+type Delegate @entity {
+  "A delegate is a contract owned by an address, Id is the address of the delegate contract"
+  id: String!
+  "Voter entity of the delegate"
+  voter: Voter!
+  "Address of the delegate owner"
+  ownerAddress: String!
+  "Delegations that this contract has received"
+  delegations: [Delegation!]!
+  "Delegation history"
+  delegationHistory: [DelegationHistory!]!
+  "Total amount delegated"
+  totalDelegated: BigInt!
+  "Number of token holders delegate represents"
+  delegators: Int!
+  "Transaction hash of delegate contract creation"
+  txnHash: String!
+  "Block time change happened"
+  blockTimestamp: BigInt!
+  "Block number of event"
+  blockNumber: BigInt!
+  "Delegate metadata"
+  metadata: DelegateMetadata
+  "Delegate contract version"
+  version: String!
+}
+
+type VoteProxy @entity {
+  "A proxy is a contract owned by an address, Id is the address of the proxy contract"
+  id: String!
+
+  hot: String!
+
+  cold: String!
+}
+
+type Voter @entity {
+  "A Voter is any address that has participated in governance, a proxy contract or a delegate contract"
+  id: String!
+  "Is a vote delegate contract"
+  isVoteDelegate: Boolean
+  "Is a vote proxy contract"
+  isVoteProxy: Boolean
+  "Delegate admin is the address that controls a Vote Delegate contract"
+  delegateContract: Delegate
+  "Proxy contract"
+  proxyContract: VoteProxy
+  "Voter voting power expressed in the smallest unit of the token"
+  mkrLockedInChiefRaw: BigInt!
+  "Voter voting power expressed as a BigDecimal normalized value"
+  mkrLockedInChief: BigDecimal!
+  "Voter voting power expressed in the smallest unit of the token"
+  skyLockedInChiefRaw: BigInt!
+  "Voter voting power expressed as a BigDecimal normalized value"
+  skyLockedInChief: BigDecimal!
+  "Current slate of spells voter is voting for on the v1 chief"
+  currentSpells: [Spell!]!
+  "Current slate of spells voter is voting for on the v2 chief"
+  currentSpellsV2: [SpellV2!]!
+  "Votes that a voter has made in different spells for the v1 chief"
+  executiveVotes: [ExecutiveVote!]! @derivedFrom(field: "voter")
+  "Votes that a voter has made in different spells for the v2 chief"
+  executiveVotesV2: [ExecutiveVoteV2!]! @derivedFrom(field: "voter")
+  "Number of spells voted on"
+  numberExecutiveVotes: Int!
+  "Number of spells voted on for the v2 chief"
+  numberExecutiveVotesV2: Int!
+  "Poll votes associated to this voter"
+  pollVotes: [PollVote!]! @derivedFrom(field: "voter")
+  "Number of polls voted on"
+  numberPollVotes: Int!
+  "Last time voted"
+  lastVotedTimestamp: BigInt!
+  "Voting power changes for this voter"
+  votingPowerChanges: [ExecutiveVotingPowerChange!]! @derivedFrom(field: "voter")
+  "V2 voting power changes for this voter"
+  v2VotingPowerChanges: [ExecutiveVotingPowerChangeV2!]! @derivedFrom(field: "voter")
+}
+
+type ArbitrumVoter @entity {
+  "A Voter is any address that has participated in governance on Arbitrum"
+  id: String!
+  "Last time voted"
+  lastVotedTimestamp: BigInt!
+  "Poll votes associated to this voter"
+  pollVotes: [ArbitrumPollVote!]! @derivedFrom(field: "voter")
+  "Number of polls voted on"
+  numberPollVotes: Int!
+}
+
+type Delegation @entity {
+  "delegate-delegator"
+  id: String!
+  "Voter entity of the delegator"
+  delegator: String!
+  "Total amount delegated"
+  amount: BigInt!
+  "Last time updated"
+  timestamp: BigInt!
+  "Delegate contract"
+  delegate: Delegate!
+}
+
+type DelegationHistory @entity {
+  "delegate-delegator-date"
+  id: String!
+  "Voter entity of the delegator"
+  delegator: String!
+  "Change in total amount, can be negative"
+  amount: BigInt!
+  "Accumulated total amount"
+  accumulatedAmount: BigInt!
+  "Time it happened"
+  timestamp: BigInt!
+  "Block number"
+  blockNumber: BigInt!
+  "Transaction hash"
+  txnHash: String!
+  "Delegate contract"
+  delegate: Delegate!
+  "Is a lockstake delegation"
+  isLockstake: Boolean!
+  "Is a staking engine delegation"
+  isStakingEngine: Boolean!
+}
+
+type ExecutiveVotingPowerChange @entity(immutable: true) {
+  "Unique entity used to keep track of voting power delta"
+  id: ID!
+  "Token addresss"
+  tokenAddress: String
+  "Token address for voter"
+  voter: Voter!
+  "Sender of the voting power change transaction"
+  previousBalance: BigInt!
+  "New voting power of delegate"
+  newBalance: BigInt!
+  "amount can be negative or positive"
+  amount: BigInt!
+  "Block time change happened"
+  blockTimestamp: BigInt!
+  "Transaction hash of the voting power change"
+  txnHash: String!
+  "Log index for delegate voting power change"
+  logIndex: BigInt!
+  "Block number of event"
+  blockNumber: BigInt!
+}
+
+type ExecutiveVotingPowerChangeV2 @entity(immutable: true) {
+  "Unique entity used to keep track of voting power delta"
+  id: ID!
+  "Token addresss"
+  tokenAddress: String
+  "Token address for voter"
+  voter: Voter!
+  "Sender of the voting power change transaction"
+  previousBalance: BigInt!
+  "New voting power of delegate"
+  newBalance: BigInt!
+  "amount can be negative or positive"
+  amount: BigInt!
+  "Block time change happened"
+  blockTimestamp: BigInt!
+  "Transaction hash of the voting power change"
+  txnHash: String!
+  "Log index for delegate voting power change"
+  logIndex: BigInt!
+  "Block number of event"
+  blockNumber: BigInt!
+}
+
+type ExecutiveVote @entity {
+  "Spell ID + Voter ID"
+  id: ID!
+  "Voting weight expressed in the vote"
+  weight: BigInt!
+  "Reason for voting choice"
+  reason: String
+  "Voter that emitted the vote"
+  voter: Voter!
+  "spell that is being voted on"
+  spell: Spell!
+  "Block number vote is cast in"
+  block: BigInt!
+  "Timestamp of block vote was cast in"
+  blockTime: BigInt!
+  "Transaction hash of the vote"
+  txnHash: String!
+  "Log index for event"
+  logIndex: BigInt!
+}
+
+type ExecutiveVoteV2 @entity {
+  "Spell ID + Voter ID"
+  id: ID!
+  "Voting weight expressed in the vote"
+  weight: BigInt!
+  "Reason for voting choice"
+  reason: String
+  "Voter that emitted the vote"
+  voter: Voter!
+  "spell that is being voted on"
+  spell: SpellV2!
+  "Block number vote is cast in"
+  block: BigInt!
+  "Timestamp of block vote was cast in"
+  blockTime: BigInt!
+  "Transaction hash of the vote"
+  txnHash: String!
+  "Log index for event"
+  logIndex: BigInt!
+}
+
+# Polling Entities
+type PollVote @entity {
+  "Poll ID + Voter ID"
+  id: String!
+  "Voting choice expressed in the vote"
+  choice: BigInt!
+  "Voter that emitted the vote"
+  voter: Voter!
+  "Poll that is being voted on"
+  poll: Poll!
+  "Block number vote is cast in"
+  block: BigInt!
+  "Timestamp of block vote was cast in"
+  blockTime: BigInt!
+  "Transaction hash of the vote"
+  txnHash: String!
+}
+
+type ArbitrumPollVote @entity {
+  "Poll ID + Voter ID + Block Number"
+  id: String!
+  "Voting choice expressed in the vote"
+  choice: BigInt!
+  "Voter that emitted the vote"
+  voter: ArbitrumVoter!
+  "Poll that is being voted on"
+  poll: ArbitrumPoll!
+  "Block number vote is cast in"
+  block: BigInt!
+  "Timestamp of block vote was cast in"
+  blockTime: BigInt!
+  "Transaction hash of the vote"
+  txnHash: String!
+}
+
+type Poll @entity {
+  "Poll id"
+  id: String!
+  "Poll creator"
+  creator: String
+  "Poll block created"
+  blockCreated: BigInt
+  "Poll block withdrawn"
+  blockWithdrawn: BigInt
+  "Poll withdrawn by"
+  withdrawnBy: String
+  "Poll start date"
+  startDate: BigInt
+  "Poll end date"
+  endDate: BigInt
+  "Poll multiHash"
+  multiHash: String
+  "Poll URL"
+  url: String
+  "Poll votes associated to this poll"
+  votes: [PollVote!]! @derivedFrom(field: "poll")
+}
+
+type ArbitrumPoll @entity {
+  "Poll id"
+  id: String!
+  "Poll creator"
+  creator: String
+  "Poll block created"
+  blockCreated: BigInt
+  "Poll block withdrawn"
+  blockWithdrawn: BigInt
+  "Poll withdrawn by"
+  withdrawnBy: String
+  "Poll start date"
+  startDate: BigInt
+  "Poll end date"
+  endDate: BigInt
+  "Poll multiHash"
+  multiHash: String
+  "Poll URL"
+  url: String
+  "Poll votes associated to this poll"
+  votes: [ArbitrumPollVote!]! @derivedFrom(field: "poll")
+}
+
+type ContentHashRegistry @entity {
+  id: ID!
+  blockNumber: Int!
+  transactionID: Bytes!
+  hash: Bytes!
+  address: Bytes!
+  node: Bytes!
+  nodeHexString: String!
+  hashHexString: String!
+  cid: String!
+}
+
+type DelegateMetadata @entity {
+  "Delegate contract address"
+  id: String!
+  "Delegate name"
+  name: String!
+  "Delegate description"
+  description: String!
+  "Delegate image"
+  image: String!
+  "Delegate external profile URL"
+  externalProfileURL: String!
+  "Metrics"
+  metrics: DelegateMetrics!
+  "Core unit member"
+  coreUnitMember: Boolean!
+}
+
+type DelegateMetrics @entity {
+  "Delegate contract address"
+  id: String!
+  combinedParticipation: BigDecimal!
+  pollParticipation: BigDecimal!
+  executiveParticipation: BigDecimal!
+  communication: BigDecimal!
+}
+
+type VotingStrategy @entity {
+  id: String!
+  name: String!
+  description: String!
+  delegates: [Delegate!]!
+}
+
+type VotingCommittee @entity {
+  id: String!
+  name: String!
+  description: String
+  image: String
+  externalProfileURL: String
+  strategies: [VotingStrategy!]!
+}
+
+type Reward @entity {
+  id: Bytes! # address
+  totalSupplied: BigInt! # uint256
+  totalRewardsClaimed: BigInt! # uint256
+  suppliers: [RewardSupplier!]! @derivedFrom(field: "reward")
+  supplyInstances: [RewardSupply!]! @derivedFrom(field: "reward")
+  withdrawals: [RewardWithdraw!]! @derivedFrom(field: "reward")
+  rewardClaims: [RewardClaim!]! @derivedFrom(field: "reward")
+  tvl: [TvlUpdate!]! @derivedFrom(field: "reward")
+  lockstakeActive: Boolean!
+  stakingEngineActive: Boolean!
+}
+
+type RewardSupplier @entity {
+  id: Bytes! # address (rewardid-useraddress)
+  user: Bytes! # address of supplier
+  reward: Reward! # address of the supplied reward
+  amount: BigInt! # uint256
+}
+
+type RewardClaim @entity(immutable: true) {
+  id: Bytes!
+  reward: Reward! # address of the reward
+  user: Bytes! # address of the reward recipient
+  amount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RewardSupply @entity(immutable: true) {
+  id: Bytes!
+  reward: Reward! # address of the supplied reward
+  user: Bytes! # address of supplier
+  amount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RewardWithdraw @entity(immutable: true) {
+  id: Bytes!
+  reward: Reward! # address of the supplied reward
+  user: Bytes! # address of supplier
+  amount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RewardReferral @entity(immutable: true) {
+  id: Bytes!
+  referral: Int!
+  reward: Reward! # address of the supplied reward
+  user: Bytes! # address of the user
+  amount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type TvlUpdate @entity(immutable: true) {
+  id: Bytes!
+  reward: Reward! # address of the supplied reward
+  amount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SavingsSupply @entity(immutable: true) {
+  id: Bytes!
+  sender: Bytes! # address of the supplier
+  owner: Bytes! # address of the owner
+  assets: BigInt! # uint256
+  shares: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SavingsWithdraw @entity(immutable: true) {
+  id: Bytes!
+  sender: Bytes! # address of the supplier
+  receiver: Bytes! # address of the receiver
+  owner: Bytes! # address of the owner
+  assets: BigInt! # uint256
+  shares: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SavingsReferral @entity(immutable: true) {
+  id: Bytes!
+  referral: Int!
+  owner: Bytes! # address of the owner
+  assets: BigInt! # uint256
+  shares: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SavingsSupplier @entity {
+  id: Bytes! #the owner's address
+}
+
+type DaiToUsdsUpgrade @entity(immutable: true) {
+  id: Bytes!
+  caller: Bytes! # address of the caller
+  usr: Bytes! # address of the user
+  wad: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type UsdsToDaiRevert @entity(immutable: true) {
+  id: Bytes!
+  caller: Bytes! # address of the caller
+  usr: Bytes! # address of the user
+  wad: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MkrToSkyUpgrade @entity(immutable: true) {
+  id: Bytes!
+  caller: Bytes! # address of the caller
+  usr: Bytes! # address of the user
+  mkrAmt: BigInt! # uint256
+  skyAmt: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MkrToSkyUpgradeV2 @entity(immutable: true) {
+  id: Bytes!
+  caller: Bytes! # address of the caller
+  usr: Bytes! # address of the user
+  mkrAmt: BigInt! # uint256
+  skyAmt: BigInt! # uint256
+  skyFee: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SkyToMkrRevert @entity(immutable: true) {
+  id: Bytes!
+  caller: Bytes! # address of the caller
+  usr: Bytes! # address of the user
+  skyAmt: BigInt! # uint256
+  mkrAmt: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Total @entity {
+  id: ID!
+  total: BigInt!
+}
+
+type Rely @entity(immutable: true) {
+  id: Bytes!
+  usr: Bytes! # address of the user
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Deny @entity(immutable: true) {
+  id: Bytes!
+  usr: Bytes! # address of the user
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type FileUint @entity(immutable: true) {
+  id: Bytes!
+  what: Bytes! # bytes32 identifier
+  data: BigInt! # uint256 data
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type FileAddress @entity(immutable: true) {
+  id: Bytes!
+  what: Bytes! # bytes32 identifier
+  data: Bytes! # address data
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Kick @entity(immutable: true) {
+  id: Bytes!
+  top: BigInt! # uint256 top
+  tab: BigInt! # uint256 tab
+  lot: BigInt! # uint256 lot
+  usr: Bytes! # address of the user
+  kpr: Bytes! # address of the keeper
+  coin: BigInt! # uint256 coin
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Take @entity(immutable: true) {
+  id: Bytes!
+  max: BigInt! # uint256 max
+  price: BigInt! # uint256 price
+  owe: BigInt! # uint256 owe
+  tab: BigInt! # uint256 tab
+  lot: BigInt! # uint256 lot
+  usr: Bytes! # address of the user
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Redo @entity(immutable: true) {
+  id: Bytes!
+  top: BigInt! # uint256 top
+  tab: BigInt! # uint256 tab
+  lot: BigInt! # uint256 lot
+  usr: Bytes! # address of the user
+  kpr: Bytes! # address of the keeper
+  coin: BigInt! # uint256 coin
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Yank @entity(immutable: true) {
+  id: Bytes!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type LockstakeMkrRely @entity(immutable: true) {
+  id: Bytes!
+  usr: Bytes! # address of the user
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type LockstakeMkrDeny @entity(immutable: true) {
+  id: Bytes!
+  usr: Bytes! # address of the user
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type LockstakeMkrApproval @entity(immutable: true) {
+  id: Bytes!
+  owner: Bytes! # address of the owner
+  spender: Bytes! # address of the spender
+  value: BigInt! # uint256 value
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type LockstakeMkrTransfer @entity(immutable: true) {
+  id: Bytes!
+  from: Bytes! # address of the sender
+  to: Bytes! # address of the receiver
+  value: BigInt! # uint256 value
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SealRely @entity(immutable: true) {
+  id: ID!
+  usr: Bytes! # address of the user
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SealDeny @entity(immutable: true) {
+  id: ID!
+  usr: Bytes! # address of the user
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SealFile @entity(immutable: true) {
+  id: ID!
+  what: Bytes! # bytes32 identifier of the parameter being set
+  data: Bytes! # address or uint256 data
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SealAddReward @entity(immutable: true) {
+  id: ID!
+  reward: Bytes! # address of the reward
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SealDelReward @entity(immutable: true) {
+  id: ID!
+  reward: Bytes! # address of the reward
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SealOpen @entity(immutable: true) {
+  id: ID!
+  owner: Bytes! # address of the owner
+  index: BigInt! # uint256 index of the operation
+  urn: Bytes! # address of the urn
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SealHope @entity(immutable: true) {
+  id: ID!
+  owner: Bytes! # address of the owner
+  index: BigInt! # uint256 index of the operation
+  usr: Bytes! # address of the user
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SealNope @entity(immutable: true) {
+  id: ID!
+  owner: Bytes! # address of the owner
+  index: BigInt! # uint256 index of the operation
+  usr: Bytes! # address of the user
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SealSelectVoteDelegate @entity(immutable: true) {
+  id: ID!
+  urn: SealUrn
+  index: BigInt!
+  voteDelegate: Delegate
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SealSelectReward @entity(immutable: true) {
+  id: ID!
+  index: BigInt! # uint256 index of the operation
+  urn: SealUrn
+  reward: Reward
+  ref: Int! # reference number
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SealLock @entity(immutable: true) {
+  id: ID!
+  index: BigInt! # uint256 index of the operation
+  urn: SealUrn
+  wad: BigInt! # amount locked
+  ref: Int! # reference number
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SealLockSky @entity(immutable: true) {
+  id: ID!
+  index: BigInt! # uint256 index of the operation
+  urn: SealUrn
+  wad: BigInt! # amount locked
+  ref: Int! # reference number
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SealFree @entity(immutable: true) {
+  id: ID!
+  urn: SealUrn
+  index: BigInt! # uint256 index of the operation
+  to: Bytes! # address of the receiver
+  wad: BigInt! # uint256 amount freed
+  freed: BigInt! # uint256 actual amount freed
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SealFreeSky @entity(immutable: true) {
+  id: ID!
+  urn: SealUrn
+  index: BigInt! # uint256 index of the operation
+  to: Bytes! # address of the receiver
+  skyWad: BigInt! # uint256 amount of SKY freed
+  skyFreed: BigInt! # uint256 actual amount of SKY freed
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SealFreeNoFee @entity(immutable: true) {
+  id: ID!
+  urn: SealUrn
+  index: BigInt! # uint256 index of the operation
+  to: Bytes! # address of the receiver
+  wad: BigInt! # uint256 amount freed without fee
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SealDraw @entity(immutable: true) {
+  id: ID!
+  urn: SealUrn
+  index: BigInt! # uint256 index of the operation
+  to: Bytes! # address of the receiver
+  wad: BigInt! # uint256 amount drawn
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SealWipe @entity(immutable: true) {
+  id: ID!
+  urn: SealUrn
+  index: BigInt! # uint256 index of the operation
+  wad: BigInt! # uint256 amount wiped
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SealGetReward @entity(immutable: true) {
+  id: ID!
+  urn: SealUrn
+  index: BigInt! # uint256 index of the operation
+  reward: Bytes! # address of the reward
+  to: Bytes! # address of the receiver
+  amt: BigInt! # uint256 amount of reward
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SealOnKick @entity(immutable: true) {
+  id: ID!
+  urn: SealUrn
+  wad: BigInt! # uint256 amount involved in the kick
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SealOnTake @entity(immutable: true) {
+  id: ID!
+  urn: SealUrn
+  who: Bytes! # address of the taker
+  wad: BigInt! # uint256 amount taken
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SealOnRemove @entity(immutable: true) {
+  id: ID!
+  urn: SealUrn
+  sold: BigInt! # uint256 amount sold
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+# type SealFileAddress @entity(immutable: true) {
+#   id: ID!
+#   what: Bytes! # bytes32 identifier of the parameter being set
+#   data: Bytes! # address data being filed
+#   blockNumber: BigInt!
+#   blockTimestamp: BigInt!
+#   transactionHash: Bytes!
+# }
+
+# type SealFileUint @entity(immutable: true) {
+#   id: ID!
+#   what: Bytes! # bytes32 identifier of the parameter being set
+#   data: Bytes!
+#   blockNumber: BigInt!
+#   blockTimestamp: BigInt!
+#   transactionHash: Bytes!
+# }
+
+type SealUrn @entity {
+  id: Bytes!
+  owner: Bytes! # address of the owner
+  index: BigInt!
+  blockNumber: BigInt! # block number when urn created
+  blockTimestamp: BigInt! # timestamp when urn created
+  transactionHash: Bytes! # transaction hash when urn created
+  reward: Reward
+  voteDelegate: Delegate
+  mkrLocked: BigInt!
+  usdsDebt: BigInt!
+  skyLocked: BigInt!
+  auctionsCount: BigInt!
+  locks: [SealLock!] @derivedFrom(field: "urn")
+  frees: [SealFree!] @derivedFrom(field: "urn")
+  freeNoFees: [SealFreeNoFee!] @derivedFrom(field: "urn")
+  skyLocks: [SealLockSky!] @derivedFrom(field: "urn")
+  skyFrees: [SealFreeSky!] @derivedFrom(field: "urn")
+  wipes: [SealWipe!] @derivedFrom(field: "urn")
+  draws: [SealDraw!] @derivedFrom(field: "urn")
+  selectVoteDelegates: [SealSelectVoteDelegate!] @derivedFrom(field: "urn")
+  selectRewards: [SealSelectReward!] @derivedFrom(field: "urn")
+  getRewards: [SealGetReward!] @derivedFrom(field: "urn")
+  onKicks: [SealOnKick!] @derivedFrom(field: "urn")
+  onTakes: [SealOnTake!] @derivedFrom(field: "urn")
+  onRemoves: [SealOnRemove!] @derivedFrom(field: "urn")
+  barks: [Bark!]! @derivedFrom(field: "sealUrn")
+}
+
+type LockstakeMigrate @entity(immutable: true) {
+  id: Bytes!
+  oldOwner: Bytes!
+  oldIndex: BigInt!
+  newOwner: Bytes!
+  newIndex: BigInt!
+  ink: BigInt!
+  debt: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type StakingOpen @entity(immutable: true) {
+  id: ID!
+  owner: Bytes! # address of the owner
+  index: BigInt! # uint256 index of the operation
+  urn: Bytes! # address of the urn
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type StakingSelectVoteDelegate @entity(immutable: true) {
+  id: ID!
+  urn: StakingUrn
+  index: BigInt!
+  voteDelegate: Delegate
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type StakingSelectReward @entity(immutable: true) {
+  id: ID!
+  index: BigInt! # uint256 index of the operation
+  urn: StakingUrn
+  reward: Reward
+  ref: Int! # reference number
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type StakingLock @entity(immutable: true) {
+  id: ID!
+  index: BigInt! # uint256 index of the operation
+  urn: StakingUrn
+  wad: BigInt! # amount locked
+  ref: Int! # reference number
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type StakingFree @entity(immutable: true) {
+  id: ID!
+  urn: StakingUrn
+  index: BigInt! # uint256 index of the operation
+  to: Bytes! # address of the receiver
+  wad: BigInt! # uint256 amount freed
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type StakingFreeNoFee @entity(immutable: true) {
+  id: ID!
+  urn: StakingUrn
+  index: BigInt! # uint256 index of the operation
+  to: Bytes! # address of the receiver
+  wad: BigInt! # uint256 amount freed without fee
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type StakingDraw @entity(immutable: true) {
+  id: ID!
+  urn: StakingUrn
+  index: BigInt! # uint256 index of the operation
+  to: Bytes! # address of the receiver
+  wad: BigInt! # uint256 amount drawn
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type StakingWipe @entity(immutable: true) {
+  id: ID!
+  urn: StakingUrn
+  index: BigInt! # uint256 index of the operation
+  wad: BigInt! # uint256 amount wiped
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type StakingGetReward @entity(immutable: true) {
+  id: ID!
+  urn: StakingUrn
+  index: BigInt! # uint256 index of the operation
+  reward: Bytes! # address of the reward
+  to: Bytes! # address of the receiver
+  amt: BigInt! # uint256 amount of reward
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type StakingOnKick @entity(immutable: true) {
+  id: ID!
+  urn: StakingUrn
+  wad: BigInt! # uint256 amount involved in the kick
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type StakingUrn @entity {
+  id: Bytes!
+  owner: Bytes! # address of the owner
+  index: BigInt!
+  blockNumber: BigInt! # block number when urn created
+  blockTimestamp: BigInt! # timestamp when urn created
+  transactionHash: Bytes! # transaction hash when urn created
+  reward: Reward
+  voteDelegate: Delegate
+  usdsDebt: BigInt!
+  skyLocked: BigInt!
+  auctionsCount: BigInt!
+  locks: [StakingLock!] @derivedFrom(field: "urn")
+  frees: [StakingFree!] @derivedFrom(field: "urn")
+  freeNoFees: [StakingFreeNoFee!] @derivedFrom(field: "urn")
+  wipes: [StakingWipe!] @derivedFrom(field: "urn")
+  draws: [StakingDraw!] @derivedFrom(field: "urn")
+  selectVoteDelegates: [StakingSelectVoteDelegate!] @derivedFrom(field: "urn")
+  selectRewards: [StakingSelectReward!] @derivedFrom(field: "urn")
+  getRewards: [StakingGetReward!] @derivedFrom(field: "urn")
+  onKicks: [StakingOnKick!] @derivedFrom(field: "urn")
+  barks: [Bark!]! @derivedFrom(field: "stakingUrn")
+}
+
+type Bark @entity(immutable: true) {
+  id: String!
+  ilk: Bytes!
+  urn: Bytes!
+  ink: BigInt!
+  art: BigInt!
+  due: BigInt!
+  clip: Bytes!
+  clipperId: BigInt
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  sealUrn: SealUrn
+  stakingUrn: StakingUrn
+}
+
+type Swap @entity {
+  id: ID!
+  assetIn: Bytes! # address of input token
+  assetOut: Bytes! # address of output token
+  receiver: Bytes! # address of receiver
+  sender: Bytes! # address of sender
+  amountIn: BigInt! # amount of input tokens
+  amountOut: BigInt! # amount of output tokens
+  referralCode: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
