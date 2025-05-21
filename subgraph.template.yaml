@@ -1,0 +1,879 @@
+specVersion: 0.0.4
+repository: https://github.com/jetstreamgg/subgraph
+schema:
+  file: ./schema.graphql
+dataSources:
+  {{#contracts.DelegateFactory}}
+  - kind: ethereum/contract
+    name: DelegateFactory
+    network: {{networks}}
+    source:
+      abi: DelegateFactory
+      address: '{{address}}'
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Delegate
+        - DelegateAdmin
+      abis:
+        - name: DelegateFactory
+          file: ./abis/maker/DelegateFactory.json
+      eventHandlers:
+        - event: CreateVoteDelegate(indexed address,indexed address)
+          handler: handleCreateVoteDelegate
+      file: ./src/delegate-factory.ts
+  {{/contracts.DelegateFactory}}
+
+  {{#contracts.DelegateFactoryV2}}
+  - kind: ethereum/contract
+    name: DelegateFactoryV2
+    network: {{networks}}
+    source:
+      abi: DelegateFactoryV2
+      address: '{{address}}'
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Delegate
+        - DelegateAdmin
+      abis:
+        - name: DelegateFactoryV2
+          file: ./abis/maker/DelegateFactoryV2.json
+      eventHandlers:
+        - event: CreateVoteDelegate(indexed address,indexed address)
+          handler: handleCreateVoteDelegateV2
+      file: ./src/delegate-factory-v2.ts
+  {{/contracts.DelegateFactoryV2}}
+
+    {{#contracts.DelegateFactoryV3}}
+  - kind: ethereum/contract
+    name: DelegateFactoryV3
+    network: {{networks}}
+    source:
+      abi: DelegateFactoryV3
+      address: '{{address}}'
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Delegate
+        - DelegateAdmin
+      abis:
+        - name: DelegateFactoryV3
+          file: ./abis/maker/DelegateFactoryV3.json
+      eventHandlers:
+        - event: CreateVoteDelegate(indexed address,indexed address)
+          handler: handleCreateVoteDelegateV3
+      file: ./src/delegate-factory-v3.ts
+  {{/contracts.DelegateFactoryV3}}
+
+  {{#contracts.RewardsUsdsPlaceholder}}
+  - kind: ethereum
+    name: RewardsUsdsPlaceholder
+    network: {{networks}}
+    source:
+      abi: RewardsUsdsPlaceholder
+      address: '{{address}}'
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Reward
+        - RewardSupply
+        - RewardWithdraw
+        - RewardReferral
+      abis:
+        - name: RewardsUsdsPlaceholder
+          file: ./abis/rewards/RewardsUsdsPlaceholder.json
+      eventHandlers:
+        - event: Staked(indexed address,uint256)
+          handler: handleRewardSupplied
+        - event: Withdrawn(indexed address,uint256)
+          handler: handleRewardWithdrawn
+        - event: Referral(indexed uint16,indexed address,uint256)
+          handler: handleRewardReferral
+      file: ./src/rewards.ts
+  {{/contracts.RewardsUsdsPlaceholder}}
+
+  {{#contracts.RewardsUsdsSky}}
+  - kind: ethereum
+    name: RewardsUsdsSky
+    network: {{networks}}
+    source:
+      abi: RewardsUsdsSky
+      address: '{{address}}'
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Reward
+        - RewardPaid
+        - RewardSupply
+        - RewardWithdraw
+        - RewardReferral
+      abis:
+        - name: RewardsUsdsSky
+          file: ./abis/rewards/RewardsUsdsSky.json
+      eventHandlers:
+        - event: RewardPaid(indexed address,uint256)
+          handler: handleRewardClaimed
+        - event: Staked(indexed address,uint256)
+          handler: handleRewardSupplied
+        - event: Withdrawn(indexed address,uint256)
+          handler: handleRewardWithdrawn
+        - event: Referral(indexed uint16,indexed address,uint256)
+          handler: handleRewardReferral
+      file: ./src/rewards.ts
+  {{/contracts.RewardsUsdsSky}}
+
+  {{#contracts.RewardsLsmkrUsds}}
+  - kind: ethereum
+    name: RewardsLsmkrUsds
+    network: {{networks}}
+    source:
+      abi: RewardsLsmkrUsds
+      address: '{{address}}'
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Reward
+        - RewardPaid
+        - RewardSupply
+        - RewardWithdraw
+        - RewardReferral
+      abis:
+        - name: RewardsLsmkrUsds
+          file: ./abis/rewards/RewardsLsmkrUsds.json
+      eventHandlers:
+        - event: RewardPaid(indexed address,uint256)
+          handler: handleRewardClaimed
+        - event: Staked(indexed address,uint256)
+          handler: handleRewardSupplied
+        - event: Withdrawn(indexed address,uint256)
+          handler: handleRewardWithdrawn
+        - event: Referral(indexed uint16,indexed address,uint256)
+          handler: handleRewardReferral
+      file: ./src/rewards.ts
+  {{/contracts.RewardsLsmkrUsds}}
+
+  {{#contracts.RewardsLsskyUsds}}
+  - kind: ethereum
+    name: RewardsLsskyUsds
+    network: {{networks}}
+    source:
+      abi: RewardsLsskyUsds
+      address: '{{address}}'
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Reward
+        - RewardPaid
+        - RewardSupply
+        - RewardWithdraw
+        - RewardReferral
+      abis:
+        - name: RewardsLsskyUsds
+          file: ./abis/rewards/RewardsLsskyUsds.json
+      eventHandlers:
+        - event: RewardPaid(indexed address,uint256)
+          handler: handleRewardClaimed
+        - event: Staked(indexed address,uint256)
+          handler: handleRewardSupplied
+        - event: Withdrawn(indexed address,uint256)
+          handler: handleRewardWithdrawn
+        - event: Referral(indexed uint16,indexed address,uint256)
+          handler: handleRewardReferral
+      file: ./src/rewards.ts
+  {{/contracts.RewardsLsskyUsds}}
+
+  {{#contracts.SavingsUsds}}
+  - kind: ethereum
+    name: SavingsUsds
+    network: {{networks}}
+    source:
+      abi: SavingsUsds
+      address: '{{address}}'
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - SavingsSupply
+        - SavingsWithdraw
+        - SavingsReferral
+      abis:
+        - name: SavingsUsds
+          file: ./abis/maker/SavingsUsds.json
+      eventHandlers:
+        - event: Deposit(indexed address,indexed address,uint256,uint256)
+          handler: handleSavingsSupplied
+        - event: Withdraw(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleSavingsWithdrawn
+        - event: Referral(indexed uint16,indexed address,uint256,uint256)
+          handler: handleSavingsReferral
+      file: ./src/savings-usds.ts
+  {{/contracts.SavingsUsds}}
+
+  {{#contracts.DaiUsds}}
+  - kind: ethereum
+    name: DaiUsds
+    network: {{networks}}
+    source:
+      abi: DaiUsds
+      address: '{{address}}'
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - DaiToUsdsUpgrade
+        - UsdsToDaiRevert
+      abis:
+        - name: DaiUsds
+          file: ./abis/maker/DaiUsds.json
+      eventHandlers:
+        - event: DaiToUsds(indexed address,indexed address,uint256)
+          handler: handleDaiToUsdsUpgrade
+        - event: UsdsToDai(indexed address,indexed address,uint256)
+          handler: handleUsdsToDaiRevert
+      file: ./src/dai-usds.ts
+  {{/contracts.DaiUsds}}
+
+  {{#contracts.MkrSky}}
+  - kind: ethereum
+    name: MkrSky
+    network: {{networks}}
+    source:
+      abi: MkrSky
+      address: '{{address}}'
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - MkrToSkyUpgrade
+        - SkyToMkrRevert
+      abis:
+        - name: MkrSky
+          file: ./abis/maker/MkrSky.json
+      eventHandlers:
+        - event: MkrToSky(indexed address,indexed address,uint256,uint256)
+          handler: handleMkrToSkyUpgrade
+        - event: SkyToMkr(indexed address,indexed address,uint256,uint256)
+          handler: handleSkyToMkrRevert
+      file: ./src/mkr-sky.ts
+  {{/contracts.MkrSky}}
+
+    {{#contracts.MkrSkyV2}}
+  - kind: ethereum
+    name: MkrSkyV2
+    network: {{networks}}
+    source:
+      abi: MkrSkyV2
+      address: '{{address}}'
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - MkrToSkyUpgradeV2
+      abis:
+        - name: MkrSkyV2
+          file: ./abis/maker/MkrSkyV2.json
+      eventHandlers:
+        - event: MkrToSky(indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleMkrToSkyUpgradeV2
+      file: ./src/mkr-sky-v2.ts
+  {{/contracts.MkrSkyV2}}
+
+  {{#contracts.LockstakeClipper}}
+  - kind: ethereum
+    name: LockstakeClipper
+    network: {{networks}}
+    source:
+      abi: LockstakeClipper
+      address: '{{address}}'
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Rely
+        - Deny
+        - FileUint
+        - FileAddress
+        - Kick
+        - Take
+        - Redo
+        - Yank
+      abis:
+        - name: LockstakeClipper
+          file: ./abis/maker/LockstakeClipper.json
+      eventHandlers:
+        - event: Rely(indexed address)
+          handler: handleRely
+        - event: Deny(indexed address)
+          handler: handleDeny
+        - event: File(indexed bytes32,uint256)
+          handler: handleFileUint
+        - event: File(indexed bytes32,address)
+          handler: handleFileAddress
+        - event: Kick(indexed uint256,uint256,uint256,uint256,indexed address,indexed address,uint256)
+          handler: handleKick
+        - event: Take(indexed uint256,uint256,uint256,uint256,uint256,uint256,indexed address)
+          handler: handleTake
+        - event: Redo(indexed uint256,uint256,uint256,uint256,indexed address,indexed address,uint256)
+          handler: handleRedo
+        - event: Yank(uint256)
+          handler: handleYank
+      file: ./src/lockstake-clipper.ts
+  {{/contracts.LockstakeClipper}}
+
+  {{#contracts.LockstakeMkr}}
+  - kind: ethereum
+    name: LockstakeMkr
+    network: {{networks}}
+    source:
+      abi: LockstakeMkr
+      address: '{{address}}'
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - LockstakeMkrRely
+        - LockstakeMkrDeny
+        - LockstakeMkrApproval
+        - LockstakeMkrTransfer
+      abis:
+        - name: LockstakeMkr
+          file: ./abis/maker/LockstakeMkr.json
+      eventHandlers:
+        - event: Rely(indexed address)
+          handler: handleLockstakeMkrRely
+        - event: Deny(indexed address)
+          handler: handleLockstakeMkrDeny
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleLockstakeMkrApproval
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleLockstakeMkrTransfer
+      file: ./src/lockstake-mkr.ts
+  {{/contracts.LockstakeMkr}}
+
+  {{#contracts.LockstakeEngine}}
+  - kind: ethereum
+    name: LockstakeEngine
+    network: {{networks}}
+    source:
+      abi: LockstakeEngine
+      address: '{{address}}'
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - SealRely
+        - SealDeny
+        - SealFile
+        - SealAddReward
+        - SealDelReward
+        - SealOpen
+        - SealHope
+        - SealNope
+        - SealSelectVoteDelegate
+        - SealSelectReward
+        - SealLock
+        - SealLockSky
+        - SealFree
+        - SealFreeSky
+        - SealFreeNoFee
+        - SealDraw
+        - SealWipe
+        - SealGetReward
+        - SealOnKick
+        - SealOnTake
+        - SealOnRemove
+      abis:
+        - name: LockstakeEngine
+          file: ./abis/maker/LockstakeEngine.json
+        - name: MkrSky
+          file: ./abis/maker/MkrSky.json
+      eventHandlers:
+        - event: SelectFarm(indexed address,indexed uint256,indexed address,uint16)
+          handler: handleSealSelectReward
+        - event: AddFarm(address)
+          handler: handleSealAddReward
+        - event: DelFarm(address)
+          handler: handleSealDelReward
+        - event: Rely(indexed address)
+          handler: handleSealRely
+        - event: Deny(indexed address)
+          handler: handleSealDeny
+        - event: Hope(indexed address,indexed uint256,indexed address)
+          handler: handleSealHope
+        - event: Nope(indexed address,indexed uint256,indexed address)
+          handler: handleSealNope
+        - event: Lock(indexed address,indexed uint256,uint256,uint16)
+          handler: handleSealLock
+        - event: LockSky(indexed address,indexed uint256,uint256,uint16)
+          handler: handleSealLockSky
+        - event: Free(indexed address,indexed uint256,address,uint256,uint256)
+          handler: handleSealFree
+        - event: FreeSky(indexed address,indexed uint256,address,uint256,uint256)
+          handler: handleSealFreeSky
+        - event: FreeNoFee(indexed address,indexed uint256,address,uint256)
+          handler: handleSealFreeNoFee
+        - event: Draw(indexed address,indexed uint256,address,uint256)
+          handler: handleSealDraw
+        - event: Wipe(indexed address,indexed uint256,uint256)
+          handler: handleSealWipe
+        - event: OnKick(indexed address,uint256)
+          handler: handleSealOnKick
+        - event: OnRemove(indexed address,uint256,uint256,uint256)
+          handler: handleSealOnRemove
+        - event: OnTake(indexed address,indexed address,uint256)
+          handler: handleSealOnTake
+        - event: GetReward(indexed address,indexed uint256,indexed address,address,uint256)
+          handler: handleSealGetReward
+        - event: SelectVoteDelegate(indexed address,indexed uint256,indexed address)
+          handler: handleSealSelectVoteDelegate
+        - event: Open(indexed address,indexed uint256,address)
+          handler: handleSealOpen
+      file: ./src/seal.ts
+  {{/contracts.LockstakeEngine}}
+
+  {{#contracts.StakingEngine}}
+  - kind: ethereum
+    name: StakingEngine
+    network: {{networks}}
+    source:
+      abi: StakingEngine
+      address: '{{address}}'
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - StakingOpen
+        - StakingSelectVoteDelegate
+        - StakingSelectReward
+        - StakingLock
+        - StakingFree
+        - StakingFreeNoFee
+        - StakingDraw
+        - StakingWipe
+        - StakingGetReward
+        - StakingOnKick
+      abis:
+        - name: StakingEngine
+          file: ./abis/maker/StakingEngine.json
+      eventHandlers:
+        - event: SelectFarm(indexed address,indexed uint256,indexed address,uint16)
+          handler: handleStakingSelectReward
+        - event: Lock(indexed address,indexed uint256,uint256,uint16)
+          handler: handleStakingLock
+        - event: Free(indexed address,indexed uint256,address,uint256,uint256)
+          handler: handleStakingFree
+        - event: FreeNoFee(indexed address,indexed uint256,address,uint256)
+          handler: handleStakingFreeNoFee
+        - event: Draw(indexed address,indexed uint256,address,uint256)
+          handler: handleStakingDraw
+        - event: Wipe(indexed address,indexed uint256,uint256)
+          handler: handleStakingWipe
+        - event: OnKick(indexed address,uint256)
+          handler: handleStakingOnKick
+        - event: GetReward(indexed address,indexed uint256,indexed address,address,uint256)
+          handler: handleStakingGetReward
+        - event: SelectVoteDelegate(indexed address,indexed uint256,indexed address)
+          handler: handleStakingSelectVoteDelegate
+        - event: Open(indexed address,indexed uint256,address)
+          handler: handleStakingOpen
+        - event: AddFarm(address)
+          handler: handleStakingAddReward
+        - event: DelFarm(address)
+          handler: handleStakingDelReward
+      file: ./src/staking-engine.ts
+  {{/contracts.StakingEngine}}
+
+  {{#contracts.LockstakeMigrator}}
+  - kind: ethereum
+    name: LockstakeMigrator
+    network: {{networks}}
+    source:
+      abi: LockstakeMigrator
+      address: '{{address}}'
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - LockstakeMigrate
+      abis:
+        - name: LockstakeMigrator
+          file: ./abis/maker/LockstakeMigrator.json
+      eventHandlers:
+        - event: Migrate(indexed address,indexed uint256,indexed address,indexed uint256,uint256,uint256)
+          topic0: "0x0000000000000000000000003eb576f858b20085419fd3f09dee38e2ca372cd6"
+          handler: handleLockstakeMigrate
+        - event: Migrate(indexed address,indexed uint256,indexed address,indexed uint256,uint256,uint256)
+          topic0: "0x000000000000000000000000f65475e74c1ed6d004d5240b06e3088724dfda5d"
+          handler: handleLockstakeMigrate
+        - event: Migrate(indexed address,indexed uint256,indexed address,indexed uint256,uint256,uint256)
+          topic0: "0x000000000000000000000000baf3605ecbe395fa134a3f4c6a729e53b72e27b7"
+          handler: handleLockstakeMigrate
+        - event: Migrate(indexed address,indexed uint256,indexed address,indexed uint256,uint256,uint256)
+          topic0: "0x0000000000000000000000008a25d8c9fa8c7a726137f2d618d85cbc2c083f78"
+          handler: handleLockstakeMigrate
+      file: ./src/lockstake-migrator.ts
+  {{/contracts.LockstakeMigrator}}
+
+  {{#contracts.DSChief}}
+  - kind: ethereum
+    name: DSChief
+    network: {{networks}}
+    source:
+      abi: DSChief
+      address: '{{address}}'
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Slate
+        - Spell
+        - Delegate
+        - DelegateAdmin
+        - Vote
+        - Poll
+        - PollVote
+      abis:
+        - name: DSChief
+          file: ./abis/maker/DSChief.json
+        - name: DSSpell
+          file: ./abis/maker/DSSpell.json
+        - name: VoteDelegate
+          file: ./abis/maker/VoteDelegate.json
+        - name: VoteDelegateV2
+          file: ./abis/maker/VoteDelegateV2.json
+      eventHandlers:
+        - event: LogNote(indexed bytes4,indexed address,indexed bytes32,indexed bytes32,uint256,bytes)
+          topic0: "0xdd46706400000000000000000000000000000000000000000000000000000000"
+          handler: handleLock
+        - event: LogNote(indexed bytes4,indexed address,indexed bytes32,indexed bytes32,uint256,bytes)
+          topic0: "0xd8ccd0f300000000000000000000000000000000000000000000000000000000"
+          handler: handleFree
+        - event: LogNote(indexed bytes4,indexed address,indexed bytes32,indexed bytes32,uint256,bytes)
+          topic0: "0xa69beaba00000000000000000000000000000000000000000000000000000000"
+          handler: handleVote
+        - event: LogNote(indexed bytes4,indexed address,indexed bytes32,indexed bytes32,uint256,bytes)
+          topic0: "0x3c278bd500000000000000000000000000000000000000000000000000000000"
+          handler: handleLift
+      file: ./src/ds-chief.ts
+  {{/contracts.DSChief}}
+
+  {{#contracts.DSChiefV2}}
+  - kind: ethereum
+    name: DSChiefV2
+    network: {{networks}}
+    source:
+      abi: DSChiefV2
+      address: '{{address}}'
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Slate
+        - Spell
+        - Delegate
+        - DelegateAdmin
+        - Vote
+        - Poll
+        - PollVote
+      abis:
+        - name: DSChiefV2
+          file: ./abis/maker/DSChiefV2.json
+        - name: DSSpellV2
+          file: ./abis/maker/DSSpellV2.json
+        - name: VoteDelegateV3
+          file: ./abis/maker/VoteDelegateV3.json
+      eventHandlers:
+        - event: Lock(indexed address,uint256)
+          handler: handleChiefV2Lock
+        - event: Free(indexed address,uint256)
+          handler: handleChiefV2Free
+        - event: Vote(indexed address,indexed bytes32)
+          handler: handleChiefV2Vote
+        - event: Lift(indexed address)
+          handler: handleChiefV2Lift
+      file: ./src/ds-chief-v2.ts
+  {{/contracts.DSChiefV2}}
+
+  {{#contracts.PollingEmitter}}
+  - kind: ethereum
+    name: PollingEmitter
+    network: {{networks}}
+    source:
+      abi: PollingEmitter
+      address: '{{address}}'
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Slate
+        - Spell
+        - Delegate
+        - DelegateAdmin
+        - Vote
+        - Poll
+        - PollVote
+      abis:
+        - name: PollingEmitter
+          file: ./abis/maker/PollingEmitter.json
+      eventHandlers:
+        - event: Voted(indexed address,indexed uint256,indexed uint256)
+          handler: handlePollVote
+        - event: PollCreated(indexed address,uint256,indexed uint256,uint256,uint256,string,string)
+          handler: handlePollCreated
+        - event: PollWithdrawn(indexed address,uint256,uint256)
+          handler: handlePollWithdrawn
+      file: ./src/polling-emitter.ts
+  {{/contracts.PollingEmitter}}
+
+  {{#contracts.PollingEmitterV2}}
+  - kind: ethereum
+    name: PollingEmitterV2
+    network: {{networks}}
+    source:
+      abi: PollingEmitter
+      address: '{{address}}'
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Slate
+        - Spell
+        - Delegate
+        - DelegateAdmin
+        - Vote
+        - Poll
+        - PollVote
+      abis:
+        - name: PollingEmitter
+          file: ./abis/maker/PollingEmitter.json
+      eventHandlers:
+        - event: Voted(indexed address,indexed uint256,indexed uint256)
+          handler: handlePollVote
+        - event: PollCreated(indexed address,uint256,indexed uint256,uint256,uint256,string,string)
+          handler: handlePollCreated
+        - event: PollWithdrawn(indexed address,uint256,uint256)
+          handler: handlePollWithdrawn
+      file: ./src/polling-emitter.ts
+  {{/contracts.PollingEmitterV2}}
+
+  {{#contracts.McdDog}}
+  - kind: ethereum
+    name: McdDog
+    network: {{networks}}
+    source:
+      abi: McdDog
+      address: '{{address}}'
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Bark
+      abis:
+        - name: McdDog
+          file: ./abis/maker/McdDog.json
+      eventHandlers:
+        - event: Bark(indexed bytes32,indexed address,uint256,uint256,uint256,address,indexed uint256)
+          handler: handleBark
+      file: ./src/mcd-dog.ts
+  {{/contracts.McdDog}}
+
+  {{#contracts.Psm3}}
+  - kind: ethereum
+    name: Psm3
+    network: {{networks}}
+    source:
+      abi: Psm3
+      address: '{{address}}'
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Swap
+      abis:
+        - name: Psm3
+          file: ./abis/psm/Psm3.json
+      eventHandlers:
+        - event: Swap(indexed address,indexed address,address,indexed address,uint256,uint256,uint256)
+          handler: handleSwap
+      file: ./src/psm3.ts
+  {{/contracts.Psm3}}
+
+  {{#contracts.PollingEmitterArbitrum}}
+  - kind: ethereum
+    name: PollingEmitterArbitrum
+    network: {{networks}}
+    source:
+      abi: PollingEmitter
+      address: '{{address}}'
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - PollVote
+        - Poll
+      abis:
+        - name: PollingEmitter
+          file: ./abis/maker/PollingEmitter.json
+      eventHandlers:
+        - event: Voted(indexed address,indexed uint256,indexed uint256)
+          handler: handlePollVote
+        - event: PollCreated(indexed address,uint256,indexed uint256,uint256,uint256,string,string)
+          handler: handlePollCreated
+      file: ./src/arbitrum-polling.ts
+  {{/contracts.PollingEmitterArbitrum}}
+
+templates:
+  - kind: ethereum
+    name: DSSpell
+    network: {{networks}}
+    source:
+      abi: DSSpell
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Slate
+        - Spell
+        - Delegate
+        - Vote
+      abis:
+        - name: DSChief
+          file: ./abis/maker/DSChief.json
+        - name: DSSpell
+          file: ./abis/maker/DSSpell.json
+      file: ./src/ds-spell.ts
+
+  - kind: ethereum
+    name: VoteDelegate
+    network: {{networks}}
+    source:
+      abi: VoteDelegate
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Slate
+        - Spell
+        - Delegate
+        - Vote
+      abis:
+        - name: DSChief
+          file: ./abis/maker/DSChief.json
+        - name: VoteDelegate
+          file: ./abis/maker/VoteDelegate.json
+      eventHandlers:
+        - event: Lock(indexed address,uint256)
+          handler: handleDelegateLock
+        - event: Free(indexed address,uint256)
+          handler: handleDelegateFree
+      file: ./src/vote-delegate.ts
+
+  - kind: ethereum
+    name: VoteDelegateV2
+    network: {{networks}}
+    source:
+      abi: VoteDelegateV2
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Slate
+        - Spell
+        - Delegate
+        - Vote
+      abis:
+        - name: DSChief
+          file: ./abis/maker/DSChief.json
+        - name: VoteDelegateV2
+          file: ./abis/maker/VoteDelegateV2.json
+      eventHandlers:
+        - event: Lock(indexed address,uint256)
+          handler: handleDelegateLock
+        - event: Free(indexed address,uint256)
+          handler: handleDelegateFree
+        - event: ReserveHatch()
+          handler: handleReserveHatch
+      file: ./src/vote-delegate-v2.ts
+
+  - kind: ethereum
+    name: VoteDelegateV3
+    network: {{networks}}
+    source:
+      abi: VoteDelegateV3
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Slate
+        - Spell
+        - Delegate
+        - Vote
+      abis:
+        - name: DSChiefV2
+          file: ./abis/maker/DSChiefV2.json
+        - name: VoteDelegateV3
+          file: ./abis/maker/VoteDelegateV3.json
+      eventHandlers:
+        - event: Lock(indexed address,uint256)
+          handler: handleDelegateLock
+        - event: Free(indexed address,uint256)
+          handler: handleDelegateFree
+      file: ./src/vote-delegate-v3.ts

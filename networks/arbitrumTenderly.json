@@ -1,0 +1,9 @@
+{
+    "networks": "arbitrum-tenderly",
+    "contracts": {
+        "Psm3": {
+            "address": "0x2B05F8e1cACC6974fD79A673a341Fe1f58d27266",
+            "startBlock": 302358827
+        }
+    }
+}
