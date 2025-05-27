@@ -1,0 +1,9 @@
+{
+  "networks": "optimism",
+  "contracts": {
+    "Psm3": {
+      "address": "0xe0F9978b907853F354d79188A3dEfbD41978af62",
+      "startBlock": 135509927
+    }
+  }
+}
