@@ -1,5 +1,5 @@
 specVersion: 0.0.4
-repository: https://github.com/jetstreamgg/subgraph
+repository: https://github.com/jetstreamgg/sky-subgraph
 schema:
   file: ./schema.graphql
 dataSources:
