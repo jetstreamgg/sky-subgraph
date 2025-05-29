@@ -18,11 +18,17 @@ The materials in this repository may include references to our trademarks as wel
 
 ## Development
 
+`yarn install`
+
+then
+
 `yarn build:testnet` for testnet
 
 or
 
 `yarn build:mainnet` for mainnet
+
+etc
 
 ## Running indexer locally
 
@@ -139,3 +145,20 @@ Modify the `subgraph.yaml` file and add a new `mapping` section that uses the `s
           handler: handleRewardWithdrawn
       file: ./src/rewards.ts
 ```
+
+## Adding a New Network
+
+To add support for a new blockchain network to the subgraph, you need to perform two main steps:
+
+1.  Create a network-specific configuration file.
+2.  Add corresponding scripts to `package.json` for building and deploying the subgraph for this new network.
+
+### 1. Create a Network Configuration File
+
+In the `networks/` directory, create a new JSON file for your network. For instance, if your new network is named `mynewnetwork`, you would create `networks/mynewnetwork.json`.
+
+This file provides the necessary details for the `subgraph.template.yaml` to generate a `subgraph.yaml` specific to `mynewnetwork`. It defines the network identifier (as recognized by The Graph) and the addresses and start blocks for the contracts to be indexed on this network.
+
+The structure of this JSON file should be as follows. Replace `"mynewnetwork"` with the actual identifier for your network (e.g., `goerli`, `sepolia`, `matic`, etc.) and update the contract details accordingly.
+
+**Example `networks/mynewnetwork.json`:**
