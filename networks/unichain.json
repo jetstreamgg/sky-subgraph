@@ -1,0 +1,9 @@
+{
+  "networks": "unichain",
+  "contracts": {
+    "Psm3": {
+      "address": "0x7b42Ed932f26509465F7cE3FAF76FfCe1275312f",
+      "startBlock": 16411311
+    }
+  }
+}
