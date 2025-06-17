@@ -93,6 +93,10 @@
       "address": "0xAf7868a9BB72E16B930D50636519038d7F057470",
       "startBlock": 22274462
     },
+    "RewardsLsskySpk": {
+      "address": "0xAf7868a9BB72E16B930D50636519038d7F057470",
+      "startBlock": 22274462
+    },
     "LockstakeMigrator": {
       "address": "0xf4c5C29b14f0237131F7510A51684c8191f98E06",
       "startBlock": 22274462

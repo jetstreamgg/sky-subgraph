@@ -237,6 +237,39 @@ dataSources:
       file: ./src/rewards.ts
   {{/contracts.RewardsLsskyUsds}}
 
+    {{#contracts.RewardsLsskySpk}}
+  - kind: ethereum
+    name: RewardsLsskySpk
+    network: {{networks}}
+    source:
+      abi: RewardsLsskySpk
+      address: '{{address}}'
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Reward
+        - RewardPaid
+        - RewardSupply
+        - RewardWithdraw
+        - RewardReferral
+      abis:
+        - name: RewardsLsskySpk
+          file: ./abis/rewards/RewardsLsskySpk.json
+      eventHandlers:
+        - event: RewardPaid(indexed address,uint256)
+          handler: handleRewardClaimed
+        - event: Staked(indexed address,uint256)
+          handler: handleRewardSupplied
+        - event: Withdrawn(indexed address,uint256)
+          handler: handleRewardWithdrawn
+        - event: Referral(indexed uint16,indexed address,uint256)
+          handler: handleRewardReferral
+      file: ./src/rewards.ts
+  {{/contracts.RewardsLsskySpk}}
+
   {{#contracts.SavingsUsds}}
   - kind: ethereum
     name: SavingsUsds
