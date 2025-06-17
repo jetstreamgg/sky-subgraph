@@ -75,12 +75,12 @@ dataSources:
       file: ./src/delegate-factory-v3.ts
   {{/contracts.DelegateFactoryV3}}
 
-  {{#contracts.RewardsUsdsPlaceholder}}
+  {{#contracts.RewardsUsdsClePoints}}
   - kind: ethereum
-    name: RewardsUsdsPlaceholder
+    name: RewardsUsdsClePoints
     network: {{networks}}
     source:
-      abi: RewardsUsdsPlaceholder
+      abi: RewardsUsdsClePoints
       address: '{{address}}'
       startBlock: {{startBlock}}
     mapping:
@@ -93,8 +93,8 @@ dataSources:
         - RewardWithdraw
         - RewardReferral
       abis:
-        - name: RewardsUsdsPlaceholder
-          file: ./abis/rewards/RewardsUsdsPlaceholder.json
+        - name: RewardsUsdsClePoints
+          file: ./abis/rewards/RewardsUsdsClePoints.json
       eventHandlers:
         - event: Staked(indexed address,uint256)
           handler: handleRewardSupplied
@@ -103,7 +103,7 @@ dataSources:
         - event: Referral(indexed uint16,indexed address,uint256)
           handler: handleRewardReferral
       file: ./src/rewards.ts
-  {{/contracts.RewardsUsdsPlaceholder}}
+  {{/contracts.RewardsUsdsClePoints}}
 
   {{#contracts.RewardsUsdsSky}}
   - kind: ethereum
