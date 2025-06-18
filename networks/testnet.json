@@ -38,7 +38,7 @@
       "startBlock": 20627170
     },
     "RewardsUsdsSpk": {
-      "address": "0x0650CAF159C5A49f711e8169D4336ECB9b950275",
+      "address": "0x173e314C7635B45322cd8Cb14f44b312e079F3af",
       "startBlock": 20627170
     },
     "RewardsUsdsClePoints": {
@@ -94,7 +94,7 @@
       "startBlock": 22274462
     },
     "RewardsLsskySpk": {
-      "address": "0xAf7868a9BB72E16B930D50636519038d7F057470",
+      "address": "0x99cBC0e4E6427F6939536eD24d1275B95ff77404",
       "startBlock": 22274462
     },
     "LockstakeMigrator": {
