@@ -37,7 +37,11 @@
       "address": "0x0650CAF159C5A49f711e8169D4336ECB9b950275",
       "startBlock": 20627170
     },
-    "RewardsUsdsPlaceholder": {
+    "RewardsUsdsSpk": {
+      "address": "0x173e314C7635B45322cd8Cb14f44b312e079F3af",
+      "startBlock": 20627170
+    },
+    "RewardsUsdsClePoints": {
       "address": "0x10ab606B067C9C461d8893c47C7512472E19e2Ce",
       "startBlock": 20627170
     },
@@ -87,6 +91,10 @@
     },
     "RewardsLsskyUsds": {
       "address": "0x38E4254bD82ED5Ee97CD1C4278FAae748d998865",
+      "startBlock": 22370203
+    },
+    "RewardsLsskySpk": {
+      "address": "0x99cBC0e4E6427F6939536eD24d1275B95ff77404",
       "startBlock": 22370203
     },
     "LockstakeMigrator": {
