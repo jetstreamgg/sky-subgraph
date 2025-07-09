@@ -62,7 +62,7 @@
       "startBlock": 20627170
     },
     "LockstakeClipper": {
-      "address": "0xA85621D35cAf9Cf5C146D2376Ce553D7B78A6239",
+      "address": "0x251dda90cb94f5f9f29c9cb59fa6a0cf07049632",
       "startBlock": 20871263
     },
     "LockstakeMkr": {
@@ -104,6 +104,10 @@
     "MkrSkyV2": {
       "address": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
       "startBlock": 22274462
+    },
+    "YUsd": {
+      "address": "0x82e8f00d62fa200af7cfcc8f072ae0525e1a43fb",
+      "startBlock": 22880548
     }
   }
 }
