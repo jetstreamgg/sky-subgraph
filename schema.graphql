@@ -1192,3 +1192,37 @@ type Swap @entity(immutable: false) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
+
+type YUsdsDeposit @entity(immutable: true) {
+  id: Bytes!
+  sender: Bytes! # address of the sender
+  owner: Bytes! # address of the owner
+  assets: BigInt! # amount of assets deposited
+  shares: BigInt! # amount of shares minted
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type YUsdsWithdraw @entity(immutable: true) {
+  id: Bytes!
+  sender: Bytes! # address of the sender
+  receiver: Bytes! # address of the receiver
+  owner: Bytes! # address of the owner
+  assets: BigInt! # amount of assets withdrawn
+  shares: BigInt! # amount of shares burned
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type YUsdsReferral @entity(immutable: true) {
+  id: Bytes!
+  referral: Int! # referral code
+  owner: Bytes! # address of the owner
+  assets: BigInt! # amount of assets
+  shares: BigInt! # amount of shares
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
