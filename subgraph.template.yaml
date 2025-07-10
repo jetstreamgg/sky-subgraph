@@ -319,11 +319,11 @@ dataSources:
         - name: YUsds
           file: ./abis/maker/YUsds.json
       eventHandlers:
-        - event: Deposit(address,address,uint256,uint256)
+        - event: Deposit(indexed address,indexed address,uint256,uint256)
           handler: handleYUsdsDeposit
-        - event: Withdraw(address,address,address,uint256,uint256)
+        - event: Withdraw(indexed address,indexed address,indexed address,uint256,uint256)
           handler: handleYUsdsWithdraw
-        - event: Referral(uint16,address,uint256,uint256)
+        - event: Referral(indexed uint16,indexed address,uint256,uint256)
           handler: handleYUsdsReferral
       file: ./src/yusds.ts
   {{/contracts.YUsds}}
