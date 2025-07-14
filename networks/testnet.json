@@ -6,7 +6,7 @@
       "startBlock": 11327777
     },
     "DSChiefV2": {
-      "address": "0x81a5186946ce055a5ceeC93cd97C7e7EDe7Da922",
+      "address": "0x929d9A1435662357F54AdcF64DcEE4d6b867a6f9",
       "startBlock": 22274462
     },
     "PollingEmitter": {
@@ -62,8 +62,8 @@
       "startBlock": 20627170
     },
     "LockstakeClipper": {
-      "address": "0xA85621D35cAf9Cf5C146D2376Ce553D7B78A6239",
-      "startBlock": 20871263
+      "address": "0x2e590d65dd357a7565efb5ffb329f8465f18c494",
+      "startBlock": 22908942
     },
     "LockstakeMkr": {
       "address": "0xb4e0e45e142101dC3Ed768bac219fC35EDBED295",
@@ -74,7 +74,7 @@
       "startBlock": 20871262
     },
     "StakingEngine": {
-      "address": "0xB1fC11F03b084FfF8daE95fA08e8D69ad2547Ec1",
+      "address": "0xCe01C90dE7FD1bcFa39e237FE6D8D9F569e8A6a3",
       "startBlock": 22274462
     },
     "DelegateFactoryV2": {
@@ -82,7 +82,7 @@
       "startBlock": 20869262
     },
     "DelegateFactoryV3": {
-      "address": "0x98F74b7C96497070ba5052E02832EF9892962e62",
+      "address": "0x4Cf3DaeFA2683Cd18df00f7AFF5169C00a9EccD5",
       "startBlock": 22274462
     },
     "RewardsLsmkrUsds": {
@@ -90,7 +90,7 @@
       "startBlock": 20875188
     },
     "RewardsLsskyUsds": {
-      "address": "0xAf7868a9BB72E16B930D50636519038d7F057470",
+      "address": "0x38E4254bD82ED5Ee97CD1C4278FAae748d998865",
       "startBlock": 22274462
     },
     "RewardsLsskySpk": {
@@ -98,12 +98,16 @@
       "startBlock": 22274462
     },
     "LockstakeMigrator": {
-      "address": "0xf4c5C29b14f0237131F7510A51684c8191f98E06",
+      "address": "0x473d777f608C3C24B441AB6bD4bBcA6b7F9AF90B",
       "startBlock": 22274462
     },
     "MkrSkyV2": {
-      "address": "0x831c6c334f8ddee62246a5c81b82c8e18008b38f",
+      "address": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
       "startBlock": 22274462
+    },
+    "YUsds": {
+      "address": "0x6c7Df3575f1d69eb3B245A082937794794C2b82E",
+      "startBlock": 22908942
     }
   }
 }
