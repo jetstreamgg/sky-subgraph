@@ -26,6 +26,15 @@ export function handleMkrToSkyUpgrade(event: MkrToSkyEvent): void {
   }
   totalMkrUpgraded.total = totalMkrUpgraded.total.plus(entity.mkrAmt);
   totalMkrUpgraded.save();
+
+  //add to running total of skyUpgraded
+  let totalSkyUpgraded = Total.load('skyUpgraded');
+  if (!totalSkyUpgraded) {
+    totalSkyUpgraded = new Total('skyUpgraded');
+    totalSkyUpgraded.total = BIGINT_ZERO;
+  }
+  totalSkyUpgraded.total = totalSkyUpgraded.total.plus(entity.skyAmt);
+  totalSkyUpgraded.save();
 }
 
 export function handleSkyToMkrRevert(event: SkyToMkrEvent): void {
