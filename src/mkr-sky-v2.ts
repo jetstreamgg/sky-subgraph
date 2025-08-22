@@ -33,4 +33,13 @@ export function handleMkrToSkyUpgradeV2(event: MkrToSkyEventV2): void {
   }
   totalSkyUpgraded.total = totalSkyUpgraded.total.plus(entity.skyAmt);
   totalSkyUpgraded.save();
+
+  //add to running total of skyUpgradeFees
+  let totalSkyUpgradeFees = Total.load('skyUpgradeFees');
+  if (!totalSkyUpgradeFees) {
+    totalSkyUpgradeFees = new Total('skyUpgradeFees');
+    totalSkyUpgradeFees.total = BIGINT_ZERO;
+  }
+  totalSkyUpgradeFees.total = totalSkyUpgradeFees.total.plus(entity.skyFee);
+  totalSkyUpgradeFees.save();
 }

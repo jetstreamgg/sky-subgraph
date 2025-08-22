@@ -49,4 +49,22 @@ export function handleSkyToMkrRevert(event: SkyToMkrEvent): void {
   entity.blockTimestamp = event.block.timestamp;
   entity.transactionHash = event.transaction.hash;
   entity.save();
+
+  //subtract from running total of mkrUpgraded (since MKR is being reverted back)
+  let totalMkrUpgraded = Total.load('mkrUpgraded');
+  if (!totalMkrUpgraded) {
+    totalMkrUpgraded = new Total('mkrUpgraded');
+    totalMkrUpgraded.total = BIGINT_ZERO;
+  }
+  totalMkrUpgraded.total = totalMkrUpgraded.total.minus(entity.mkrAmt);
+  totalMkrUpgraded.save();
+
+  //subtract from running total of skyUpgraded (since SKY is being reverted back)
+  let totalSkyUpgraded = Total.load('skyUpgraded');
+  if (!totalSkyUpgraded) {
+    totalSkyUpgraded = new Total('skyUpgraded');
+    totalSkyUpgraded.total = BIGINT_ZERO;
+  }
+  totalSkyUpgraded.total = totalSkyUpgraded.total.minus(entity.skyAmt);
+  totalSkyUpgraded.save();
 }
