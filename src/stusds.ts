@@ -1,16 +1,16 @@
 import {
-  Deposit as YUsdsDepositEvent,
-  Withdraw as YUsdsWithdrawEvent,
-  Referral as YUsdsReferralEvent,
-} from '../generated/YUsds/YUsds';
+  Deposit as StusdsDepositEvent,
+  Withdraw as StusdsWithdrawEvent,
+  Referral as StusdsReferralEvent,
+} from '../generated/Stusds/Stusds';
 import {
-  YUsdsDeposit,
-  YUsdsWithdraw,
-  YUsdsReferral,
+  StusdsDeposit,
+  StusdsWithdraw,
+  StusdsReferral,
 } from '../generated/schema';
 
-export function handleYUsdsDeposit(event: YUsdsDepositEvent): void {
-  let entity = new YUsdsDeposit(
+export function handleStusdsDeposit(event: StusdsDepositEvent): void {
+  let entity = new StusdsDeposit(
     event.transaction.hash.concatI32(event.logIndex.toI32()),
   );
   entity.sender = event.params.sender;
@@ -23,8 +23,8 @@ export function handleYUsdsDeposit(event: YUsdsDepositEvent): void {
   entity.save();
 }
 
-export function handleYUsdsWithdraw(event: YUsdsWithdrawEvent): void {
-  let entity = new YUsdsWithdraw(
+export function handleStusdsWithdraw(event: StusdsWithdrawEvent): void {
+  let entity = new StusdsWithdraw(
     event.transaction.hash.concatI32(event.logIndex.toI32()),
   );
   entity.sender = event.params.sender;
@@ -38,8 +38,8 @@ export function handleYUsdsWithdraw(event: YUsdsWithdrawEvent): void {
   entity.save();
 }
 
-export function handleYUsdsReferral(event: YUsdsReferralEvent): void {
-  let entity = new YUsdsReferral(
+export function handleStusdsReferral(event: StusdsReferralEvent): void {
+  let entity = new StusdsReferral(
     event.transaction.hash.concatI32(event.logIndex.toI32()),
   );
   entity.referral = event.params.referral;

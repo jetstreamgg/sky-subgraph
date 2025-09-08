@@ -104,6 +104,10 @@
     "MkrSkyV2": {
       "address": "0xA1Ea1bA18E88C381C724a75F23a130420C403f9a",
       "startBlock": 22368738
+    },
+    "Stusds": {
+      "address": "0x99CD4Ec3f88A45940936F469E4bB72A2A701EEB9",
+      "startBlock": 23219532
     }
   }
 }
