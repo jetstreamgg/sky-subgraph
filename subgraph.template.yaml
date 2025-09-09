@@ -299,12 +299,12 @@ dataSources:
       file: ./src/savings-usds.ts
   {{/contracts.SavingsUsds}}
 
-  {{#contracts.YUsds}}
+  {{#contracts.Stusds}}
   - kind: ethereum
-    name: YUsds
+    name: Stusds
     network: {{networks}}
     source:
-      abi: YUsds
+      abi: Stusds
       address: '{{address}}'
       startBlock: {{startBlock}}
     mapping:
@@ -312,21 +312,21 @@ dataSources:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - YUsdsDeposit
-        - YUsdsWithdraw
-        - YUsdsReferral
+        - StusdsDeposit
+        - StusdsWithdraw
+        - StusdsReferral
       abis:
-        - name: YUsds
-          file: ./abis/maker/YUsds.json
+        - name: Stusds
+          file: ./abis/maker/Stusds.json
       eventHandlers:
         - event: Deposit(indexed address,indexed address,uint256,uint256)
-          handler: handleYUsdsDeposit
+          handler: handleStusdsDeposit
         - event: Withdraw(indexed address,indexed address,indexed address,uint256,uint256)
-          handler: handleYUsdsWithdraw
+          handler: handleStusdsWithdraw
         - event: Referral(indexed uint16,indexed address,uint256,uint256)
-          handler: handleYUsdsReferral
-      file: ./src/yusds.ts
-  {{/contracts.YUsds}}
+          handler: handleStusdsReferral
+      file: ./src/stusds.ts
+  {{/contracts.Stusds}}
 
   {{#contracts.DaiUsds}}
   - kind: ethereum

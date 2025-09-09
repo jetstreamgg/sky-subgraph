@@ -1193,7 +1193,7 @@ type Swap @entity(immutable: false) {
   transactionHash: Bytes!
 }
 
-type YUsdsDeposit @entity(immutable: true) {
+type StusdsDeposit @entity(immutable: true) {
   id: Bytes!
   sender: Bytes! # address of the sender
   owner: Bytes! # address of the owner
@@ -1204,7 +1204,7 @@ type YUsdsDeposit @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
-type YUsdsWithdraw @entity(immutable: true) {
+type StusdsWithdraw @entity(immutable: true) {
   id: Bytes!
   sender: Bytes! # address of the sender
   receiver: Bytes! # address of the receiver
@@ -1216,7 +1216,7 @@ type YUsdsWithdraw @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
-type YUsdsReferral @entity(immutable: true) {
+type StusdsReferral @entity(immutable: true) {
   id: Bytes!
   referral: Int! # referral code
   owner: Bytes! # address of the owner
