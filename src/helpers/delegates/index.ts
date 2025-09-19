@@ -50,45 +50,43 @@ export function delegationLockHandler(
     isAddressInList(delegatorAddress, lseAddresses) ||
     isAddressInList(delegatorAddress, stakingEngineAddresses);
 
-  if (shouldIgnore) {
-    return;
+  if (!shouldIgnore) {
+    // Update timestamp of the delegation
+    delegation.timestamp = block.timestamp;
+
+    // If previous delegation amount was 0, increment the delegators count
+    if (delegation.amount.equals(BIGINT_ZERO)) {
+      delegate.delegators = delegate.delegators + 1;
+    }
+
+    // Increase the total amount delegated to the delegate
+    delegation.amount = delegation.amount.plus(amount);
+
+    // Create a new delegation history entity
+    const delegationHistoryId =
+      delegation.id + '-' + block.number.toString() + '-' + logIndex;
+    const delegationHistory = new DelegationHistory(delegationHistoryId);
+    delegationHistory.delegator = delegation.delegator;
+    delegationHistory.delegate = delegation.delegate;
+    delegationHistory.amount = amount;
+    delegationHistory.accumulatedAmount = delegation.amount;
+    delegationHistory.blockNumber = block.number;
+    delegationHistory.txnHash = transaction.hash.toHexString();
+    delegationHistory.timestamp = block.timestamp;
+    delegationHistory.isLockstake = isLockstake;
+    delegationHistory.isStakingEngine = isStakingEngine;
+    // Add the delegation history to the delegate
+    delegate.delegationHistory = delegate.delegationHistory.concat([
+      delegationHistoryId,
+    ]);
+
+    // Increase the total amount delegated to the delegate
+    delegate.totalDelegated = delegate.totalDelegated.plus(amount);
+
+    delegate.save();
+    delegation.save();
+    delegationHistory.save();
   }
-
-  // Update timestamp of the delegation
-  delegation.timestamp = block.timestamp;
-
-  // If previous delegation amount was 0, increment the delegators count
-  if (delegation.amount.equals(BIGINT_ZERO)) {
-    delegate.delegators = delegate.delegators + 1;
-  }
-
-  // Increase the total amount delegated to the delegate
-  delegation.amount = delegation.amount.plus(amount);
-
-  // Create a new delegation history entity
-  const delegationHistoryId =
-    delegation.id + '-' + block.number.toString() + '-' + logIndex;
-  const delegationHistory = new DelegationHistory(delegationHistoryId);
-  delegationHistory.delegator = delegation.delegator;
-  delegationHistory.delegate = delegation.delegate;
-  delegationHistory.amount = amount;
-  delegationHistory.accumulatedAmount = delegation.amount;
-  delegationHistory.blockNumber = block.number;
-  delegationHistory.txnHash = transaction.hash.toHexString();
-  delegationHistory.timestamp = block.timestamp;
-  delegationHistory.isLockstake = isLockstake;
-  delegationHistory.isStakingEngine = isStakingEngine;
-  // Add the delegation history to the delegate
-  delegate.delegationHistory = delegate.delegationHistory.concat([
-    delegationHistoryId,
-  ]);
-
-  // Increase the total amount delegated to the delegate
-  delegate.totalDelegated = delegate.totalDelegated.plus(amount);
-
-  delegate.save();
-  delegation.save();
-  delegationHistory.save();
 }
 
 export function delegationFreeHandler(
@@ -112,46 +110,44 @@ export function delegationFreeHandler(
     isAddressInList(delegatorAddress, lseAddresses) ||
     isAddressInList(delegatorAddress, stakingEngineAddresses);
 
-  if (shouldIgnore) {
-    return;
+  if (!shouldIgnore) {
+    // Update timestamp of the delegation
+    delegation.timestamp = block.timestamp;
+
+    // Decrease the total amount delegated to the delegate
+    delegation.amount = delegation.amount.minus(amount);
+
+    // If the delegation amount is 0, decrement the delegators count
+    if (delegation.amount.equals(BIGINT_ZERO)) {
+      delegate.delegators = delegate.delegators - 1;
+    }
+
+    // Create a new delegation history entity
+    const delegationHistoryId =
+      delegation.id + '-' + block.number.toString() + '-' + logIndex;
+    const delegationHistory = new DelegationHistory(delegationHistoryId);
+    delegationHistory.delegator = delegation.delegator;
+    delegationHistory.delegate = delegation.delegate;
+    // Amount is negative because it is a free event
+    delegationHistory.amount = amount.times(BigInt.fromI64(-1));
+    delegationHistory.accumulatedAmount = delegation.amount;
+    delegationHistory.blockNumber = block.number;
+    delegationHistory.txnHash = transaction.hash.toHexString();
+    delegationHistory.timestamp = block.timestamp;
+    delegationHistory.isLockstake = isLockstake;
+    delegationHistory.isStakingEngine = isStakingEngine;
+    // Add the delegation history to the delegate
+    delegate.delegationHistory = delegate.delegationHistory.concat([
+      delegationHistoryId,
+    ]);
+
+    // Decrease the total amount delegated to the delegate
+    delegate.totalDelegated = delegate.totalDelegated.minus(amount);
+
+    delegation.save();
+    delegate.save();
+    delegationHistory.save();
   }
-
-  // Update timestamp of the delegation
-  delegation.timestamp = block.timestamp;
-
-  // Decrease the total amount delegated to the delegate
-  delegation.amount = delegation.amount.minus(amount);
-
-  // If the delegation amount is 0, decrement the delegators count
-  if (delegation.amount.equals(BIGINT_ZERO)) {
-    delegate.delegators = delegate.delegators - 1;
-  }
-
-  // Create a new delegation history entity
-  const delegationHistoryId =
-    delegation.id + '-' + block.number.toString() + '-' + logIndex;
-  const delegationHistory = new DelegationHistory(delegationHistoryId);
-  delegationHistory.delegator = delegation.delegator;
-  delegationHistory.delegate = delegation.delegate;
-  // Amount is negative because it is a free event
-  delegationHistory.amount = amount.times(BigInt.fromI64(-1));
-  delegationHistory.accumulatedAmount = delegation.amount;
-  delegationHistory.blockNumber = block.number;
-  delegationHistory.txnHash = transaction.hash.toHexString();
-  delegationHistory.timestamp = block.timestamp;
-  delegationHistory.isLockstake = isLockstake;
-  delegationHistory.isStakingEngine = isStakingEngine;
-  // Add the delegation history to the delegate
-  delegate.delegationHistory = delegate.delegationHistory.concat([
-    delegationHistoryId,
-  ]);
-
-  // Decrease the total amount delegated to the delegate
-  delegate.totalDelegated = delegate.totalDelegated.minus(amount);
-
-  delegation.save();
-  delegate.save();
-  delegationHistory.save();
 }
 
 export function getDelegation(delegate: Delegate, address: string): Delegation {
