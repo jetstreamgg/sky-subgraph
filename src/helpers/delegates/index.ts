@@ -8,14 +8,14 @@ import { BigInt, ethereum } from '@graphprotocol/graph-ts';
 
 function getLseAddresses(): string[] {
   return [
-    '0x9581c795dbcaf408e477f6f1908a41be43093122', // Tenderly LSE address
+    '0x2b16C07D5fD5cC701a0a871eae2aad6DA5fc8f12', // Tenderly LSE address
     '0x2b16C07D5fD5cC701a0a871eae2aad6DA5fc8f12', // Mainnet LSE address
   ];
 }
 
 function getStakingEngineAddresses(): string[] {
   return [
-    '0xB1fC11F03b084FfF8daE95fA08e8D69ad2547Ec1', // Tenderly Staking Engine address
+    '0xCe01C90dE7FD1bcFa39e237FE6D8D9F569e8A6a3', // Tenderly Staking Engine address
     '0xCe01C90dE7FD1bcFa39e237FE6D8D9F569e8A6a3', // Mainnet Staking Engine address
   ];
 }
