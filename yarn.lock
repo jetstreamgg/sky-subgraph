@@ -79,10 +79,10 @@
     web3-eth-abi "4.4.1"
     yaml "2.8.1"
 
-"@graphprotocol/graph-ts@^0.38.1":
-  version "0.38.1"
-  resolved "https://registry.yarnpkg.com/@graphprotocol/graph-ts/-/graph-ts-0.38.1.tgz#15ce26672e9ddefd97c09e8c876810bd52390fbf"
-  integrity sha512-CEE2mJugPuukPugMY4bJRW8t8lOqdNa6Y3Oc0x8xc0EwidjF1LRBcfbuC5Ep5gfvWILNC/IQTT1p+QYW8cz4Hw==
+"@graphprotocol/graph-ts@^0.38.2":
+  version "0.38.2"
+  resolved "https://registry.yarnpkg.com/@graphprotocol/graph-ts/-/graph-ts-0.38.2.tgz#e99bdb6e0e50485084c442d7a02409082a836ff8"
+  integrity sha512-87KIFSFs2+Te+mnmb7Y+M57oqzlLy20cIyPIRbn9qJfpZFSZHTKtBLT6KQmcsK0YkoWis9Ur3c3M2c9mmaaEHQ==
   dependencies:
     assemblyscript "0.27.31"
 
