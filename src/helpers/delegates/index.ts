@@ -6,23 +6,15 @@ import {
 import { BIGINT_ZERO } from '../../helpers/constants';
 import { BigInt, ethereum } from '@graphprotocol/graph-ts';
 
-function getLseAddresses(): string[] {
-  return [
-    '0x2b16C07D5fD5cC701a0a871eae2aad6DA5fc8f12', // Tenderly LSE address
-    '0x2b16C07D5fD5cC701a0a871eae2aad6DA5fc8f12', // Mainnet LSE address
+export function isEngineAddress(address: string): boolean {
+  const engineAddresses = [
+    '0x2b16c07d5fd5cc701a0a871eae2aad6da5fc8f12', // LSE address
+    '0xce01c90de7fd1bcfa39e237fe6d8d9f569e8a6a3', // Staking Engine address
   ];
-}
 
-function getStakingEngineAddresses(): string[] {
-  return [
-    '0xCe01C90dE7FD1bcFa39e237FE6D8D9F569e8A6a3', // Tenderly Staking Engine address
-    '0xCe01C90dE7FD1bcFa39e237FE6D8D9F569e8A6a3', // Mainnet Staking Engine address
-  ];
-}
-
-function isAddressInList(address: string, addresses: string[]): boolean {
-  for (let i = 0; i < addresses.length; i++) {
-    if (addresses[i].toLowerCase() === address.toLowerCase()) {
+  const addressLower = address.toLowerCase();
+  for (let i = 0; i < engineAddresses.length; i++) {
+    if (engineAddresses[i] === addressLower) {
       return true;
     }
   }
@@ -40,19 +32,6 @@ export function delegationLockHandler(
   logIndex: string,
 ): void {
   const delegation = getDelegation(delegate, address);
-
-  const lseAddresses = getLseAddresses();
-  const stakingEngineAddresses = getStakingEngineAddresses();
-
-  // Check if the delegator matches any of the LSE or Staking Engine addresses
-  const delegatorAddress = delegation.delegator.toLowerCase();
-  const shouldIgnore =
-    isAddressInList(delegatorAddress, lseAddresses) ||
-    isAddressInList(delegatorAddress, stakingEngineAddresses);
-
-  if (shouldIgnore) {
-    return;
-  }
 
   // Update timestamp of the delegation
   delegation.timestamp = block.timestamp;
@@ -102,19 +81,6 @@ export function delegationFreeHandler(
   logIndex: string,
 ): void {
   const delegation = getDelegation(delegate, address);
-
-  const lseAddresses = getLseAddresses();
-  const stakingEngineAddresses = getStakingEngineAddresses();
-
-  // Check if the delegator matches any of the LSE or Staking Engine addresses
-  const delegatorAddress = delegation.delegator.toLowerCase();
-  const shouldIgnore =
-    isAddressInList(delegatorAddress, lseAddresses) ||
-    isAddressInList(delegatorAddress, stakingEngineAddresses);
-
-  if (shouldIgnore) {
-    return;
-  }
 
   // Update timestamp of the delegation
   delegation.timestamp = block.timestamp;
