@@ -38,4 +38,13 @@ export function handleUsdsToDaiRevert(event: UsdsToDaiEvent): void {
   entity.blockTimestamp = event.block.timestamp;
   entity.transactionHash = event.transaction.hash;
   entity.save();
+
+  // Subtract from running total of daiUpgraded (since DAI is being reverted back)
+  let totalDaiUpgraded = Total.load('daiUpgraded');
+  if (!totalDaiUpgraded) {
+    totalDaiUpgraded = new Total('daiUpgraded');
+    totalDaiUpgraded.total = BIGINT_ZERO;
+  }
+  totalDaiUpgraded.total = totalDaiUpgraded.total.minus(entity.wad);
+  totalDaiUpgraded.save();
 }
