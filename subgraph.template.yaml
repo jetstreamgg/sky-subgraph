@@ -904,6 +904,29 @@ dataSources:
       file: ./src/arbitrum-polling.ts
   {{/contracts.PollingEmitterArbitrum}}
 
+  {{#contracts.CurveUsdsStUsdsPool}}
+  - kind: ethereum
+    name: CurveUsdsStUsdsPool
+    network: {{networks}}
+    source:
+      abi: CurveStableSwapNG
+      address: '{{address}}'
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - CurveTokenExchange
+      abis:
+        - name: CurveStableSwapNG
+          file: ./abis/curve/CurveStableSwapNG.json
+      eventHandlers:
+        - event: TokenExchange(indexed address,int128,uint256,int128,uint256)
+          handler: handleTokenExchange
+      file: ./src/curveUsdsStUsdsPool.ts
+  {{/contracts.CurveUsdsStUsdsPool}}
+
 templates:
   - kind: ethereum
     name: DSSpell
