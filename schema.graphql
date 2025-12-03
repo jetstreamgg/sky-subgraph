@@ -1226,3 +1226,12 @@ type StusdsReferral @entity(immutable: true) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
+
+type CurveTokenExchange @entity(immutable: true) {
+  id: Bytes!
+  buyer: Bytes! # address of the sender
+  soldId: BigInt! # token sold
+  amountSold: BigInt! # amount of sold tokens
+  boughtId: BigInt! # token bought
+  amountBought: BigInt! # amount of bought tokens
+}
