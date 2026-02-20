@@ -927,6 +927,7 @@ dataSources:
       file: ./src/curveUsdsStUsdsPool.ts
   {{/contracts.CurveUsdsStUsdsPool}}
 
+{{#hasTemplates}}
 templates:
   - kind: ethereum
     name: DSSpell
@@ -1028,3 +1029,4 @@ templates:
         - event: Free(indexed address,uint256)
           handler: handleDelegateFree
       file: ./src/vote-delegate-v3.ts
+{{/hasTemplates}}
