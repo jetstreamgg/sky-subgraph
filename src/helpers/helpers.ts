@@ -114,7 +114,6 @@ export function createSlate(slateID: Bytes, event: ethereum.Event): Slate {
   slate.creationBlock = event.block.number;
   slate.creationTime = event.block.timestamp;
 
-  let newSpellCount = 0;
   let i = 0;
   const dsChief = DSChief.bind(event.address);
   let slateResponse = dsChief.try_slates(slateID, BigInt.fromI32(i));
@@ -144,8 +143,6 @@ export function createSlate(slateID: Bytes, event: ethereum.Event): Slate {
 
         // Track this new spell
         DSSpellTemplate.create(spellAddress);
-
-        newSpellCount = newSpellCount + 1;
       }
     }
     slate.yays = slate.yays.concat([spellID]);
@@ -164,7 +161,6 @@ export function createSlateV2(slateID: Bytes, event: ethereum.Event): SlateV2 {
   slate.creationBlock = event.block.number;
   slate.creationTime = event.block.timestamp;
 
-  let newSpellCount = 0;
   let i = 0;
   const dsChief = DSChiefV2.bind(event.address);
   let slateResponse = dsChief.try_slates(slateID, BigInt.fromI32(i));
@@ -194,8 +190,6 @@ export function createSlateV2(slateID: Bytes, event: ethereum.Event): SlateV2 {
 
         // Track this new spell
         DSSpellTemplate.create(spellAddress);
-
-        newSpellCount = newSpellCount + 1;
       }
     }
     slate.yays = slate.yays.concat([spellID]);
