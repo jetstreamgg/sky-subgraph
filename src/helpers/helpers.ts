@@ -1,4 +1,6 @@
 import { BigDecimal } from "generated";
+import { readDSChiefSlate, readSpellDescription, readSpellExpiration } from './contractCalls.js';
+import { SpellState, ZERO_ADDRESS } from './constants.js';
 
 export function hexToNumberString(hex: string): bigint {
   return BigInt(hex);
@@ -82,21 +84,55 @@ export async function createSlate(
   event: any,
   context: any,
 ): Promise<any> {
+  const yays: string[] = [];
+  const chiefAddress = event.srcAddress;
+  const chainId = event.chainId;
+
+  // Read slate contents by iterating until null is returned (index out of bounds)
+  for (let i = 0n; ; i++) {
+    const spellAddress = await readDSChiefSlate(chainId, chiefAddress, slateID, i);
+    if (!spellAddress) break;
+
+    const spellId = spellAddress.toLowerCase();
+    if (spellId !== ZERO_ADDRESS) {
+      let spell = await context.Spell.get(spellId);
+      if (!spell) {
+        const description = await readSpellDescription(chainId, spellId);
+        const expiryTime = await readSpellExpiration(chainId, spellId);
+        spell = {
+          id: spellId,
+          description,
+          state: SpellState.ACTIVE,
+          creationBlock: BigInt(event.block.number),
+          creationTime: BigInt(event.block.timestamp),
+          expiryTime,
+          totalVotes: 0n,
+          totalWeightedVotes: 0n,
+          castBlock: undefined,
+          castTime: undefined,
+          castTxnHash: undefined,
+          castWith: undefined,
+          liftedBlock: undefined,
+          liftedTime: undefined,
+          liftedTxnHash: undefined,
+          liftedWith: undefined,
+          scheduledBlock: undefined,
+          scheduledTime: undefined,
+          scheduledTxnHash: undefined,
+        };
+        context.Spell.set(spell);
+      }
+      yays.push(spellId);
+    }
+  }
+
   const slate = {
     id: slateID,
-    yays: [] as string[],
+    yays,
     txnHash: event.transaction.hash,
     creationBlock: BigInt(event.block.number),
     creationTime: BigInt(event.block.timestamp),
   };
-
-  // TODO: Implement RPC calls to read slate contents from DSChief contract
-  // In the original code, this loops through dsChief.try_slates(slateID, i) until revert
-  // and creates Spell entities for each spell found.
-  // For each spell address found:
-  //   - If Spell entity doesn't exist and address != ZERO_ADDRESS:
-  //     - Create new Spell with state ACTIVE, read description/expiration from DSSpell contract
-  //   - Append spellID to slate.yays
 
   context.Slate.set(slate);
   return slate;
@@ -107,21 +143,55 @@ export async function createSlateV2(
   event: any,
   context: any,
 ): Promise<any> {
+  const yays: string[] = [];
+  const chiefAddress = event.srcAddress;
+  const chainId = event.chainId;
+
+  // Read slate contents by iterating until null is returned (index out of bounds)
+  for (let i = 0n; ; i++) {
+    const spellAddress = await readDSChiefSlate(chainId, chiefAddress, slateID, i);
+    if (!spellAddress) break;
+
+    const spellId = spellAddress.toLowerCase();
+    if (spellId !== ZERO_ADDRESS) {
+      let spell = await context.SpellV2.get(spellId);
+      if (!spell) {
+        const description = await readSpellDescription(chainId, spellId);
+        const expiryTime = await readSpellExpiration(chainId, spellId);
+        spell = {
+          id: spellId,
+          description,
+          state: SpellState.ACTIVE,
+          creationBlock: BigInt(event.block.number),
+          creationTime: BigInt(event.block.timestamp),
+          expiryTime,
+          totalVotes: 0n,
+          totalWeightedVotes: 0n,
+          castBlock: undefined,
+          castTime: undefined,
+          castTxnHash: undefined,
+          castWith: undefined,
+          liftedBlock: undefined,
+          liftedTime: undefined,
+          liftedTxnHash: undefined,
+          liftedWith: undefined,
+          scheduledBlock: undefined,
+          scheduledTime: undefined,
+          scheduledTxnHash: undefined,
+        };
+        context.SpellV2.set(spell);
+      }
+      yays.push(spellId);
+    }
+  }
+
   const slate = {
     id: slateID,
-    yays: [] as string[],
+    yays,
     txnHash: event.transaction.hash,
     creationBlock: BigInt(event.block.number),
     creationTime: BigInt(event.block.timestamp),
   };
-
-  // TODO: Implement RPC calls to read slate contents from DSChiefV2 contract
-  // In the original code, this loops through dsChiefV2.try_slates(slateID, i) until revert
-  // and creates SpellV2 entities for each spell found.
-  // For each spell address found:
-  //   - If SpellV2 entity doesn't exist and address != ZERO_ADDRESS:
-  //     - Create new SpellV2 with state ACTIVE, read description/expiration from DSSpellV2 contract
-  //   - Append spellID to slate.yays
 
   context.SlateV2.set(slate);
   return slate;

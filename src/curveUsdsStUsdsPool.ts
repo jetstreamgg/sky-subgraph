@@ -1,14 +1,19 @@
 import { CurveUsdsStUsdsPool } from "generated";
+import { getCurvePoolToken } from './helpers/getCurvePoolToken.js';
 
 CurveUsdsStUsdsPool.TokenExchange.handler(async ({ event, context }) => {
   const entityId = `${event.transaction.hash}-${event.logIndex}`;
 
-  // TODO: Replace with actual contract read or static mapping for token addresses.
-  // In the original subgraph, getCurvePoolToken performed a contract call to CurveStableSwapNG.coins(tokenIndex).
-  // Envio does not support contract reads in handlers by default.
-  // For now, store the token index and leave token addresses as empty strings.
-  const soldTokenAddress = "";
-  const boughtTokenAddress = "";
+  const soldTokenAddress = await getCurvePoolToken(
+    event.chainId,
+    event.srcAddress,
+    event.params.sold_id,
+  );
+  const boughtTokenAddress = await getCurvePoolToken(
+    event.chainId,
+    event.srcAddress,
+    event.params.bought_id,
+  );
 
   context.CurveTokenExchange.set({
     id: entityId,
@@ -20,7 +25,7 @@ CurveUsdsStUsdsPool.TokenExchange.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
-    soldTokenAddress: soldTokenAddress,
-    boughtTokenAddress: boughtTokenAddress,
+    soldTokenAddress,
+    boughtTokenAddress,
   });
 });

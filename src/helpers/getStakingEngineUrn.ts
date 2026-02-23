@@ -1,4 +1,5 @@
 import { ZERO_ADDRESS } from './constants.js';
+import { readOwnerUrns } from './contractCalls.js';
 
 export async function getStakingEngineUrn(urnAddress: string, context: any) {
   let urn = await context.StakingUrn.get(urnAddress);
@@ -21,11 +22,10 @@ export async function getStakingEngineUrn(urnAddress: string, context: any) {
 }
 
 export async function getUrnAddress(
+  chainId: number,
   contractAddress: string,
   owner: string,
   index: bigint,
 ): Promise<string> {
-  // TODO: Implement RPC call to StakingEngine.ownerUrns(owner, index)
-  // For now, derive a deterministic address
-  return `${contractAddress}-${owner}-${index}`;
+  return readOwnerUrns(chainId, contractAddress, owner, index);
 }
