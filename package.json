@@ -1,6 +1,5 @@
 {
   "name": "sky-indexer",
-  "type": "module",
   "scripts": {
     "codegen": "envio codegen",
     "dev": "envio dev",
