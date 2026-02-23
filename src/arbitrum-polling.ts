@@ -1,78 +1,98 @@
-import {
-  ArbitrumPollVote,
-  ArbitrumPoll,
-  ArbitrumVoter,
-} from '../generated/schema';
-import { BIGINT_ZERO } from './helpers/constants';
-import {
-  PollCreated,
-  Voted,
-} from '../generated/PollingEmitterArbitrum/PollingEmitter';
+import { PollingEmitterArbitrum } from "generated";
 
-// Helper function to get or create an ArbitrumVoter
-function getArbitrumVoter(address: string): ArbitrumVoter {
-  let voter = ArbitrumVoter.load(address);
+// Helper: get or create an ArbitrumVoter entity
+async function getArbitrumVoter(address: string, context: any) {
+  let voter = await context.ArbitrumVoter.get(address);
   if (!voter) {
-    voter = new ArbitrumVoter(address);
-    voter.numberPollVotes = 0;
-    voter.lastVotedTimestamp = BIGINT_ZERO;
+    voter = {
+      id: address,
+      numberPollVotes: 0,
+      lastVotedTimestamp: 0n,
+    };
   }
   return voter;
 }
 
-export function handlePollVote(event: Voted): void {
-  const sender = event.params.voter.toHexString();
+// Handler logic: Voted
+PollingEmitterArbitrum.Voted.handler(async ({ event, context }) => {
+  const sender = event.params.voter;
   const pollId = event.params.pollId.toString();
   const optionId = event.params.optionId;
 
-  const voter = getArbitrumVoter(sender);
-  voter.lastVotedTimestamp = event.block.timestamp;
+  const voter = await getArbitrumVoter(sender, context);
 
   const voteId = `${pollId}-${sender}-${event.block.number}`;
 
-  let pollVote = ArbitrumPollVote.load(voteId);
+  let pollVote = await context.ArbitrumPollVote.get(voteId);
+  let updatedVoter = { ...voter, lastVotedTimestamp: BigInt(event.block.timestamp) };
+
   if (!pollVote) {
-    pollVote = new ArbitrumPollVote(voteId);
-    voter.numberPollVotes = voter.numberPollVotes + 1;
+    updatedVoter = { ...updatedVoter, numberPollVotes: updatedVoter.numberPollVotes + 1 };
   }
 
-  let poll = ArbitrumPoll.load(pollId);
+  let poll = await context.ArbitrumPoll.get(pollId);
   if (!poll) {
-    poll = new ArbitrumPoll(pollId);
-    poll.save();
+    poll = {
+      id: pollId,
+      blockCreated: undefined,
+      blockWithdrawn: undefined,
+      creator: undefined,
+      endDate: undefined,
+      multiHash: undefined,
+      startDate: undefined,
+      url: undefined,
+      withdrawnBy: undefined,
+    };
+    context.ArbitrumPoll.set(poll);
   }
 
-  pollVote.voter = voter.id;
-  pollVote.poll = poll.id;
-  pollVote.choice = optionId;
-  pollVote.block = event.block.number;
-  pollVote.blockTime = event.block.timestamp;
-  pollVote.txnHash = event.transaction.hash.toHexString();
-  pollVote.save();
+  context.ArbitrumPollVote.set({
+    id: voteId,
+    voter_id: voter.id,
+    poll_id: poll.id,
+    choice: optionId,
+    block: BigInt(event.block.number),
+    blockTime: BigInt(event.block.timestamp),
+    txnHash: event.transaction.hash,
+  });
 
-  voter.save();
-}
+  context.ArbitrumVoter.set(updatedVoter);
+});
 
-export function handlePollCreated(event: PollCreated): void {
-  const creator = event.params.creator.toHexString();
+// Handler logic: PollCreated
+PollingEmitterArbitrum.PollCreated.handler(async ({ event, context }) => {
+  const creator = event.params.creator;
   const blockCreated = event.params.blockCreated;
-  const pollId = event.params.pollId;
+  const pollId = event.params.pollId.toString();
   const startDate = event.params.startDate;
   const endDate = event.params.endDate;
   const multiHash = event.params.multiHash;
   const url = event.params.url;
 
-  let poll = ArbitrumPoll.load(pollId.toString());
+  let poll = await context.ArbitrumPoll.get(pollId);
 
   if (!poll) {
-    poll = new ArbitrumPoll(pollId.toString());
+    poll = {
+      id: pollId,
+      blockCreated: undefined,
+      blockWithdrawn: undefined,
+      creator: undefined,
+      endDate: undefined,
+      multiHash: undefined,
+      startDate: undefined,
+      url: undefined,
+      withdrawnBy: undefined,
+    };
   }
-  //always update poll properties, in case it was previously created with just an id in the vote handler
-  poll.creator = creator;
-  poll.blockCreated = blockCreated;
-  poll.startDate = startDate;
-  poll.endDate = endDate;
-  poll.multiHash = multiHash;
-  poll.url = url;
-  poll.save();
-}
+
+  // Always update poll properties, in case it was previously created with just an id in the vote handler
+  context.ArbitrumPoll.set({
+    ...poll,
+    creator: creator,
+    blockCreated: blockCreated,
+    startDate: startDate,
+    endDate: endDate,
+    multiHash: multiHash,
+    url: url,
+  });
+});

@@ -1,440 +1,400 @@
-//TODO: continue updating this file, its currently mostly a copy paste of seal.ts
-
-import {
-  Open,
-  SelectVoteDelegate,
-  SelectFarm as SelectReward,
-  Lock,
-  Free,
-  FreeNoFee,
-  Draw,
-  Wipe,
-  GetReward,
-  OnKick,
-  AddFarm as AddReward,
-  DelFarm as DelReward,
-} from '../generated/StakingEngine/StakingEngine';
-import {
-  StakingLock,
-  StakingFree,
-  StakingFreeNoFee,
-  StakingSelectVoteDelegate,
-  StakingSelectReward,
-  StakingDraw,
-  StakingWipe,
-  StakingGetReward,
-  StakingOnKick,
-  StakingOpen,
-  Delegate,
-} from '../generated/schema';
-import {
-  getStakingEngineUrn,
-  getUrnAddress,
-} from './helpers/getStakingEngineUrn';
+import { StakingEngine } from "generated";
+import { getStakingEngineUrn, getUrnAddress } from './helpers/getStakingEngineUrn.js';
 import {
   getDelegate,
   delegationLockHandler,
   delegationFreeHandler,
-} from './helpers/delegates';
-import { getReward } from './helpers/getReward';
-import { ZERO_ADDRESS } from './helpers/constants';
-import { BigInt } from '@graphprotocol/graph-ts';
+} from './helpers/delegates/index.js';
+import { getReward } from './helpers/getReward.js';
+import { ZERO_ADDRESS } from './helpers/constants.js';
 
-export function handleStakingOpen(event: Open): void {
-  let urn = getStakingEngineUrn(event.params.urn);
+StakingEngine.StakingOpen.handler(async ({ event, context }) => {
+  let urn = await getStakingEngineUrn(event.params.urn, context);
 
-  urn.owner = event.params.owner;
-  urn.index = event.params.index;
-  urn.blockNumber = event.block.number;
-  urn.blockTimestamp = event.block.timestamp;
-  urn.transactionHash = event.transaction.hash;
+  const updatedUrn = {
+    ...urn,
+    owner: event.params.owner,
+    index: event.params.index,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  };
 
-  urn.save();
+  context.StakingUrn.set(updatedUrn);
 
-  let open = new StakingOpen(
-    event.transaction.hash
-      .toHex()
-      .concat('-')
-      .concat(event.logIndex.toString()),
-  );
+  context.StakingOpen.set({
+    id: `${event.transaction.hash}-${event.logIndex}`,
+    owner: event.params.owner,
+    index: event.params.index,
+    urn: event.params.urn,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});
 
-  open.owner = event.params.owner;
-  open.index = event.params.index;
-  open.urn = event.params.urn;
-  open.blockNumber = event.block.number;
-  open.blockTimestamp = event.block.timestamp;
-  open.transactionHash = event.transaction.hash;
-
-  open.save();
-}
-
-export function handleStakingSelectVoteDelegate(
-  event: SelectVoteDelegate,
-): void {
-  const urnAddress = getUrnAddress(
-    event.address,
+StakingEngine.StakingSelectVoteDelegate.handler(async ({ event, context }) => {
+  const urnAddress = await getUrnAddress(
+    event.srcAddress,
     event.params.owner,
     event.params.index,
   );
-  let urn = getStakingEngineUrn(urnAddress);
+  let urn = await getStakingEngineUrn(urnAddress, context);
 
-  const oldDelegateAddress = urn.voteDelegate;
-  let oldDelegate: Delegate | null = null;
+  const oldDelegateAddress = urn.voteDelegate_id;
+  let oldDelegate: any | null = null;
   if (oldDelegateAddress) {
-    oldDelegate = getDelegate(oldDelegateAddress);
+    oldDelegate = await getDelegate(oldDelegateAddress, context);
   }
-  const newDelegateAddress = event.params.voteDelegate.toHexString();
-  let newDelegate = getDelegate(newDelegateAddress);
+  const newDelegateAddress = event.params.voteDelegate;
+  let newDelegate = await getDelegate(newDelegateAddress, context);
 
   // if voteDelegate address is zero address, urn is undelegating
-  if (newDelegateAddress == ZERO_ADDRESS) {
-    let delegateEvent = new StakingSelectVoteDelegate(
-      event.transaction.hash
-        .toHex()
-        .concat('-')
-        .concat(event.logIndex.toString()),
-    );
-    delegateEvent.urn = urn.id;
-    delegateEvent.index = event.params.index;
-    delegateEvent.voteDelegate = null;
-    delegateEvent.blockNumber = event.block.number;
-    delegateEvent.blockTimestamp = event.block.timestamp;
-    delegateEvent.transactionHash = event.transaction.hash;
-    delegateEvent.save();
+  if (newDelegateAddress === ZERO_ADDRESS) {
+    context.StakingSelectVoteDelegate.set({
+      id: `${event.transaction.hash}-${event.logIndex}`,
+      urn_id: urn.id,
+      index: event.params.index,
+      voteDelegate_id: undefined,
+      blockNumber: BigInt(event.block.number),
+      blockTimestamp: BigInt(event.block.timestamp),
+      transactionHash: event.transaction.hash,
+    });
 
-    urn.voteDelegate = null;
-    urn.save();
+    context.StakingUrn.set({
+      ...urn,
+      voteDelegate_id: undefined,
+    });
 
-    //handle delegation free
-    if (oldDelegate && urn.skyLocked.gt(BigInt.fromI32(0))) {
-      delegationFreeHandler(
+    // handle delegation free
+    if (oldDelegate && urn.skyLocked > 0n) {
+      await delegationFreeHandler(
         oldDelegate,
-        urn.owner.toHexString(),
+        urn.owner,
         urn.skyLocked,
-        event.block,
-        event.transaction,
+        BigInt(event.block.timestamp),
+        BigInt(event.block.number),
+        event.transaction.hash,
         false,
         true,
         event.logIndex.toString(),
+        context,
       );
     }
     return;
   } else {
     // delegate should always be found
     if (newDelegate) {
-      let delegateEvent = new StakingSelectVoteDelegate(
-        event.transaction.hash
-          .toHex()
-          .concat('-')
-          .concat(event.logIndex.toString()),
-      );
-      delegateEvent.urn = urn.id;
-      delegateEvent.index = event.params.index;
-      delegateEvent.voteDelegate = newDelegate.id;
-      delegateEvent.blockNumber = event.block.number;
-      delegateEvent.blockTimestamp = event.block.timestamp;
-      delegateEvent.transactionHash = event.transaction.hash;
-      delegateEvent.save();
+      context.StakingSelectVoteDelegate.set({
+        id: `${event.transaction.hash}-${event.logIndex}`,
+        urn_id: urn.id,
+        index: event.params.index,
+        voteDelegate_id: newDelegate.id,
+        blockNumber: BigInt(event.block.number),
+        blockTimestamp: BigInt(event.block.timestamp),
+        transactionHash: event.transaction.hash,
+      });
 
-      urn.voteDelegate = newDelegate.id;
-      urn.save();
+      context.StakingUrn.set({
+        ...urn,
+        voteDelegate_id: newDelegate.id,
+      });
 
-      //handle delegation change
-      if (oldDelegate && urn.skyLocked.gt(BigInt.fromI32(0))) {
-        delegationFreeHandler(
+      // handle delegation change
+      if (oldDelegate && urn.skyLocked > 0n) {
+        await delegationFreeHandler(
           oldDelegate,
-          urn.owner.toHexString(),
+          urn.owner,
           urn.skyLocked,
-          event.block,
-          event.transaction,
+          BigInt(event.block.timestamp),
+          BigInt(event.block.number),
+          event.transaction.hash,
           false,
           true,
           event.logIndex.toString(),
+          context,
         );
       }
-      if (urn.skyLocked.gt(BigInt.fromI32(0))) {
-        delegationLockHandler(
+      if (urn.skyLocked > 0n) {
+        await delegationLockHandler(
           newDelegate,
-          urn.owner.toHexString(),
+          urn.owner,
           urn.skyLocked,
-          event.block,
-          event.transaction,
+          BigInt(event.block.timestamp),
+          BigInt(event.block.number),
+          event.transaction.hash,
           false,
           true,
           event.logIndex.toString(),
+          context,
         );
       }
     }
   }
-}
+});
 
-export function handleStakingSelectReward(event: SelectReward): void {
-  const urnAddress = getUrnAddress(
-    event.address,
+StakingEngine.StakingSelectFarm.handler(async ({ event, context }) => {
+  const urnAddress = await getUrnAddress(
+    event.srcAddress,
     event.params.owner,
     event.params.index,
   );
-  let urn = getStakingEngineUrn(urnAddress);
-  let reward = getReward(event.params.farm);
+  let urn = await getStakingEngineUrn(urnAddress, context);
+  let reward = await getReward(event.params.farm, context);
 
-  let rewardEvent = new StakingSelectReward(
-    event.transaction.hash
-      .toHex()
-      .concat('-')
-      .concat(event.logIndex.toString()),
-  );
-  rewardEvent.urn = urn.id;
-  rewardEvent.index = event.params.index;
-  rewardEvent.reward = reward.id;
-  let ref = event.params.ref;
-  if (!ref) {
-    ref = 0;
-  }
-  rewardEvent.ref = ref;
-  rewardEvent.blockNumber = event.block.number;
-  rewardEvent.blockTimestamp = event.block.timestamp;
-  rewardEvent.transactionHash = event.transaction.hash;
-  rewardEvent.save();
+  const ref = Number(event.params.ref) || 0;
 
-  urn.reward = reward.id;
-  urn.save();
-}
+  context.StakingSelectReward.set({
+    id: `${event.transaction.hash}-${event.logIndex}`,
+    urn_id: urn.id,
+    index: event.params.index,
+    reward_id: reward.id,
+    ref,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
 
-export function handleStakingLock(event: Lock): void {
+  context.StakingUrn.set({
+    ...urn,
+    reward_id: reward.id,
+  });
+});
+
+StakingEngine.StakingLock.handler(async ({ event, context }) => {
   const amount = event.params.wad;
-  const urnAddress = getUrnAddress(
-    event.address,
+  const urnAddress = await getUrnAddress(
+    event.srcAddress,
     event.params.owner,
     event.params.index,
   );
-  let urn = getStakingEngineUrn(urnAddress);
-  let lock = new StakingLock(
-    event.transaction.hash
-      .toHex()
-      .concat('-')
-      .concat(event.logIndex.toString()),
-  );
-  lock.urn = urn.id;
-  lock.index = event.params.index;
-  lock.wad = amount;
-  let ref = event.params.ref;
-  if (!ref) {
-    ref = 0;
-  }
-  lock.ref = ref;
-  lock.blockNumber = event.block.number;
-  lock.blockTimestamp = event.block.timestamp;
-  lock.transactionHash = event.transaction.hash;
-  lock.save();
+  let urn = await getStakingEngineUrn(urnAddress, context);
 
-  urn.skyLocked = urn.skyLocked.plus(amount);
-  urn.save();
+  const ref = Number(event.params.ref) || 0;
 
-  if (urn.voteDelegate && amount.gt(BigInt.fromI32(0))) {
-    const delegate = getDelegate(urn.voteDelegate);
+  context.StakingLock.set({
+    id: `${event.transaction.hash}-${event.logIndex}`,
+    urn_id: urn.id,
+    index: event.params.index,
+    wad: amount,
+    ref,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+
+  context.StakingUrn.set({
+    ...urn,
+    skyLocked: urn.skyLocked + amount,
+  });
+
+  if (urn.voteDelegate_id && amount > 0n) {
+    const delegate = await getDelegate(urn.voteDelegate_id, context);
     if (delegate) {
-      delegationLockHandler(
+      await delegationLockHandler(
         delegate,
-        urn.owner.toHexString(),
+        urn.owner,
         amount,
-        event.block,
-        event.transaction,
+        BigInt(event.block.timestamp),
+        BigInt(event.block.number),
+        event.transaction.hash,
         false,
         true,
         event.logIndex.toString(),
+        context,
       );
     }
   }
-}
+});
 
-export function handleStakingFree(event: Free): void {
+StakingEngine.StakingFree.handler(async ({ event, context }) => {
   const amount = event.params.wad;
-  const urnAddress = getUrnAddress(
-    event.address,
+  const urnAddress = await getUrnAddress(
+    event.srcAddress,
     event.params.owner,
     event.params.index,
   );
-  let urn = getStakingEngineUrn(urnAddress);
-  let free = new StakingFree(
-    event.transaction.hash
-      .toHex()
-      .concat('-')
-      .concat(event.logIndex.toString()),
-  );
-  free.urn = urn.id;
-  free.index = event.params.index;
-  free.to = event.params.to;
-  free.wad = amount;
-  free.blockNumber = event.block.number;
-  free.blockTimestamp = event.block.timestamp;
-  free.transactionHash = event.transaction.hash;
-  free.save();
+  let urn = await getStakingEngineUrn(urnAddress, context);
 
-  urn.skyLocked = urn.skyLocked.minus(amount);
-  urn.save();
+  context.StakingFree.set({
+    id: `${event.transaction.hash}-${event.logIndex}`,
+    urn_id: urn.id,
+    index: event.params.index,
+    to: event.params.to,
+    wad: amount,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
 
-  if (urn.voteDelegate && amount.gt(BigInt.fromI32(0))) {
-    const delegate = getDelegate(urn.voteDelegate);
+  context.StakingUrn.set({
+    ...urn,
+    skyLocked: urn.skyLocked - amount,
+  });
+
+  if (urn.voteDelegate_id && amount > 0n) {
+    const delegate = await getDelegate(urn.voteDelegate_id, context);
     if (delegate) {
-      delegationFreeHandler(
+      await delegationFreeHandler(
         delegate,
-        urn.owner.toHexString(),
+        urn.owner,
         amount,
-        event.block,
-        event.transaction,
+        BigInt(event.block.timestamp),
+        BigInt(event.block.number),
+        event.transaction.hash,
         false,
         true,
         event.logIndex.toString(),
+        context,
       );
     }
   }
-}
+});
 
-export function handleStakingFreeNoFee(event: FreeNoFee): void {
+StakingEngine.StakingFreeNoFee.handler(async ({ event, context }) => {
   const amount = event.params.wad;
-  const urnAddress = getUrnAddress(
-    event.address,
+  const urnAddress = await getUrnAddress(
+    event.srcAddress,
     event.params.owner,
     event.params.index,
   );
-  let urn = getStakingEngineUrn(urnAddress);
-  let free = new StakingFreeNoFee(
-    event.transaction.hash
-      .toHex()
-      .concat('-')
-      .concat(event.logIndex.toString()),
-  );
-  free.urn = urn.id;
-  free.index = event.params.index;
-  free.to = event.params.to;
-  free.wad = amount;
-  free.blockNumber = event.block.number;
-  free.blockTimestamp = event.block.timestamp;
-  free.transactionHash = event.transaction.hash;
-  free.save();
+  let urn = await getStakingEngineUrn(urnAddress, context);
 
-  urn.skyLocked = urn.skyLocked.minus(amount);
-  urn.save();
+  context.StakingFreeNoFee.set({
+    id: `${event.transaction.hash}-${event.logIndex}`,
+    urn_id: urn.id,
+    index: event.params.index,
+    to: event.params.to,
+    wad: amount,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
 
-  if (urn.voteDelegate && amount.gt(BigInt.fromI32(0))) {
-    const delegate = getDelegate(urn.voteDelegate);
+  context.StakingUrn.set({
+    ...urn,
+    skyLocked: urn.skyLocked - amount,
+  });
+
+  if (urn.voteDelegate_id && amount > 0n) {
+    const delegate = await getDelegate(urn.voteDelegate_id, context);
     if (delegate) {
-      delegationFreeHandler(
+      await delegationFreeHandler(
         delegate,
-        urn.owner.toHexString(),
+        urn.owner,
         amount,
-        event.block,
-        event.transaction,
+        BigInt(event.block.timestamp),
+        BigInt(event.block.number),
+        event.transaction.hash,
         false,
         true,
         event.logIndex.toString(),
+        context,
       );
     }
   }
-}
+});
 
-export function handleStakingDraw(event: Draw): void {
-  const urnAddress = getUrnAddress(
-    event.address,
+StakingEngine.StakingDraw.handler(async ({ event, context }) => {
+  const urnAddress = await getUrnAddress(
+    event.srcAddress,
     event.params.owner,
     event.params.index,
   );
-  let urn = getStakingEngineUrn(urnAddress);
-  let draw = new StakingDraw(
-    event.transaction.hash
-      .toHex()
-      .concat('-')
-      .concat(event.logIndex.toString()),
-  );
-  draw.urn = urn.id;
-  draw.index = event.params.index;
-  draw.to = event.params.to;
-  draw.wad = event.params.wad;
-  draw.blockNumber = event.block.number;
-  draw.blockTimestamp = event.block.timestamp;
-  draw.transactionHash = event.transaction.hash;
-  draw.save();
+  let urn = await getStakingEngineUrn(urnAddress, context);
 
-  urn.usdsDebt = urn.usdsDebt.plus(event.params.wad);
-  urn.save();
-}
+  context.StakingDraw.set({
+    id: `${event.transaction.hash}-${event.logIndex}`,
+    urn_id: urn.id,
+    index: event.params.index,
+    to: event.params.to,
+    wad: event.params.wad,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
 
-export function handleStakingWipe(event: Wipe): void {
-  const urnAddress = getUrnAddress(
-    event.address,
+  context.StakingUrn.set({
+    ...urn,
+    usdsDebt: urn.usdsDebt + event.params.wad,
+  });
+});
+
+StakingEngine.StakingWipe.handler(async ({ event, context }) => {
+  const urnAddress = await getUrnAddress(
+    event.srcAddress,
     event.params.owner,
     event.params.index,
   );
-  let urn = getStakingEngineUrn(urnAddress);
-  let wipe = new StakingWipe(
-    event.transaction.hash
-      .toHex()
-      .concat('-')
-      .concat(event.logIndex.toString()),
-  );
-  wipe.urn = urn.id;
-  wipe.index = event.params.index;
-  wipe.wad = event.params.wad;
-  wipe.blockNumber = event.block.number;
-  wipe.blockTimestamp = event.block.timestamp;
-  wipe.transactionHash = event.transaction.hash;
-  wipe.save();
+  let urn = await getStakingEngineUrn(urnAddress, context);
 
-  urn.usdsDebt = urn.usdsDebt.minus(event.params.wad);
-  urn.save();
-}
+  context.StakingWipe.set({
+    id: `${event.transaction.hash}-${event.logIndex}`,
+    urn_id: urn.id,
+    index: event.params.index,
+    wad: event.params.wad,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
 
-export function handleStakingGetReward(event: GetReward): void {
-  const urnAddress = getUrnAddress(
-    event.address,
+  context.StakingUrn.set({
+    ...urn,
+    usdsDebt: urn.usdsDebt - event.params.wad,
+  });
+});
+
+StakingEngine.StakingGetReward.handler(async ({ event, context }) => {
+  const urnAddress = await getUrnAddress(
+    event.srcAddress,
     event.params.owner,
     event.params.index,
   );
-  let urn = getStakingEngineUrn(urnAddress);
-  let reward = new StakingGetReward(
-    event.transaction.hash
-      .toHex()
-      .concat('-')
-      .concat(event.logIndex.toString()),
-  );
-  reward.urn = urn.id;
-  reward.index = event.params.index;
-  reward.reward = event.params.farm;
-  reward.to = event.params.to;
-  reward.amt = event.params.amt;
-  reward.blockNumber = event.block.number;
-  reward.blockTimestamp = event.block.timestamp;
-  reward.transactionHash = event.transaction.hash;
-  reward.save();
-}
+  let urn = await getStakingEngineUrn(urnAddress, context);
 
-export function handleStakingOnKick(event: OnKick): void {
-  let urn = getStakingEngineUrn(event.params.urn);
-  let kick = new StakingOnKick(
-    event.transaction.hash
-      .toHex()
-      .concat('-')
-      .concat(event.logIndex.toString()),
-  );
-  kick.urn = urn.id;
-  kick.wad = event.params.wad;
-  kick.blockNumber = event.block.number;
-  kick.blockTimestamp = event.block.timestamp;
-  kick.transactionHash = event.transaction.hash;
-  kick.save();
+  context.StakingGetReward.set({
+    id: `${event.transaction.hash}-${event.logIndex}`,
+    urn_id: urn.id,
+    index: event.params.index,
+    reward: event.params.farm,
+    to: event.params.to,
+    amt: event.params.amt,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});
 
-  urn.auctionsCount = urn.auctionsCount.plus(BigInt.fromI32(1));
-  urn.save();
-}
+StakingEngine.StakingOnKick.handler(async ({ event, context }) => {
+  let urn = await getStakingEngineUrn(event.params.urn, context);
 
-export function handleStakingAddReward(event: AddReward): void {
-  let reward = getReward(event.params.farm);
-  reward.stakingEngineActive = true;
-  reward.save();
-}
+  context.StakingOnKick.set({
+    id: `${event.transaction.hash}-${event.logIndex}`,
+    urn_id: urn.id,
+    wad: event.params.wad,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
 
-export function handleStakingDelReward(event: DelReward): void {
-  let reward = getReward(event.params.farm);
-  reward.stakingEngineActive = false;
-  reward.save();
-}
+  context.StakingUrn.set({
+    ...urn,
+    auctionsCount: urn.auctionsCount + 1n,
+  });
+});
+
+StakingEngine.StakingAddFarm.handler(async ({ event, context }) => {
+  let reward = await getReward(event.params.farm, context);
+  context.Reward.set({
+    ...reward,
+    stakingEngineActive: true,
+  });
+});
+
+StakingEngine.StakingDelFarm.handler(async ({ event, context }) => {
+  let reward = await getReward(event.params.farm, context);
+  context.Reward.set({
+    ...reward,
+    stakingEngineActive: false,
+  });
+});

@@ -1,51 +1,26 @@
-import { Bark as BarkEvent } from '../generated/McdDog/McdDog';
-import { Bark, SealUrn, StakingUrn } from '../generated/schema';
-import { log } from '@graphprotocol/graph-ts';
+import { McdDog } from "generated";
 
-export function handleBark(event: BarkEvent): void {
-  let barkId = event.params.ilk.toHex() + '-' + event.params.id.toString();
-  let bark = new Bark(barkId);
-
-  bark.ilk = event.params.ilk;
-  bark.urn = event.params.urn;
-  bark.ink = event.params.ink;
-  bark.art = event.params.art;
-  bark.due = event.params.due;
-  bark.clip = event.params.clip;
-  bark.clipperId = event.params.id;
-  bark.blockNumber = event.block.number;
-  bark.blockTimestamp = event.block.timestamp;
-  bark.transactionHash = event.transaction.hash;
+McdDog.Bark.handler(async ({ event, context }) => {
+  const barkId = `${event.params.ilk}-${event.params.id}`;
 
   // Attempt to load existing SealUrn
-  let urnAddress = event.params.urn;
-  let sealUrn = SealUrn.load(urnAddress);
+  const urnAddress = event.params.urn;
+  const sealUrn = await context.SealUrn.get(urnAddress);
+  const stakingUrn = await context.StakingUrn.get(urnAddress);
 
-  if (sealUrn != null) {
-    bark.sealUrn = sealUrn.id;
-    log.info('Bark event linked to existing SealUrn: {}', [
-      urnAddress.toHexString(),
-    ]);
-  } else {
-    log.info('No existing SealUrn found for Bark event: {}', [
-      urnAddress.toHexString(),
-    ]);
-  }
-
-  // Attempt to load existing StakingUrn
-  let stakingUrn = StakingUrn.load(urnAddress);
-
-  if (stakingUrn != null) {
-    bark.stakingUrn = stakingUrn.id;
-    log.info('Bark event linked to existing StakingUrn: {}', [
-      urnAddress.toHexString(),
-    ]);
-  } else {
-    log.info('No existing StakingUrn found for Bark event: {}', [
-      urnAddress.toHexString(),
-    ]);
-  }
-
-  // Save Bark entity
-  bark.save();
-}
+  context.Bark.set({
+    id: barkId,
+    ilk: event.params.ilk,
+    urn: event.params.urn,
+    ink: event.params.ink,
+    art: event.params.art,
+    due: event.params.due,
+    clip: event.params.clip,
+    clipperId: event.params.id,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+    sealUrn_id: sealUrn ? sealUrn.id : undefined,
+    stakingUrn_id: stakingUrn ? stakingUrn.id : undefined,
+  });
+});

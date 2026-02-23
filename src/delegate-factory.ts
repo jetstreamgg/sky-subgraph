@@ -1,56 +1,75 @@
-// import { BigInt } from '@graphprotocol/graph-ts';
-import {
-  // DelegateFactory,
-  CreateVoteDelegate,
-} from '../generated/DelegateFactory/DelegateFactory';
-import { Delegate, DelegateAdmin } from '../generated/schema';
-import { BIGINT_ZERO } from './helpers/constants';
-import { VoteDelegate as VoteDelegateTemplate } from '../generated/templates';
-import { getVoter } from './helpers/helpers';
+import { DelegateFactory, BigDecimal } from "generated";
 
-export function handleCreateVoteDelegate(event: CreateVoteDelegate): void {
+// Register dynamic contract for VoteDelegate when CreateVoteDelegate is emitted
+DelegateFactory.CreateVoteDelegate.contractRegister(({ event, context }) => {
+  context.addVoteDelegate(event.params.voteDelegate);
+});
+
+DelegateFactory.CreateVoteDelegate.handler(async ({ event, context }) => {
   // https://etherscan.io/address/0xD897F108670903D1d6070fcf818f9db3615AF272#code
-  // event.params.delegate and event.transcation.from.toHexString() should be the same
-  const delegateOwnerAddress = event.transaction.from;
+  // event.params.delegate is the owner address
+  const delegateOwnerAddress = event.params.delegate;
   const delegateContractAddress = event.params.voteDelegate;
 
-  // create the voter entity
-  const voter = getVoter(delegateContractAddress.toHexString())
-  voter.isVoteDelegate = true;
-  voter.isVoteProxy = false;
-  // Assign the delegate contract to the voter
-  voter.delegateContract = delegateContractAddress.toHexString();
-  voter.save();
+  // Create the voter entity
+  let voter = await context.Voter.get(delegateContractAddress);
+  if (!voter) {
+    voter = {
+      id: delegateContractAddress,
+      isVoteDelegate: false,
+      isVoteProxy: false,
+      mkrLockedInChiefRaw: 0n,
+      mkrLockedInChief: new BigDecimal("0.0"),
+      skyLockedInChiefRaw: 0n,
+      skyLockedInChief: new BigDecimal("0.0"),
+      currentSpells: [],
+      currentSpellsV2: [],
+      numberExecutiveVotes: 0,
+      numberExecutiveVotesV2: 0,
+      numberPollVotes: 0,
+      lastVotedTimestamp: 0n,
+      delegateContract_id: undefined,
+      proxyContract_id: undefined,
+    };
+  }
+  context.Voter.set({
+    ...voter,
+    isVoteDelegate: true,
+    isVoteProxy: false,
+    delegateContract_id: delegateContractAddress,
+  });
 
   // Create the delegate contract
-  let delegateInfo = Delegate.load(delegateContractAddress.toHexString());
-
+  let delegateInfo = await context.Delegate.get(delegateContractAddress);
   if (!delegateInfo) {
-    delegateInfo = new Delegate(delegateContractAddress.toHexString());
-    delegateInfo.ownerAddress = delegateOwnerAddress.toHexString();
-    delegateInfo.voter = voter.id;
-    delegateInfo.delegations = [];
-    delegateInfo.delegators = 0;
-    delegateInfo.blockTimestamp = event.block.timestamp;
-    delegateInfo.blockNumber = event.block.number;
-    delegateInfo.txnHash = event.transaction.hash.toHexString();
-    delegateInfo.totalDelegated = BIGINT_ZERO;
-    delegateInfo.delegationHistory = [];
-    delegateInfo.metadata = delegateContractAddress.toHexString();
-    delegateInfo.version = '1';
-    delegateInfo.save();
+    delegateInfo = {
+      id: delegateContractAddress,
+      ownerAddress: delegateOwnerAddress,
+      voter_id: voter.id,
+      delegations: [],
+      delegators: 0,
+      blockTimestamp: BigInt(event.block.timestamp),
+      blockNumber: BigInt(event.block.number),
+      txnHash: event.transaction.hash,
+      totalDelegated: 0n,
+      delegationHistory: [],
+      metadata_id: delegateContractAddress,
+      version: "1",
+    };
+    context.Delegate.set(delegateInfo);
   }
 
   // Create delegate admin entity, it links the owner address with the delegate contract
-  // In the future this entity might hold more than 1 delegate contract
-  let delegateAdmin = DelegateAdmin.load(delegateOwnerAddress.toHexString());
-
+  let delegateAdmin = await context.DelegateAdmin.get(delegateOwnerAddress);
   if (!delegateAdmin) {
-    delegateAdmin = new DelegateAdmin(delegateOwnerAddress.toHexString());
+    context.DelegateAdmin.set({
+      id: delegateOwnerAddress,
+      delegateContract_id: delegateInfo.id,
+    });
+  } else {
+    context.DelegateAdmin.set({
+      ...delegateAdmin,
+      delegateContract_id: delegateInfo.id,
+    });
   }
-  delegateAdmin.delegateContract = delegateInfo.id;
-  delegateAdmin.save();
-
-  // Track this new vote delegate contract
-  VoteDelegateTemplate.create(delegateContractAddress);
-}
+});

@@ -1,45 +1,50 @@
-import { MkrToSky as MkrToSkyEventV2 } from '../generated/MkrSkyV2/MkrSkyV2';
-import { MkrToSkyUpgradeV2, Total } from '../generated/schema';
-import { BIGINT_ZERO } from './helpers/constants';
+import { MkrSkyV2 } from "generated";
 
-export function handleMkrToSkyUpgradeV2(event: MkrToSkyEventV2): void {
-  let entity = new MkrToSkyUpgradeV2(
-    event.transaction.hash.concatI32(event.logIndex.toI32()),
-  );
-  entity.caller = event.params.caller;
-  entity.usr = event.params.usr;
-  entity.mkrAmt = event.params.mkrAmt;
-  entity.skyAmt = event.params.skyAmt;
-  entity.skyFee = event.params.skyFee;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
+MkrSkyV2.MkrToSky.handler(async ({ event, context }) => {
+  const id = `${event.transaction.hash}-${event.logIndex}`;
 
-  //add to running total of mkrUpgraded
-  let totalMkrUpgraded = Total.load('mkrUpgraded');
+  context.MkrToSkyUpgradeV2.set({
+    id,
+    caller: event.params.caller,
+    usr: event.params.usr,
+    mkrAmt: event.params.mkrAmt,
+    skyAmt: event.params.skyAmt,
+    skyFee: event.params.skyFee,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+
+  // Add to running total of mkrUpgraded
+  const mkrTotalId = "mkrUpgraded";
+  let totalMkrUpgraded = await context.Total.get(mkrTotalId);
   if (!totalMkrUpgraded) {
-    totalMkrUpgraded = new Total('mkrUpgraded');
-    totalMkrUpgraded.total = BIGINT_ZERO;
+    totalMkrUpgraded = { id: mkrTotalId, total: 0n };
   }
-  totalMkrUpgraded.total = totalMkrUpgraded.total.plus(entity.mkrAmt);
-  totalMkrUpgraded.save();
+  context.Total.set({
+    ...totalMkrUpgraded,
+    total: totalMkrUpgraded.total + event.params.mkrAmt,
+  });
 
-  //add to running total of skyUpgraded
-  let totalSkyUpgraded = Total.load('skyUpgraded');
+  // Add to running total of skyUpgraded
+  const skyTotalId = "skyUpgraded";
+  let totalSkyUpgraded = await context.Total.get(skyTotalId);
   if (!totalSkyUpgraded) {
-    totalSkyUpgraded = new Total('skyUpgraded');
-    totalSkyUpgraded.total = BIGINT_ZERO;
+    totalSkyUpgraded = { id: skyTotalId, total: 0n };
   }
-  totalSkyUpgraded.total = totalSkyUpgraded.total.plus(entity.skyAmt);
-  totalSkyUpgraded.save();
+  context.Total.set({
+    ...totalSkyUpgraded,
+    total: totalSkyUpgraded.total + event.params.skyAmt,
+  });
 
-  //add to running total of skyUpgradeFees
-  let totalSkyUpgradeFees = Total.load('skyUpgradeFees');
+  // Add to running total of skyUpgradeFees
+  const feeTotalId = "skyUpgradeFees";
+  let totalSkyUpgradeFees = await context.Total.get(feeTotalId);
   if (!totalSkyUpgradeFees) {
-    totalSkyUpgradeFees = new Total('skyUpgradeFees');
-    totalSkyUpgradeFees.total = BIGINT_ZERO;
+    totalSkyUpgradeFees = { id: feeTotalId, total: 0n };
   }
-  totalSkyUpgradeFees.total = totalSkyUpgradeFees.total.plus(entity.skyFee);
-  totalSkyUpgradeFees.save();
-}
+  context.Total.set({
+    ...totalSkyUpgradeFees,
+    total: totalSkyUpgradeFees.total + event.params.skyFee,
+  });
+});

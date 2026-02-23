@@ -1,52 +1,20 @@
 {
-  "name": "subgraph",
+  "name": "sky-indexer",
+  "type": "module",
   "scripts": {
-    "codegen": "graph codegen",
-    "build": "graph build",
-    "build:mainnet": "yarn prepare:mainnet && graph codegen",
-    "build:testnet": "yarn prepare:testnet && graph codegen",
-    "build:base": "yarn prepare:base && graph codegen",
-    "build:arbitrum": "yarn prepare:arbitrum && graph codegen",
-    "build:optimism": "yarn prepare:optimism && graph codegen",
-    "build:unichain": "yarn prepare:unichain && graph codegen",
-    "deploy:mainnet": "yarn build:mainnet && graph deploy sky-subgraph-mainnet",
-    "deploy:testnet": "yarn build:testnet && graph deploy jetstreamgg/sky-subgraph-testnet --ipfs https://api.thegraph.com/ipfs/ --node https://deploy-subgraph-staging.sky.money/ -l 0.35.0",
-    "deploy:base": "yarn build:base && graph deploy sky-subgraph-base",
-    "deploy:arbitrum": "yarn build:arbitrum && graph deploy sky-subgraph-arbitrum",
-    "deploy:optimism": "yarn build:optimism && graph deploy sky-subgraph-optimism",
-    "deploy:unichain": "yarn build:unichain && graph deploy sky-subgraph-unichain",
-    "prepare:mainnet": "mustache networks/mainnet.json subgraph.template.yaml > subgraph.yaml",
-    "prepare:testnet": "mustache networks/testnet.json subgraph.template.yaml > subgraph.yaml",
-    "prepare:base": "mustache networks/base.json subgraph.template.yaml > subgraph.yaml",
-    "prepare:optimism": "mustache networks/optimism.json subgraph.template.yaml > subgraph.yaml",
-    "prepare:unichain": "mustache networks/unichain.json subgraph.template.yaml > subgraph.yaml",
-    "prepare:arbitrum": "mustache networks/arbitrum.json subgraph.template.yaml > subgraph.yaml",
-    "create-local:mainnet": "graph create --node http://localhost:8020/ jetstream-local/sky-subgraph-mainnet",
-    "create-local:testnet": "graph create --node http://localhost:8020/ jetstream-local/sky-subgraph-testnet",
-    "create-local:base": "graph create --node http://localhost:8020/ jetstream-local/sky-subgraph-base",
-    "create-local:arbitrum": "graph create --node http://localhost:8020/ jetstream-local/sky-subgraph-arbitrum",
-    "create-local:optimism": "graph create --node http://localhost:8020/ jetstream-local/sky-subgraph-optimism",
-    "create-local:unichain": "graph create --node http://localhost:8020/ jetstream-local/sky-subgraph-unichain",
-    "remove-local:mainnet": "graph remove --node http://localhost:8020/ jetstream-local/sky-subgraph-mainnet",
-    "remove-local:testnet": "graph remove --node http://localhost:8020/ jetstream-local/sky-subgraph-testnet",
-    "remove-local:base": "graph remove --node http://localhost:8020/ jetstream-local/sky-subgraph-base",
-    "remove-local:arbitrum": "graph remove --node http://localhost:8020/ jetstream-local/sky-subgraph-arbitrum",
-    "remove-local:optimism": "graph remove --node http://localhost:8020/ jetstream-local/sky-subgraph-optimism",
-    "remove-local:unichain": "graph remove --node http://localhost:8020/ jetstream-local/sky-subgraph-unichain",
-    "deploy-local:mainnet": "yarn build:mainnet && graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 jetstream-local/sky-subgraph-mainnet",
-    "deploy-local:testnet": "yarn build:testnet && graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 jetstream-local/sky-subgraph-testnet",
-    "deploy-local:base": "yarn build:base && graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 jetstream-local/sky-subgraph-base",
-    "deploy-local:arbitrum": "yarn build:arbitrum && graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 jetstream-local/sky-subgraph-arbitrum",
-    "deploy-local:optimism": "yarn build:optimism && graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 jetstream-local/sky-subgraph-optimism",
-    "deploy-local:unichain": "yarn build:unichain && graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 jetstream-local/sky-subgraph-unichain",
-    "test": "graph test"
+    "codegen": "envio codegen",
+    "dev": "envio dev",
+    "start": "envio start",
+    "stop": "envio stop",
+    "test": "vitest"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "^0.98.1",
-    "@graphprotocol/graph-ts": "^0.38.2"
+    "envio": "^2.5.0",
+    "generated": "file:./generated",
+    "viem": "^2.21.0"
   },
   "devDependencies": {
-    "matchstick-as": "0.6.0",
-    "mustache": "^4.2.0"
+    "typescript": "^5.9.3",
+    "vitest": "^2.0.0"
   }
 }

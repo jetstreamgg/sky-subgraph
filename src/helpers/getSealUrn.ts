@@ -1,33 +1,32 @@
-import { Address, BigInt, Bytes } from '@graphprotocol/graph-ts';
-import { SealUrn } from '../../generated/schema';
-import { BIGINT_ZERO, ZERO_ADDRESS } from './constants';
-import { LockstakeEngine } from '../../generated/LockstakeEngine/LockstakeEngine';
+import { ZERO_ADDRESS } from './constants.js';
 
-export function getSealUrn(urnAddress: Address): SealUrn {
-  let urn = SealUrn.load(urnAddress);
+export async function getSealUrn(urnAddress: string, context: any) {
+  let urn = await context.SealUrn.get(urnAddress);
   if (!urn) {
-    urn = new SealUrn(urnAddress);
-    urn.owner = Address.fromString(ZERO_ADDRESS);
-    urn.index = BIGINT_ZERO;
-    urn.blockNumber = BIGINT_ZERO;
-    urn.blockTimestamp = BIGINT_ZERO;
-    urn.transactionHash = Bytes.empty();
-    urn.mkrLocked = BIGINT_ZERO;
-    urn.usdsDebt = BIGINT_ZERO;
-    urn.skyLocked = BIGINT_ZERO;
-    urn.auctionsCount = BIGINT_ZERO;
-    urn.save();
+    urn = {
+      id: urnAddress,
+      owner: ZERO_ADDRESS,
+      index: 0n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
+      transactionHash: "0x",
+      mkrLocked: 0n,
+      usdsDebt: 0n,
+      skyLocked: 0n,
+      auctionsCount: 0n,
+      voteDelegate_id: undefined,
+      reward_id: undefined,
+    };
   }
   return urn;
 }
 
-export function getUrnAddress(
-  sealContractAddress: Address,
-  ownerAddress: Address,
-  urnIndex: BigInt,
-): Address {
-  const sealContract = LockstakeEngine.bind(sealContractAddress);
-  const urnAddress = sealContract.ownerUrns(ownerAddress, urnIndex);
-
-  return urnAddress;
+export async function getUrnAddress(
+  contractAddress: string,
+  owner: string,
+  index: bigint,
+): Promise<string> {
+  // TODO: Implement RPC call to LockstakeEngine.ownerUrns(owner, index)
+  // For now, derive a deterministic address
+  return `${contractAddress}-${owner}-${index}`;
 }

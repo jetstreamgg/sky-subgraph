@@ -1,690 +1,585 @@
-import {
-  Open,
-  SelectVoteDelegate,
-  SelectFarm as SelectReward,
-  AddFarm as AddReward,
-  DelFarm as DelReward,
-  Lock,
-  LockSky,
-  Free,
-  FreeSky,
-  FreeNoFee,
-  Draw,
-  Wipe,
-  GetReward,
-  OnKick,
-  OnTake,
-  OnRemove,
-  Rely,
-  Deny,
-  Hope,
-  Nope,
-  // File as FileAddress,
-  // File as FileUint,
-} from '../generated/LockstakeEngine/LockstakeEngine';
-import { MkrSky } from '../generated/MkrSky/MkrSky';
-import {
-  SealLock,
-  SealLockSky,
-  SealFree,
-  SealFreeSky,
-  SealFreeNoFee,
-  SealSelectVoteDelegate,
-  SealSelectReward,
-  SealDraw,
-  SealWipe,
-  SealGetReward,
-  SealOnKick,
-  SealOnTake,
-  SealOnRemove,
-  SealRely,
-  SealDeny,
-  // SealFileAddress,
-  // SealFileUint,
-  SealHope,
-  SealNope,
-  Delegate,
-  SealOpen,
-} from '../generated/schema';
-import { getSealUrn, getUrnAddress } from './helpers/getSealUrn';
+import { LockstakeEngine } from "generated";
+import { getSealUrn, getUrnAddress } from './helpers/getSealUrn.js';
 import {
   getDelegate,
   delegationLockHandler,
   delegationFreeHandler,
-} from './helpers/delegates';
-import { getReward } from './helpers/getReward';
-import { ZERO_ADDRESS } from './helpers/constants';
-import { Address, BigInt, dataSource } from '@graphprotocol/graph-ts';
+} from './helpers/delegates/index.js';
+import { getReward } from './helpers/getReward.js';
+import { ZERO_ADDRESS } from './helpers/constants.js';
 
-function getMkrSkyRate(): BigInt {
-  const network = dataSource.network();
-  // TODO: Update the addresses accordingly when available
-  const MKR_SKY_CONTRACT_ADDRESS =
-    network.toLowerCase() === 'mainnet'
-      ? '0xBDcFCA946b6CDd965f99a839e4435Bcdc1bc470B' // Mainnet MKR-SKY contract address
-      : '0xBDcFCA946b6CDd965f99a839e4435Bcdc1bc470B'; // Tenderly fork MKR-SKY contract address
-  let mkrSkyContract = MkrSky.bind(
-    Address.fromString(MKR_SKY_CONTRACT_ADDRESS),
-  );
-  return mkrSkyContract.rate();
+async function getMkrSkyRate(): Promise<bigint> {
+  // TODO: Implement RPC call to MkrSky.rate()
+  // Original code binds to MkrSky contract at:
+  //   Mainnet: 0xBDcFCA946b6CDd965f99a839e4435Bcdc1bc470B
+  //   Tenderly: 0xBDcFCA946b6CDd965f99a839e4435Bcdc1bc470B
+  // Default rate: 24000 (1 MKR = 24000 SKY)
+  return 24000n;
 }
 
-export function handleSealOpen(event: Open): void {
-  let urn = getSealUrn(event.params.urn);
+LockstakeEngine.SealOpen.handler(async ({ event, context }) => {
+  const urn = await getSealUrn(event.params.urn, context);
 
-  urn.owner = event.params.owner;
-  urn.index = event.params.index;
-  urn.blockNumber = event.block.number;
-  urn.blockTimestamp = event.block.timestamp;
-  urn.transactionHash = event.transaction.hash;
+  const updatedUrn = {
+    ...urn,
+    owner: event.params.owner,
+    index: event.params.index,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  };
 
-  urn.save();
+  context.SealUrn.set(updatedUrn);
 
-  let open = new SealOpen(
-    event.transaction.hash
-      .toHex()
-      .concat('-')
-      .concat(event.logIndex.toString()),
-  );
+  context.SealOpen.set({
+    id: `${event.transaction.hash}-${event.logIndex}`,
+    owner: event.params.owner,
+    index: event.params.index,
+    urn: event.params.urn,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});
 
-  open.owner = event.params.owner;
-  open.index = event.params.index;
-  open.urn = event.params.urn;
-  open.blockNumber = event.block.number;
-  open.blockTimestamp = event.block.timestamp;
-  open.transactionHash = event.transaction.hash;
-
-  open.save();
-}
-
-export function handleSealSelectVoteDelegate(event: SelectVoteDelegate): void {
-  const urnAddress = getUrnAddress(
-    event.address,
+LockstakeEngine.SealSelectVoteDelegate.handler(async ({ event, context }) => {
+  const urnAddress = await getUrnAddress(
+    event.srcAddress,
     event.params.owner,
     event.params.index,
   );
-  let urn = getSealUrn(urnAddress);
+  let urn = await getSealUrn(urnAddress, context);
 
-  const oldDelegateAddress = urn.voteDelegate;
-  let oldDelegate: Delegate | null = null;
+  const oldDelegateAddress = urn.voteDelegate_id;
+  let oldDelegate: any | null = null;
   if (oldDelegateAddress) {
-    oldDelegate = getDelegate(oldDelegateAddress);
+    oldDelegate = await getDelegate(oldDelegateAddress, context);
   }
-  const newDelegateAddress = event.params.voteDelegate.toHexString();
-  let newDelegate = getDelegate(newDelegateAddress);
+  const newDelegateAddress = event.params.voteDelegate;
+  let newDelegate = await getDelegate(newDelegateAddress, context);
 
   // if voteDelegate address is zero address, urn is undelegating
-  if (newDelegateAddress == ZERO_ADDRESS) {
-    let delegateEvent = new SealSelectVoteDelegate(
-      event.transaction.hash
-        .toHex()
-        .concat('-')
-        .concat(event.logIndex.toString()),
-    );
-    delegateEvent.urn = urn.id;
-    delegateEvent.index = event.params.index;
-    delegateEvent.voteDelegate = null;
-    delegateEvent.blockNumber = event.block.number;
-    delegateEvent.blockTimestamp = event.block.timestamp;
-    delegateEvent.transactionHash = event.transaction.hash;
-    delegateEvent.save();
+  if (newDelegateAddress === ZERO_ADDRESS) {
+    context.SealSelectVoteDelegate.set({
+      id: `${event.transaction.hash}-${event.logIndex}`,
+      urn_id: urn.id,
+      index: event.params.index,
+      voteDelegate_id: undefined,
+      blockNumber: BigInt(event.block.number),
+      blockTimestamp: BigInt(event.block.timestamp),
+      transactionHash: event.transaction.hash,
+    });
 
-    urn.voteDelegate = null;
-    urn.save();
+    context.SealUrn.set({
+      ...urn,
+      voteDelegate_id: undefined,
+    });
 
-    //handle delegation free
-    if (oldDelegate && urn.mkrLocked.gt(BigInt.fromI32(0))) {
-      delegationFreeHandler(
+    // handle delegation free
+    if (oldDelegate && urn.mkrLocked > 0n) {
+      await delegationFreeHandler(
         oldDelegate,
-        urn.owner.toHexString(),
+        urn.owner,
         urn.mkrLocked,
-        event.block,
-        event.transaction,
+        BigInt(event.block.timestamp),
+        BigInt(event.block.number),
+        event.transaction.hash,
         true,
         false,
         event.logIndex.toString(),
+        context,
       );
     }
     return;
   } else {
     // delegate should always be found
     if (newDelegate) {
-      let delegateEvent = new SealSelectVoteDelegate(
-        event.transaction.hash
-          .toHex()
-          .concat('-')
-          .concat(event.logIndex.toString()),
-      );
-      delegateEvent.urn = urn.id;
-      delegateEvent.index = event.params.index;
-      delegateEvent.voteDelegate = newDelegate.id;
-      delegateEvent.blockNumber = event.block.number;
-      delegateEvent.blockTimestamp = event.block.timestamp;
-      delegateEvent.transactionHash = event.transaction.hash;
-      delegateEvent.save();
+      context.SealSelectVoteDelegate.set({
+        id: `${event.transaction.hash}-${event.logIndex}`,
+        urn_id: urn.id,
+        index: event.params.index,
+        voteDelegate_id: newDelegate.id,
+        blockNumber: BigInt(event.block.number),
+        blockTimestamp: BigInt(event.block.timestamp),
+        transactionHash: event.transaction.hash,
+      });
 
-      urn.voteDelegate = newDelegate.id;
-      urn.save();
+      context.SealUrn.set({
+        ...urn,
+        voteDelegate_id: newDelegate.id,
+      });
 
-      //handle delegation change
-      if (oldDelegate && urn.mkrLocked.gt(BigInt.fromI32(0))) {
-        delegationFreeHandler(
+      // handle delegation change
+      if (oldDelegate && urn.mkrLocked > 0n) {
+        await delegationFreeHandler(
           oldDelegate,
-          urn.owner.toHexString(),
+          urn.owner,
           urn.mkrLocked,
-          event.block,
-          event.transaction,
+          BigInt(event.block.timestamp),
+          BigInt(event.block.number),
+          event.transaction.hash,
           true,
           false,
           event.logIndex.toString(),
+          context,
         );
       }
-      if (urn.mkrLocked.gt(BigInt.fromI32(0))) {
-        delegationLockHandler(
+      if (urn.mkrLocked > 0n) {
+        await delegationLockHandler(
           newDelegate,
-          urn.owner.toHexString(),
+          urn.owner,
           urn.mkrLocked,
-          event.block,
-          event.transaction,
+          BigInt(event.block.timestamp),
+          BigInt(event.block.number),
+          event.transaction.hash,
           true,
           false,
           event.logIndex.toString(),
+          context,
         );
       }
     }
   }
-}
+});
 
-export function handleSealSelectReward(event: SelectReward): void {
-  const urnAddress = getUrnAddress(
-    event.address,
+LockstakeEngine.SealSelectFarm.handler(async ({ event, context }) => {
+  const urnAddress = await getUrnAddress(
+    event.srcAddress,
     event.params.owner,
     event.params.index,
   );
-  let urn = getSealUrn(urnAddress);
-  let reward = getReward(event.params.farm);
+  let urn = await getSealUrn(urnAddress, context);
+  let reward = await getReward(event.params.farm, context);
 
-  let rewardEvent = new SealSelectReward(
-    event.transaction.hash
-      .toHex()
-      .concat('-')
-      .concat(event.logIndex.toString()),
-  );
-  rewardEvent.urn = urn.id;
-  rewardEvent.index = event.params.index;
-  rewardEvent.reward = reward.id;
-  let ref = event.params.ref;
-  if (!ref) {
-    ref = 0;
-  }
-  rewardEvent.ref = ref;
-  rewardEvent.blockNumber = event.block.number;
-  rewardEvent.blockTimestamp = event.block.timestamp;
-  rewardEvent.transactionHash = event.transaction.hash;
-  rewardEvent.save();
+  const ref = Number(event.params.ref) || 0;
 
-  urn.reward = reward.id;
-  urn.save();
-}
+  context.SealSelectReward.set({
+    id: `${event.transaction.hash}-${event.logIndex}`,
+    urn_id: urn.id,
+    index: event.params.index,
+    reward_id: reward.id,
+    ref,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
 
-export function handleSealAddReward(event: AddReward): void {
-  let reward = getReward(event.params.farm);
-  reward.lockstakeActive = true;
-  reward.save();
-}
+  context.SealUrn.set({
+    ...urn,
+    reward_id: reward.id,
+  });
+});
 
-export function handleSealDelReward(event: DelReward): void {
-  let reward = getReward(event.params.farm);
-  reward.lockstakeActive = false;
-  reward.save();
-}
+LockstakeEngine.SealAddFarm.handler(async ({ event, context }) => {
+  let reward = await getReward(event.params.farm, context);
+  context.Reward.set({
+    ...reward,
+    lockstakeActive: true,
+  });
+});
 
-export function handleSealLock(event: Lock): void {
+LockstakeEngine.SealDelFarm.handler(async ({ event, context }) => {
+  let reward = await getReward(event.params.farm, context);
+  context.Reward.set({
+    ...reward,
+    lockstakeActive: false,
+  });
+});
+
+LockstakeEngine.SealLock.handler(async ({ event, context }) => {
   const amount = event.params.wad;
-  const urnAddress = getUrnAddress(
-    event.address,
+  const urnAddress = await getUrnAddress(
+    event.srcAddress,
     event.params.owner,
     event.params.index,
   );
-  let urn = getSealUrn(urnAddress);
-  let lock = new SealLock(
-    event.transaction.hash
-      .toHex()
-      .concat('-')
-      .concat(event.logIndex.toString()),
-  );
-  lock.urn = urn.id;
-  lock.index = event.params.index;
-  lock.wad = amount;
-  let ref = event.params.ref;
-  if (!ref) {
-    ref = 0;
-  }
-  lock.ref = ref;
-  lock.blockNumber = event.block.number;
-  lock.blockTimestamp = event.block.timestamp;
-  lock.transactionHash = event.transaction.hash;
-  lock.save();
+  let urn = await getSealUrn(urnAddress, context);
 
-  urn.mkrLocked = urn.mkrLocked.plus(amount);
-  urn.save();
+  const ref = Number(event.params.ref) || 0;
 
-  if (urn.voteDelegate && amount.gt(BigInt.fromI32(0))) {
-    const delegate = getDelegate(urn.voteDelegate);
+  context.SealLock.set({
+    id: `${event.transaction.hash}-${event.logIndex}`,
+    urn_id: urn.id,
+    index: event.params.index,
+    wad: amount,
+    ref,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+
+  context.SealUrn.set({
+    ...urn,
+    mkrLocked: urn.mkrLocked + amount,
+  });
+
+  if (urn.voteDelegate_id && amount > 0n) {
+    const delegate = await getDelegate(urn.voteDelegate_id, context);
     if (delegate) {
-      delegationLockHandler(
+      await delegationLockHandler(
         delegate,
-        urn.owner.toHexString(),
+        urn.owner,
         amount,
-        event.block,
-        event.transaction,
+        BigInt(event.block.timestamp),
+        BigInt(event.block.number),
+        event.transaction.hash,
         true,
         false,
         event.logIndex.toString(),
+        context,
       );
     }
   }
-}
+});
 
-export function handleSealLockSky(event: LockSky): void {
+LockstakeEngine.LockSky.handler(async ({ event, context }) => {
   const amount = event.params.skyWad;
-  const urnAddress = getUrnAddress(
-    event.address,
+  const urnAddress = await getUrnAddress(
+    event.srcAddress,
     event.params.owner,
     event.params.index,
   );
-  let urn = getSealUrn(urnAddress);
-  let lock = new SealLockSky(
-    event.transaction.hash
-      .toHex()
-      .concat('-')
-      .concat(event.logIndex.toString()),
-  );
-  lock.urn = urn.id;
-  lock.index = event.params.index;
-  lock.wad = amount;
-  let ref = event.params.ref;
-  if (!ref) {
-    ref = 0;
-  }
-  lock.ref = ref;
-  lock.blockNumber = event.block.number;
-  lock.blockTimestamp = event.block.timestamp;
-  lock.transactionHash = event.transaction.hash;
-  lock.save();
+  let urn = await getSealUrn(urnAddress, context);
 
-  let rateMkrSky = getMkrSkyRate();
+  const ref = Number(event.params.ref) || 0;
 
-  urn.mkrLocked = urn.mkrLocked.plus(amount.div(rateMkrSky));
-  urn.save();
+  context.SealLockSky.set({
+    id: `${event.transaction.hash}-${event.logIndex}`,
+    urn_id: urn.id,
+    index: event.params.index,
+    wad: amount,
+    ref,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
 
-  if (urn.voteDelegate && amount.gt(BigInt.fromI32(0))) {
-    const delegate = getDelegate(urn.voteDelegate);
+  const rateMkrSky = await getMkrSkyRate();
+  const mkrAmount = amount / rateMkrSky;
+
+  context.SealUrn.set({
+    ...urn,
+    mkrLocked: urn.mkrLocked + mkrAmount,
+  });
+
+  if (urn.voteDelegate_id && amount > 0n) {
+    const delegate = await getDelegate(urn.voteDelegate_id, context);
     if (delegate) {
-      delegationLockHandler(
+      await delegationLockHandler(
         delegate,
-        urn.owner.toHexString(),
-        amount.div(rateMkrSky),
-        event.block,
-        event.transaction,
+        urn.owner,
+        mkrAmount,
+        BigInt(event.block.timestamp),
+        BigInt(event.block.number),
+        event.transaction.hash,
         true,
         false,
         event.logIndex.toString(),
+        context,
       );
     }
   }
-}
+});
 
-export function handleSealFree(event: Free): void {
+LockstakeEngine.SealFree.handler(async ({ event, context }) => {
   const amount = event.params.wad;
-  const urnAddress = getUrnAddress(
-    event.address,
+  const urnAddress = await getUrnAddress(
+    event.srcAddress,
     event.params.owner,
     event.params.index,
   );
-  let urn = getSealUrn(urnAddress);
-  let free = new SealFree(
-    event.transaction.hash
-      .toHex()
-      .concat('-')
-      .concat(event.logIndex.toString()),
-  );
-  free.urn = urn.id;
-  free.index = event.params.index;
-  free.to = event.params.to;
-  free.wad = amount;
-  free.freed = event.params.freed;
-  free.blockNumber = event.block.number;
-  free.blockTimestamp = event.block.timestamp;
-  free.transactionHash = event.transaction.hash;
-  free.save();
+  let urn = await getSealUrn(urnAddress, context);
 
-  urn.mkrLocked = urn.mkrLocked.minus(amount);
-  urn.save();
+  context.SealFree.set({
+    id: `${event.transaction.hash}-${event.logIndex}`,
+    urn_id: urn.id,
+    index: event.params.index,
+    to: event.params.to,
+    wad: amount,
+    freed: event.params.freed,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
 
-  if (urn.voteDelegate && amount.gt(BigInt.fromI32(0))) {
-    const delegate = getDelegate(urn.voteDelegate);
+  context.SealUrn.set({
+    ...urn,
+    mkrLocked: urn.mkrLocked - amount,
+  });
+
+  if (urn.voteDelegate_id && amount > 0n) {
+    const delegate = await getDelegate(urn.voteDelegate_id, context);
     if (delegate) {
-      delegationFreeHandler(
+      await delegationFreeHandler(
         delegate,
-        urn.owner.toHexString(),
+        urn.owner,
         amount,
-        event.block,
-        event.transaction,
+        BigInt(event.block.timestamp),
+        BigInt(event.block.number),
+        event.transaction.hash,
         true,
         false,
         event.logIndex.toString(),
+        context,
       );
     }
   }
-}
+});
 
-export function handleSealFreeSky(event: FreeSky): void {
+LockstakeEngine.FreeSky.handler(async ({ event, context }) => {
   const amount = event.params.skyWad;
-  const urnAddress = getUrnAddress(
-    event.address,
+  const urnAddress = await getUrnAddress(
+    event.srcAddress,
     event.params.owner,
     event.params.index,
   );
-  let urn = getSealUrn(urnAddress);
-  let free = new SealFreeSky(
-    event.transaction.hash
-      .toHex()
-      .concat('-')
-      .concat(event.logIndex.toString()),
-  );
-  free.urn = urn.id;
-  free.index = event.params.index;
-  free.to = event.params.to;
-  free.skyWad = amount;
-  free.skyFreed = event.params.skyFreed;
-  free.blockNumber = event.block.number;
-  free.blockTimestamp = event.block.timestamp;
-  free.transactionHash = event.transaction.hash;
-  free.save();
+  let urn = await getSealUrn(urnAddress, context);
 
-  let rateMkrSky = getMkrSkyRate();
+  context.SealFreeSky.set({
+    id: `${event.transaction.hash}-${event.logIndex}`,
+    urn_id: urn.id,
+    index: event.params.index,
+    to: event.params.to,
+    skyWad: amount,
+    skyFreed: event.params.skyFreed,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
 
-  urn.mkrLocked = urn.mkrLocked.minus(amount.div(rateMkrSky));
-  urn.save();
+  const rateMkrSky = await getMkrSkyRate();
+  const mkrAmount = amount / rateMkrSky;
 
-  if (urn.voteDelegate && amount.gt(BigInt.fromI32(0))) {
-    const delegate = getDelegate(urn.voteDelegate);
+  context.SealUrn.set({
+    ...urn,
+    mkrLocked: urn.mkrLocked - mkrAmount,
+  });
+
+  if (urn.voteDelegate_id && amount > 0n) {
+    const delegate = await getDelegate(urn.voteDelegate_id, context);
     if (delegate) {
-      delegationFreeHandler(
+      await delegationFreeHandler(
         delegate,
-        urn.owner.toHexString(),
-        amount.div(rateMkrSky),
-        event.block,
-        event.transaction,
+        urn.owner,
+        mkrAmount,
+        BigInt(event.block.timestamp),
+        BigInt(event.block.number),
+        event.transaction.hash,
         true,
         false,
         event.logIndex.toString(),
+        context,
       );
     }
   }
-}
+});
 
-export function handleSealFreeNoFee(event: FreeNoFee): void {
+LockstakeEngine.SealFreeNoFee.handler(async ({ event, context }) => {
   const amount = event.params.wad;
-  const urnAddress = getUrnAddress(
-    event.address,
+  const urnAddress = await getUrnAddress(
+    event.srcAddress,
     event.params.owner,
     event.params.index,
   );
-  let urn = getSealUrn(urnAddress);
-  let free = new SealFreeNoFee(
-    event.transaction.hash
-      .toHex()
-      .concat('-')
-      .concat(event.logIndex.toString()),
-  );
-  free.urn = urn.id;
-  free.index = event.params.index;
-  free.to = event.params.to;
-  free.wad = amount;
-  free.blockNumber = event.block.number;
-  free.blockTimestamp = event.block.timestamp;
-  free.transactionHash = event.transaction.hash;
-  free.save();
+  let urn = await getSealUrn(urnAddress, context);
 
-  urn.mkrLocked = urn.mkrLocked.minus(amount);
-  urn.save();
+  context.SealFreeNoFee.set({
+    id: `${event.transaction.hash}-${event.logIndex}`,
+    urn_id: urn.id,
+    index: event.params.index,
+    to: event.params.to,
+    wad: amount,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
 
-  if (urn.voteDelegate && amount.gt(BigInt.fromI32(0))) {
-    const delegate = getDelegate(urn.voteDelegate);
+  context.SealUrn.set({
+    ...urn,
+    mkrLocked: urn.mkrLocked - amount,
+  });
+
+  if (urn.voteDelegate_id && amount > 0n) {
+    const delegate = await getDelegate(urn.voteDelegate_id, context);
     if (delegate) {
-      delegationFreeHandler(
+      await delegationFreeHandler(
         delegate,
-        urn.owner.toHexString(),
+        urn.owner,
         amount,
-        event.block,
-        event.transaction,
+        BigInt(event.block.timestamp),
+        BigInt(event.block.number),
+        event.transaction.hash,
         true,
         false,
         event.logIndex.toString(),
+        context,
       );
     }
   }
-}
+});
 
-export function handleSealDraw(event: Draw): void {
-  const urnAddress = getUrnAddress(
-    event.address,
+LockstakeEngine.SealDraw.handler(async ({ event, context }) => {
+  const urnAddress = await getUrnAddress(
+    event.srcAddress,
     event.params.owner,
     event.params.index,
   );
-  let urn = getSealUrn(urnAddress);
-  let draw = new SealDraw(
-    event.transaction.hash
-      .toHex()
-      .concat('-')
-      .concat(event.logIndex.toString()),
-  );
-  draw.urn = urn.id;
-  draw.index = event.params.index;
-  draw.to = event.params.to;
-  draw.wad = event.params.wad;
-  draw.blockNumber = event.block.number;
-  draw.blockTimestamp = event.block.timestamp;
-  draw.transactionHash = event.transaction.hash;
-  draw.save();
+  let urn = await getSealUrn(urnAddress, context);
 
-  urn.usdsDebt = urn.usdsDebt.plus(event.params.wad);
-  urn.save();
-}
+  context.SealDraw.set({
+    id: `${event.transaction.hash}-${event.logIndex}`,
+    urn_id: urn.id,
+    index: event.params.index,
+    to: event.params.to,
+    wad: event.params.wad,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
 
-export function handleSealWipe(event: Wipe): void {
-  const urnAddress = getUrnAddress(
-    event.address,
+  context.SealUrn.set({
+    ...urn,
+    usdsDebt: urn.usdsDebt + event.params.wad,
+  });
+});
+
+LockstakeEngine.SealWipe.handler(async ({ event, context }) => {
+  const urnAddress = await getUrnAddress(
+    event.srcAddress,
     event.params.owner,
     event.params.index,
   );
-  let urn = getSealUrn(urnAddress);
-  let wipe = new SealWipe(
-    event.transaction.hash
-      .toHex()
-      .concat('-')
-      .concat(event.logIndex.toString()),
-  );
-  wipe.urn = urn.id;
-  wipe.index = event.params.index;
-  wipe.wad = event.params.wad;
-  wipe.blockNumber = event.block.number;
-  wipe.blockTimestamp = event.block.timestamp;
-  wipe.transactionHash = event.transaction.hash;
-  wipe.save();
+  let urn = await getSealUrn(urnAddress, context);
 
-  urn.usdsDebt = urn.usdsDebt.minus(event.params.wad);
-  urn.save();
-}
+  context.SealWipe.set({
+    id: `${event.transaction.hash}-${event.logIndex}`,
+    urn_id: urn.id,
+    index: event.params.index,
+    wad: event.params.wad,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
 
-export function handleSealGetReward(event: GetReward): void {
-  const urnAddress = getUrnAddress(
-    event.address,
+  context.SealUrn.set({
+    ...urn,
+    usdsDebt: urn.usdsDebt - event.params.wad,
+  });
+});
+
+LockstakeEngine.GetReward.handler(async ({ event, context }) => {
+  const urnAddress = await getUrnAddress(
+    event.srcAddress,
     event.params.owner,
     event.params.index,
   );
-  let urn = getSealUrn(urnAddress);
-  let reward = new SealGetReward(
-    event.transaction.hash
-      .toHex()
-      .concat('-')
-      .concat(event.logIndex.toString()),
-  );
-  reward.urn = urn.id;
-  reward.index = event.params.index;
-  reward.reward = event.params.farm;
-  reward.to = event.params.to;
-  reward.amt = event.params.amt;
-  reward.blockNumber = event.block.number;
-  reward.blockTimestamp = event.block.timestamp;
-  reward.transactionHash = event.transaction.hash;
-  reward.save();
-}
+  let urn = await getSealUrn(urnAddress, context);
 
-export function handleSealOnKick(event: OnKick): void {
-  let urn = getSealUrn(event.params.urn);
-  let kick = new SealOnKick(
-    event.transaction.hash
-      .toHex()
-      .concat('-')
-      .concat(event.logIndex.toString()),
-  );
-  kick.urn = urn.id;
-  kick.wad = event.params.wad;
-  kick.blockNumber = event.block.number;
-  kick.blockTimestamp = event.block.timestamp;
-  kick.transactionHash = event.transaction.hash;
-  kick.save();
+  context.SealGetReward.set({
+    id: `${event.transaction.hash}-${event.logIndex}`,
+    urn_id: urn.id,
+    index: event.params.index,
+    reward: event.params.farm,
+    to: event.params.to,
+    amt: event.params.amt,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});
 
-  urn.auctionsCount = urn.auctionsCount.plus(BigInt.fromI32(1));
-  urn.save();
-}
+LockstakeEngine.OnKick.handler(async ({ event, context }) => {
+  let urn = await getSealUrn(event.params.urn, context);
 
-export function handleSealOnTake(event: OnTake): void {
-  let urn = getSealUrn(event.params.urn);
-  let take = new SealOnTake(
-    event.transaction.hash
-      .toHex()
-      .concat('-')
-      .concat(event.logIndex.toString()),
-  );
-  take.urn = urn.id;
-  take.who = event.params.who;
-  take.wad = event.params.wad;
-  take.blockNumber = event.block.number;
-  take.blockTimestamp = event.block.timestamp;
-  take.transactionHash = event.transaction.hash;
-  take.save();
-}
+  context.SealOnKick.set({
+    id: `${event.transaction.hash}-${event.logIndex}`,
+    urn_id: urn.id,
+    wad: event.params.wad,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
 
-export function handleSealOnRemove(event: OnRemove): void {
-  let urn = getSealUrn(event.params.urn);
-  let remove = new SealOnRemove(
-    event.transaction.hash
-      .toHex()
-      .concat('-')
-      .concat(event.logIndex.toString()),
-  );
-  remove.urn = urn.id;
-  remove.sold = event.params.sold;
-  // remove.left = event.params.left;
-  remove.blockNumber = event.block.number;
-  remove.blockTimestamp = event.block.timestamp;
-  remove.transactionHash = event.transaction.hash;
-  remove.save();
+  context.SealUrn.set({
+    ...urn,
+    auctionsCount: urn.auctionsCount + 1n,
+  });
+});
 
-  urn.auctionsCount = urn.auctionsCount.minus(BigInt.fromI32(1));
-  urn.save();
-}
+LockstakeEngine.OnTake.handler(async ({ event, context }) => {
+  let urn = await getSealUrn(event.params.urn, context);
 
-export function handleSealRely(event: Rely): void {
-  let entity = new SealRely(
-    event.transaction.hash
-      .toHex()
-      .concat('-')
-      .concat(event.logIndex.toString()),
-  );
-  entity.usr = event.params.usr;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
-}
+  context.SealOnTake.set({
+    id: `${event.transaction.hash}-${event.logIndex}`,
+    urn_id: urn.id,
+    who: event.params.who,
+    wad: event.params.wad,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});
 
-export function handleSealDeny(event: Deny): void {
-  let entity = new SealDeny(
-    event.transaction.hash
-      .toHex()
-      .concat('-')
-      .concat(event.logIndex.toString()),
-  );
-  entity.usr = event.params.usr;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
-}
+LockstakeEngine.OnRemove.handler(async ({ event, context }) => {
+  let urn = await getSealUrn(event.params.urn, context);
 
-// export function handleSealFileAddress(event: FileAddress): void {
-//   let entity = new SealFileAddress(
-//     event.transaction.hash
-//       .toHex()
-//       .concat('-')
-//       .concat(event.logIndex.toString()),
-//   );
-//   entity.what = event.params.what;
-//   entity.data = event.params.data;
-//   entity.blockNumber = event.block.number;
-//   entity.blockTimestamp = event.block.timestamp;
-//   entity.transactionHash = event.transaction.hash;
-//   entity.save();
-// }
+  context.SealOnRemove.set({
+    id: `${event.transaction.hash}-${event.logIndex}`,
+    urn_id: urn.id,
+    sold: event.params.sold,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
 
-// export function handleSealFileUint(event: FileUint): void {
-//   let entity = new SealFileUint(
-//     event.transaction.hash
-//       .toHex()
-//       .concat('-')
-//       .concat(event.logIndex.toString()),
-//   );
-//   entity.what = event.params.what;
-//   entity.data = event.params.data;
-//   entity.blockNumber = event.block.number;
-//   entity.blockTimestamp = event.block.timestamp;
-//   entity.transactionHash = event.transaction.hash;
-//   entity.save();
-// }
+  context.SealUrn.set({
+    ...urn,
+    auctionsCount: urn.auctionsCount - 1n,
+  });
+});
 
-export function handleSealHope(event: Hope): void {
-  let entity = new SealHope(
-    event.transaction.hash
-      .toHex()
-      .concat('-')
-      .concat(event.logIndex.toString()),
-  );
-  entity.owner = event.params.owner;
-  entity.index = event.params.index;
-  entity.usr = event.params.usr;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
-}
+LockstakeEngine.SealRely.handler(async ({ event, context }) => {
+  context.SealRely.set({
+    id: `${event.transaction.hash}-${event.logIndex}`,
+    usr: event.params.usr,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});
 
-export function handleSealNope(event: Nope): void {
-  let entity = new SealNope(
-    event.transaction.hash
-      .toHex()
-      .concat('-')
-      .concat(event.logIndex.toString()),
-  );
-  entity.owner = event.params.owner;
-  entity.index = event.params.index;
-  entity.usr = event.params.usr;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
-}
+LockstakeEngine.SealDeny.handler(async ({ event, context }) => {
+  context.SealDeny.set({
+    id: `${event.transaction.hash}-${event.logIndex}`,
+    usr: event.params.usr,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});
+
+// SealFileAddress and SealFileUint handlers are commented out in the original
+
+LockstakeEngine.Hope.handler(async ({ event, context }) => {
+  context.SealHope.set({
+    id: `${event.transaction.hash}-${event.logIndex}`,
+    owner: event.params.owner,
+    index: event.params.index,
+    usr: event.params.usr,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});
+
+LockstakeEngine.Nope.handler(async ({ event, context }) => {
+  context.SealNope.set({
+    id: `${event.transaction.hash}-${event.logIndex}`,
+    owner: event.params.owner,
+    index: event.params.index,
+    usr: event.params.usr,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});

@@ -1,64 +1,53 @@
-import {
-  LockstakeMkrRely,
-  LockstakeMkrDeny,
-  LockstakeMkrApproval,
-  LockstakeMkrTransfer,
-} from '../generated/schema';
-import {
-  Rely as LockstakeMkrRelyEvent,
-  Deny as LockstakeMkrDenyEvent,
-  Approval as LockstakeMkrApprovalEvent,
-  Transfer as LockstakeMkrTransferEvent,
-} from '../generated/LockstakeMkr/LockstakeMkr';
+import { LockstakeMkr } from "generated";
 
-export function handleLockstakeMkrRely(event: LockstakeMkrRelyEvent): void {
-  let entity = new LockstakeMkrRely(
-    event.transaction.hash.concatI32(event.logIndex.toI32()),
-  );
-  entity.usr = event.params.usr;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
-}
+LockstakeMkr.LockstakeMkrRely.handler(async ({ event, context }) => {
+  const id = `${event.transaction.hash}-${event.logIndex}`;
 
-export function handleLockstakeMkrDeny(event: LockstakeMkrDenyEvent): void {
-  let entity = new LockstakeMkrDeny(
-    event.transaction.hash.concatI32(event.logIndex.toI32()),
-  );
-  entity.usr = event.params.usr;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
-}
+  context.LockstakeMkrRely.set({
+    id,
+    usr: event.params.usr,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});
 
-export function handleLockstakeMkrApproval(
-  event: LockstakeMkrApprovalEvent,
-): void {
-  let entity = new LockstakeMkrApproval(
-    event.transaction.hash.concatI32(event.logIndex.toI32()),
-  );
-  entity.owner = event.params.owner;
-  entity.spender = event.params.spender;
-  entity.value = event.params.value;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
-}
+LockstakeMkr.LockstakeMkrDeny.handler(async ({ event, context }) => {
+  const id = `${event.transaction.hash}-${event.logIndex}`;
 
-export function handleLockstakeMkrTransfer(
-  event: LockstakeMkrTransferEvent,
-): void {
-  let entity = new LockstakeMkrTransfer(
-    event.transaction.hash.concatI32(event.logIndex.toI32()),
-  );
-  entity.from = event.params.from;
-  entity.to = event.params.to;
-  entity.value = event.params.value;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
-}
+  context.LockstakeMkrDeny.set({
+    id,
+    usr: event.params.usr,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});
+
+LockstakeMkr.Approval.handler(async ({ event, context }) => {
+  const id = `${event.transaction.hash}-${event.logIndex}`;
+
+  context.LockstakeMkrApproval.set({
+    id,
+    owner: event.params.owner,
+    spender: event.params.spender,
+    value: event.params.value,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});
+
+LockstakeMkr.Transfer.handler(async ({ event, context }) => {
+  const id = `${event.transaction.hash}-${event.logIndex}`;
+
+  context.LockstakeMkrTransfer.set({
+    id,
+    from: event.params.from,
+    to: event.params.to,
+    value: event.params.value,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});

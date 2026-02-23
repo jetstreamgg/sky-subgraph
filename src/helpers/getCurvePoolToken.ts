@@ -1,20 +1,11 @@
-import { Address, BigInt, log } from '@graphprotocol/graph-ts';
-import { CurveStableSwapNG } from '../../generated/CurveUsdsStUsdsPool/CurveStableSwapNG';
-
-export function getCurvePoolToken(
-  poolAddress: Address,
-  tokenIndex: BigInt,
-): Address {
-  const curvePoolContract = CurveStableSwapNG.bind(poolAddress);
-  const result = curvePoolContract.try_coins(tokenIndex);
-
-  if (result.reverted) {
-    log.warning('Failed to fetch token at index {} from pool {}', [
-      tokenIndex.toString(),
-      poolAddress.toHexString(),
-    ]);
-    return Address.zero();
-  }
-
-  return result.value;
+export async function getCurvePoolToken(
+  poolAddress: string,
+  tokenIndex: bigint,
+): Promise<string> {
+  // TODO: Implement RPC call to CurveStableSwapNG.coins(tokenIndex)
+  // For now, return zero address as fallback
+  console.warn(
+    `Failed to fetch token at index ${tokenIndex} from pool ${poolAddress} - RPC call not yet implemented`,
+  );
+  return "0x0000000000000000000000000000000000000000";
 }
