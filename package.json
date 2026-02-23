@@ -9,8 +9,10 @@
   },
   "dependencies": {
     "envio": "^2.32.3",
-    "generated": "file:./generated",
     "viem": "^2.46.2"
+  },
+  "optionalDependencies": {
+    "generated": "./generated"
   },
   "devDependencies": {
     "typescript": "^5.9.3",
