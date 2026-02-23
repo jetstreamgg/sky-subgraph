@@ -1,4 +1,4 @@
-import { PollingEmitter, PollingEmitterV2, BigDecimal } from "generated";
+import { PollingEmitter, PollingEmitterV2, BigDecimal } from 'generated';
 
 // Helper: get or create a Voter entity
 async function getVoter(address: string, context: any) {
@@ -9,9 +9,9 @@ async function getVoter(address: string, context: any) {
       isVoteDelegate: false,
       isVoteProxy: false,
       mkrLockedInChiefRaw: 0n,
-      mkrLockedInChief: new BigDecimal("0.0"),
+      mkrLockedInChief: new BigDecimal('0.0'),
       skyLockedInChiefRaw: 0n,
-      skyLockedInChief: new BigDecimal("0.0"),
+      skyLockedInChief: new BigDecimal('0.0'),
       currentSpells: [],
       currentSpellsV2: [],
       numberExecutiveVotes: 0,
@@ -101,10 +101,16 @@ async function handlePollVote(event: any, context: any) {
   const voteId = `${pollId}-${sender}-${event.block.number}`;
 
   let pollVote = await context.PollVote.get(voteId);
-  let updatedVoter = { ...voter, lastVotedTimestamp: BigInt(event.block.timestamp) };
+  let updatedVoter = {
+    ...voter,
+    lastVotedTimestamp: BigInt(event.block.timestamp),
+  };
 
   if (!pollVote) {
-    updatedVoter = { ...updatedVoter, numberPollVotes: updatedVoter.numberPollVotes + 1 };
+    updatedVoter = {
+      ...updatedVoter,
+      numberPollVotes: updatedVoter.numberPollVotes + 1,
+    };
   }
 
   context.PollVote.set({

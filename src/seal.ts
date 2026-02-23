@@ -1,4 +1,4 @@
-import { LockstakeEngine } from "generated";
+import { LockstakeEngine } from 'generated';
 import { getSealUrn, getUrnAddress } from './helpers/getSealUrn.js';
 import {
   getDelegate,

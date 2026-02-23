@@ -1,5 +1,8 @@
-import { StakingEngine } from "generated";
-import { getStakingEngineUrn, getUrnAddress } from './helpers/getStakingEngineUrn.js';
+import { StakingEngine } from 'generated';
+import {
+  getStakingEngineUrn,
+  getUrnAddress,
+} from './helpers/getStakingEngineUrn.js';
 import {
   getDelegate,
   delegationLockHandler,

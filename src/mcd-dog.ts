@@ -1,4 +1,4 @@
-import { McdDog } from "generated";
+import { McdDog } from 'generated';
 
 McdDog.Bark.handler(async ({ event, context }) => {
   const barkId = `${event.params.ilk}-${event.params.id}`;

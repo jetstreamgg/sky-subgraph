@@ -1,4 +1,4 @@
-import { CurveUsdsStUsdsPool } from "generated";
+import { CurveUsdsStUsdsPool } from 'generated';
 import { getCurvePoolToken } from './helpers/getCurvePoolToken.js';
 
 CurveUsdsStUsdsPool.TokenExchange.handler(async ({ event, context }) => {

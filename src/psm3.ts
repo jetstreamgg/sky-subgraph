@@ -1,4 +1,4 @@
-import { Psm3 } from "generated";
+import { Psm3 } from 'generated';
 
 Psm3.Swap.handler(async ({ event, context }) => {
   const id = `${event.transaction.hash}-${event.logIndex}`;

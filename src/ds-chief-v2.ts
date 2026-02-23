@@ -1,4 +1,4 @@
-import { DSChiefV2 } from "generated";
+import { DSChiefV2 } from 'generated';
 import { SpellState } from './helpers/constants.js';
 import {
   addWeightToSpellsV2,
@@ -84,7 +84,11 @@ async function _handleSlateVote(
   }
 
   // Remove votes from previous spells
-  await removeWeightFromSpellsV2(voter.currentSpellsV2, voter.skyLockedInChiefRaw, context);
+  await removeWeightFromSpellsV2(
+    voter.currentSpellsV2,
+    voter.skyLockedInChiefRaw,
+    context,
+  );
 
   for (let i = 0; i < slate.yays.length; i++) {
     const spellId = slate.yays[i];
@@ -105,7 +109,8 @@ async function _handleSlateVote(
       context.SpellV2.set({
         ...spell,
         totalVotes: spell.totalVotes + 1n,
-        totalWeightedVotes: spell.totalWeightedVotes + voter.skyLockedInChiefRaw,
+        totalWeightedVotes:
+          spell.totalWeightedVotes + voter.skyLockedInChiefRaw,
       });
     }
   }

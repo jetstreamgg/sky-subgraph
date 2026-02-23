@@ -1,5 +1,9 @@
-import { BigDecimal } from "generated";
-import { readDSChiefSlate, readSpellDescription, readSpellExpiration } from './contractCalls.js';
+import { BigDecimal } from 'generated';
+import {
+  readDSChiefSlate,
+  readSpellDescription,
+  readSpellExpiration,
+} from './contractCalls.js';
 import { SpellState, ZERO_ADDRESS } from './constants.js';
 
 export function hexToNumberString(hex: string): bigint {
@@ -21,9 +25,9 @@ export async function getVoter(address: string, context: any) {
       delegateContract_id: undefined,
       proxyContract_id: undefined,
       mkrLockedInChiefRaw: 0n,
-      mkrLockedInChief: new BigDecimal("0"),
+      mkrLockedInChief: new BigDecimal('0'),
       skyLockedInChiefRaw: 0n,
-      skyLockedInChief: new BigDecimal("0"),
+      skyLockedInChief: new BigDecimal('0'),
       currentSpells: [] as string[],
       currentSpellsV2: [] as string[],
       numberExecutiveVotes: 0,
@@ -90,7 +94,12 @@ export async function createSlate(
 
   // Read slate contents by iterating until null is returned (index out of bounds)
   for (let i = 0n; ; i++) {
-    const spellAddress = await readDSChiefSlate(chainId, chiefAddress, slateID, i);
+    const spellAddress = await readDSChiefSlate(
+      chainId,
+      chiefAddress,
+      slateID,
+      i,
+    );
     if (!spellAddress) break;
 
     const spellId = spellAddress.toLowerCase();
@@ -149,7 +158,12 @@ export async function createSlateV2(
 
   // Read slate contents by iterating until null is returned (index out of bounds)
   for (let i = 0n; ; i++) {
-    const spellAddress = await readDSChiefSlate(chainId, chiefAddress, slateID, i);
+    const spellAddress = await readDSChiefSlate(
+      chainId,
+      chiefAddress,
+      slateID,
+      i,
+    );
     if (!spellAddress) break;
 
     const spellId = spellAddress.toLowerCase();

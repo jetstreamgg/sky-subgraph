@@ -1,4 +1,4 @@
-import { LockstakeMigrator } from "generated";
+import { LockstakeMigrator } from 'generated';
 
 LockstakeMigrator.Migrate.handler(async ({ event, context }) => {
   const id = `${event.transaction.hash}-${event.logIndex}`;

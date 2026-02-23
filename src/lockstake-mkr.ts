@@ -1,4 +1,4 @@
-import { LockstakeMkr } from "generated";
+import { LockstakeMkr } from 'generated';
 
 LockstakeMkr.LockstakeMkrRely.handler(async ({ event, context }) => {
   const id = `${event.transaction.hash}-${event.logIndex}`;

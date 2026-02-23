@@ -33,7 +33,12 @@ export async function delegationLockHandler(
   logIndex: string,
   context: any,
 ): Promise<void> {
-  const delegation = await getDelegation(delegate, address, blockTimestamp, context);
+  const delegation = await getDelegation(
+    delegate,
+    address,
+    blockTimestamp,
+    context,
+  );
 
   const lseAddresses = getLseAddresses();
   const stakingEngineAddresses = getStakingEngineAddresses();
@@ -51,7 +56,10 @@ export async function delegationLockHandler(
   // If previous delegation amount was 0, increment the delegators count
   let updatedDelegate = { ...delegate };
   if (delegation.amount === 0n) {
-    updatedDelegate = { ...updatedDelegate, delegators: updatedDelegate.delegators + 1 };
+    updatedDelegate = {
+      ...updatedDelegate,
+      delegators: updatedDelegate.delegators + 1,
+    };
   }
 
   // Increase the total amount delegated to the delegate
@@ -76,12 +84,18 @@ export async function delegationLockHandler(
   // Add the delegation history to the delegate and increase total delegated
   updatedDelegate = {
     ...updatedDelegate,
-    delegationHistory: updatedDelegate.delegationHistory.concat([delegationHistoryId]),
+    delegationHistory: updatedDelegate.delegationHistory.concat([
+      delegationHistoryId,
+    ]),
     totalDelegated: updatedDelegate.totalDelegated + amount,
   };
 
   context.Delegate.set(updatedDelegate);
-  context.Delegation.set({ ...delegation, amount: newAmount, timestamp: blockTimestamp });
+  context.Delegation.set({
+    ...delegation,
+    amount: newAmount,
+    timestamp: blockTimestamp,
+  });
   context.DelegationHistory.set(delegationHistory);
 }
 
@@ -97,7 +111,12 @@ export async function delegationFreeHandler(
   logIndex: string,
   context: any,
 ): Promise<void> {
-  const delegation = await getDelegation(delegate, address, blockTimestamp, context);
+  const delegation = await getDelegation(
+    delegate,
+    address,
+    blockTimestamp,
+    context,
+  );
 
   const lseAddresses = getLseAddresses();
   const stakingEngineAddresses = getStakingEngineAddresses();
@@ -119,7 +138,10 @@ export async function delegationFreeHandler(
 
   // If the delegation amount is 0, decrement the delegators count
   if (newAmount === 0n) {
-    updatedDelegate = { ...updatedDelegate, delegators: updatedDelegate.delegators - 1 };
+    updatedDelegate = {
+      ...updatedDelegate,
+      delegators: updatedDelegate.delegators - 1,
+    };
   }
 
   // Create a new delegation history entity
@@ -142,11 +164,17 @@ export async function delegationFreeHandler(
   // Add the delegation history to the delegate and decrease total delegated
   updatedDelegate = {
     ...updatedDelegate,
-    delegationHistory: updatedDelegate.delegationHistory.concat([delegationHistoryId]),
+    delegationHistory: updatedDelegate.delegationHistory.concat([
+      delegationHistoryId,
+    ]),
     totalDelegated: updatedDelegate.totalDelegated - amount,
   };
 
-  context.Delegation.set({ ...delegation, amount: newAmount, timestamp: blockTimestamp });
+  context.Delegation.set({
+    ...delegation,
+    amount: newAmount,
+    timestamp: blockTimestamp,
+  });
   context.Delegate.set(updatedDelegate);
   context.DelegationHistory.set(delegationHistory);
 }

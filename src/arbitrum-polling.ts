@@ -1,4 +1,4 @@
-import { PollingEmitterArbitrum } from "generated";
+import { PollingEmitterArbitrum } from 'generated';
 
 // Helper: get or create an ArbitrumVoter entity
 async function getArbitrumVoter(address: string, context: any) {
@@ -24,10 +24,16 @@ PollingEmitterArbitrum.Voted.handler(async ({ event, context }) => {
   const voteId = `${pollId}-${sender}-${event.block.number}`;
 
   let pollVote = await context.ArbitrumPollVote.get(voteId);
-  let updatedVoter = { ...voter, lastVotedTimestamp: BigInt(event.block.timestamp) };
+  let updatedVoter = {
+    ...voter,
+    lastVotedTimestamp: BigInt(event.block.timestamp),
+  };
 
   if (!pollVote) {
-    updatedVoter = { ...updatedVoter, numberPollVotes: updatedVoter.numberPollVotes + 1 };
+    updatedVoter = {
+      ...updatedVoter,
+      numberPollVotes: updatedVoter.numberPollVotes + 1,
+    };
   }
 
   let poll = await context.ArbitrumPoll.get(pollId);

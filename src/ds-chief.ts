@@ -1,4 +1,4 @@
-import { DSChief } from "generated";
+import { DSChief } from 'generated';
 import { SpellState } from './helpers/constants.js';
 import {
   addWeightToSpells,
@@ -15,16 +15,16 @@ DSChief.LogNote.handler(async ({ event, context }) => {
   // sig is bytes4 - compare first 4 bytes (8 hex chars after 0x)
   const sigHex = typeof sig === 'string' ? sig.slice(0, 10) : sig;
 
-  if (sigHex === "0xdd467064") {
+  if (sigHex === '0xdd467064') {
     // lock(uint256)
     await handleLock(event, context);
-  } else if (sigHex === "0xd8ccd0f3") {
+  } else if (sigHex === '0xd8ccd0f3') {
     // free(uint256)
     await handleFree(event, context);
-  } else if (sigHex === "0xa69beaba") {
+  } else if (sigHex === '0xa69beaba') {
     // vote(bytes32)
     await handleVote(event, context);
-  } else if (sigHex === "0x3c278bd5") {
+  } else if (sigHex === '0x3c278bd5') {
     // lift(address)
     await handleLift(event, context);
   }
@@ -107,7 +107,11 @@ async function _handleSlateVote(
   }
 
   // Remove votes from previous spells
-  await removeWeightFromSpells(voter.currentSpells, voter.mkrLockedInChiefRaw, context);
+  await removeWeightFromSpells(
+    voter.currentSpells,
+    voter.mkrLockedInChiefRaw,
+    context,
+  );
 
   for (let i = 0; i < slate.yays.length; i++) {
     const spellId = slate.yays[i];
@@ -128,7 +132,8 @@ async function _handleSlateVote(
       context.Spell.set({
         ...spell,
         totalVotes: spell.totalVotes + 1n,
-        totalWeightedVotes: spell.totalWeightedVotes + voter.mkrLockedInChiefRaw,
+        totalWeightedVotes:
+          spell.totalWeightedVotes + voter.mkrLockedInChiefRaw,
       });
     }
   }
@@ -146,7 +151,8 @@ async function handleLift(event: any, context: any): Promise<void> {
   // In the original: Address.fromString(event.params.foo.toHexString().slice(26))
   // The foo param is a bytes32, with the address in the last 20 bytes
   // In hex: 0x + 24 zeros + 40 hex chars of address = 66 chars total, slice(26) gives last 40 chars
-  const fooHex = typeof event.params.foo === 'string' ? event.params.foo : event.params.foo;
+  const fooHex =
+    typeof event.params.foo === 'string' ? event.params.foo : event.params.foo;
   const spellId = '0x' + fooHex.slice(26);
 
   const spell = await context.Spell.get(spellId);

@@ -1,4 +1,4 @@
-import { Stusds } from "generated";
+import { Stusds } from 'generated';
 
 Stusds.Deposit.handler(async ({ event, context }) => {
   const id = `${event.transaction.hash}-${event.logIndex}`;

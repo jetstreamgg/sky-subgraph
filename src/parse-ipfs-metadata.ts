@@ -33,8 +33,8 @@ interface MetadataPayload {
 
 function extractBigDecimal(value: string): string {
   // Values come as '94.23%', remove the % and return as string
-  if (!value || value === "No Data") return "0.0";
-  return value.replace("%", "");
+  if (!value || value === 'No Data') return '0.0';
+  return value.replace('%', '');
 }
 
 /**
@@ -44,11 +44,10 @@ function extractBigDecimal(value: string): string {
  */
 export async function fetchAndParseMetadata(
   ipfsHash: string,
-  context: any
+  context: any,
 ): Promise<void> {
   try {
-    const gateway =
-      process.env.IPFS_GATEWAY || "https://ipfs.io/ipfs";
+    const gateway = process.env.IPFS_GATEWAY || 'https://ipfs.io/ipfs';
     const response = await fetch(`${gateway}/${ipfsHash}`);
 
     if (!response.ok) {
@@ -59,7 +58,7 @@ export async function fetchAndParseMetadata(
     const data = (await response.json()) as MetadataPayload;
     await parseMetadata(data, context);
   } catch (error) {
-    console.error("Error fetching IPFS metadata:", error);
+    console.error('Error fetching IPFS metadata:', error);
   }
 }
 
@@ -68,7 +67,7 @@ export async function fetchAndParseMetadata(
  */
 export async function parseMetadata(
   data: MetadataPayload,
-  context: any
+  context: any,
 ): Promise<void> {
   if (!data || !data.delegates) return;
 
@@ -79,16 +78,16 @@ export async function parseMetadata(
     const metrics = {
       id: delegateAddress,
       combinedParticipation: extractBigDecimal(
-        delegateData.metrics?.combinedParticipation || "0.0%"
+        delegateData.metrics?.combinedParticipation || '0.0%',
       ),
       pollParticipation: extractBigDecimal(
-        delegateData.metrics?.pollParticipation || "0.0%"
+        delegateData.metrics?.pollParticipation || '0.0%',
       ),
       executiveParticipation: extractBigDecimal(
-        delegateData.metrics?.executiveParticipation || "0.0%"
+        delegateData.metrics?.executiveParticipation || '0.0%',
       ),
       communication: extractBigDecimal(
-        delegateData.metrics?.communication || "0.0%"
+        delegateData.metrics?.communication || '0.0%',
       ),
     };
     context.DelegateMetrics.set(metrics);
@@ -96,10 +95,10 @@ export async function parseMetadata(
     // Create/update DelegateMetadata
     const metadata = {
       id: delegateAddress,
-      name: delegateData.profile?.name || "",
-      description: delegateData.profile?.description || "",
-      image: delegateData.image || "",
-      externalProfileURL: delegateData.profile?.externalProfileURL || "",
+      name: delegateData.profile?.name || '',
+      description: delegateData.profile?.description || '',
+      image: delegateData.image || '',
+      externalProfileURL: delegateData.profile?.externalProfileURL || '',
       metrics_id: delegateAddress,
       coreUnitMember: delegateData.cuMember || false,
     };

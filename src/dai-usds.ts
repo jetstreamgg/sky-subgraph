@@ -1,4 +1,4 @@
-import { DaiUsds } from "generated";
+import { DaiUsds } from 'generated';
 
 DaiUsds.DaiToUsds.handler(async ({ event, context }) => {
   const id = `${event.transaction.hash}-${event.logIndex}`;
@@ -14,7 +14,7 @@ DaiUsds.DaiToUsds.handler(async ({ event, context }) => {
   });
 
   // Add to running total of daiUpgraded
-  const totalId = "daiUpgraded";
+  const totalId = 'daiUpgraded';
   let total = await context.Total.get(totalId);
   if (!total) {
     total = { id: totalId, total: 0n };
@@ -36,7 +36,7 @@ DaiUsds.UsdsToDai.handler(async ({ event, context }) => {
   });
 
   // Subtract from running total of daiUpgraded (since DAI is being reverted back)
-  const totalId = "daiUpgraded";
+  const totalId = 'daiUpgraded';
   let total = await context.Total.get(totalId);
   if (!total) {
     total = { id: totalId, total: 0n };

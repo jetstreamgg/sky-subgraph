@@ -1,4 +1,4 @@
-import { LockstakeClipper } from "generated";
+import { LockstakeClipper } from 'generated';
 
 LockstakeClipper.Rely.handler(async ({ event, context }) => {
   const id = `${event.transaction.hash}-${event.logIndex}`;

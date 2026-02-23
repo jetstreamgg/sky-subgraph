@@ -1,4 +1,4 @@
-import { MkrSkyV2 } from "generated";
+import { MkrSkyV2 } from 'generated';
 
 MkrSkyV2.MkrToSky.handler(async ({ event, context }) => {
   const id = `${event.transaction.hash}-${event.logIndex}`;
@@ -16,7 +16,7 @@ MkrSkyV2.MkrToSky.handler(async ({ event, context }) => {
   });
 
   // Add to running total of mkrUpgraded
-  const mkrTotalId = "mkrUpgraded";
+  const mkrTotalId = 'mkrUpgraded';
   let totalMkrUpgraded = await context.Total.get(mkrTotalId);
   if (!totalMkrUpgraded) {
     totalMkrUpgraded = { id: mkrTotalId, total: 0n };
@@ -27,7 +27,7 @@ MkrSkyV2.MkrToSky.handler(async ({ event, context }) => {
   });
 
   // Add to running total of skyUpgraded
-  const skyTotalId = "skyUpgraded";
+  const skyTotalId = 'skyUpgraded';
   let totalSkyUpgraded = await context.Total.get(skyTotalId);
   if (!totalSkyUpgraded) {
     totalSkyUpgraded = { id: skyTotalId, total: 0n };
@@ -38,7 +38,7 @@ MkrSkyV2.MkrToSky.handler(async ({ event, context }) => {
   });
 
   // Add to running total of skyUpgradeFees
-  const feeTotalId = "skyUpgradeFees";
+  const feeTotalId = 'skyUpgradeFees';
   let totalSkyUpgradeFees = await context.Total.get(feeTotalId);
   if (!totalSkyUpgradeFees) {
     totalSkyUpgradeFees = { id: feeTotalId, total: 0n };

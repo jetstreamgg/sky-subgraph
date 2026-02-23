@@ -10,7 +10,7 @@ export async function getStakingEngineUrn(urnAddress: string, context: any) {
       index: 0n,
       blockNumber: 0n,
       blockTimestamp: 0n,
-      transactionHash: "0x",
+      transactionHash: '0x',
       usdsDebt: 0n,
       skyLocked: 0n,
       auctionsCount: 0n,

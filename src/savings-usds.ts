@@ -1,4 +1,4 @@
-import { SavingsUsds } from "generated";
+import { SavingsUsds } from 'generated';
 
 SavingsUsds.Deposit.handler(async ({ event, context }) => {
   const id = `${event.transaction.hash}-${event.logIndex}`;

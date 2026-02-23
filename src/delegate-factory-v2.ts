@@ -1,4 +1,4 @@
-import { DelegateFactoryV2, BigDecimal } from "generated";
+import { DelegateFactoryV2, BigDecimal } from 'generated';
 
 // Register dynamic contract for VoteDelegateV2 when CreateVoteDelegate is emitted
 DelegateFactoryV2.CreateVoteDelegate.contractRegister(({ event, context }) => {
@@ -17,9 +17,9 @@ DelegateFactoryV2.CreateVoteDelegate.handler(async ({ event, context }) => {
       isVoteDelegate: false,
       isVoteProxy: false,
       mkrLockedInChiefRaw: 0n,
-      mkrLockedInChief: new BigDecimal("0.0"),
+      mkrLockedInChief: new BigDecimal('0.0'),
       skyLockedInChiefRaw: 0n,
-      skyLockedInChief: new BigDecimal("0.0"),
+      skyLockedInChief: new BigDecimal('0.0'),
       currentSpells: [],
       currentSpellsV2: [],
       numberExecutiveVotes: 0,
@@ -52,7 +52,7 @@ DelegateFactoryV2.CreateVoteDelegate.handler(async ({ event, context }) => {
       totalDelegated: 0n,
       delegationHistory: [],
       metadata_id: undefined,
-      version: "2",
+      version: '2',
     };
     context.Delegate.set(delegate);
   }

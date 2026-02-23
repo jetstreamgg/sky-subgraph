@@ -1,13 +1,9 @@
-import { VoteDelegateV3 } from "generated";
+import { VoteDelegateV3 } from 'generated';
 
 // LSE and Staking Engine addresses to filter out
-const LSE_ADDRESSES = [
-  "0x2b16c07d5fd5cc701a0a871eae2aad6da5fc8f12",
-];
+const LSE_ADDRESSES = ['0x2b16c07d5fd5cc701a0a871eae2aad6da5fc8f12'];
 
-const STAKING_ENGINE_ADDRESSES = [
-  "0xce01c90de7fd1bcfa39e237fe6d8d9f569e8a6a3",
-];
+const STAKING_ENGINE_ADDRESSES = ['0xce01c90de7fd1bcfa39e237fe6d8d9f569e8a6a3'];
 
 function shouldIgnoreAddress(address: string): boolean {
   const lower = address.toLowerCase();
@@ -41,12 +37,18 @@ VoteDelegateV3.Lock.handler(async ({ event, context }) => {
       timestamp: BigInt(event.block.timestamp),
       delegate_id: delegate.id,
     };
-    updatedDelegate = { ...updatedDelegate, delegations: [...updatedDelegate.delegations, delegationId] };
+    updatedDelegate = {
+      ...updatedDelegate,
+      delegations: [...updatedDelegate.delegations, delegationId],
+    };
   }
 
   // If previous delegation amount was 0, increment the delegators count
   if (delegation.amount === 0n) {
-    updatedDelegate = { ...updatedDelegate, delegators: updatedDelegate.delegators + 1 };
+    updatedDelegate = {
+      ...updatedDelegate,
+      delegators: updatedDelegate.delegators + 1,
+    };
   }
 
   // Increase the total amount delegated
@@ -104,7 +106,10 @@ VoteDelegateV3.Free.handler(async ({ event, context }) => {
       timestamp: BigInt(event.block.timestamp),
       delegate_id: delegate.id,
     };
-    updatedDelegate = { ...updatedDelegate, delegations: [...updatedDelegate.delegations, delegationId] };
+    updatedDelegate = {
+      ...updatedDelegate,
+      delegations: [...updatedDelegate.delegations, delegationId],
+    };
   }
 
   // Decrease the total amount delegated
@@ -112,7 +117,10 @@ VoteDelegateV3.Free.handler(async ({ event, context }) => {
 
   // If the delegation amount is 0, decrement the delegators count
   if (newAmount === 0n) {
-    updatedDelegate = { ...updatedDelegate, delegators: updatedDelegate.delegators - 1 };
+    updatedDelegate = {
+      ...updatedDelegate,
+      delegators: updatedDelegate.delegators - 1,
+    };
   }
 
   context.Delegation.set({
