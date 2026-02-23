@@ -1,5 +1,8 @@
 name: sky-indexer
 description: Sky Protocol Governance & DeFi Indexer
+unordered_multichain_mode: true
+rollback_on_reorg: true
+preload_handlers: true
 schema: schema.graphql
 contracts:
   # === Governance: DSChief (V1) ===
