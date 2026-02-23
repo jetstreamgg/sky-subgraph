@@ -1,4 +1,4 @@
-import { readCurvePoolCoin } from './contractCalls.js';
+import { readCurvePoolCoin } from './contractCalls';
 
 export async function getCurvePoolToken(
   chainId: number,

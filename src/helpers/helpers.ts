@@ -3,8 +3,8 @@ import {
   readDSChiefSlate,
   readSpellDescription,
   readSpellExpiration,
-} from './contractCalls.js';
-import { SpellState, ZERO_ADDRESS } from './constants.js';
+} from './contractCalls';
+import { SpellState, ZERO_ADDRESS } from './constants';
 
 export function hexToNumberString(hex: string): bigint {
   return BigInt(hex);

@@ -1,5 +1,5 @@
 import { DSChief } from 'generated';
-import { SpellState } from './helpers/constants.js';
+import { SpellState } from './helpers/constants';
 import {
   addWeightToSpells,
   createExecutiveVotingPowerChange,
@@ -8,7 +8,7 @@ import {
   hexToNumberString,
   removeWeightFromSpells,
   toDecimal,
-} from './helpers/helpers.js';
+} from './helpers/helpers';
 
 DSChief.LogNote.handler(async ({ event, context }) => {
   const sig = event.params.sig;

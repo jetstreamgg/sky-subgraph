@@ -1,5 +1,5 @@
 import { CurveUsdsStUsdsPool } from 'generated';
-import { getCurvePoolToken } from './helpers/getCurvePoolToken.js';
+import { getCurvePoolToken } from './helpers/getCurvePoolToken';
 
 CurveUsdsStUsdsPool.TokenExchange.handler(async ({ event, context }) => {
   const entityId = `${event.transaction.hash}-${event.logIndex}`;

@@ -1,5 +1,5 @@
 import { DSChiefV2 } from 'generated';
-import { SpellState } from './helpers/constants.js';
+import { SpellState } from './helpers/constants';
 import {
   addWeightToSpellsV2,
   createExecutiveVotingPowerChangeV2,
@@ -7,7 +7,7 @@ import {
   getVoter,
   removeWeightFromSpellsV2,
   toDecimal,
-} from './helpers/helpers.js';
+} from './helpers/helpers';
 
 DSChiefV2.Lock.handler(async ({ event, context }) => {
   const sender = event.params.usr;

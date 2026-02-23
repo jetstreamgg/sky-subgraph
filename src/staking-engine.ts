@@ -2,14 +2,14 @@ import { StakingEngine } from 'generated';
 import {
   getStakingEngineUrn,
   getUrnAddress,
-} from './helpers/getStakingEngineUrn.js';
+} from './helpers/getStakingEngineUrn';
 import {
   getDelegate,
   delegationLockHandler,
   delegationFreeHandler,
-} from './helpers/delegates/index.js';
-import { getReward } from './helpers/getReward.js';
-import { ZERO_ADDRESS } from './helpers/constants.js';
+} from './helpers/delegates/index';
+import { getReward } from './helpers/getReward';
+import { ZERO_ADDRESS } from './helpers/constants';
 
 StakingEngine.StakingOpen.handler(async ({ event, context }) => {
   let urn = await getStakingEngineUrn(event.params.urn, context);

@@ -1,5 +1,5 @@
-import { ZERO_ADDRESS } from './constants.js';
-import { readOwnerUrns } from './contractCalls.js';
+import { ZERO_ADDRESS } from './constants';
+import { readOwnerUrns } from './contractCalls';
 
 export async function getSealUrn(urnAddress: string, context: any) {
   let urn = await context.SealUrn.get(urnAddress);

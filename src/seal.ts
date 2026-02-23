@@ -1,13 +1,13 @@
 import { LockstakeEngine } from 'generated';
-import { getSealUrn, getUrnAddress } from './helpers/getSealUrn.js';
+import { getSealUrn, getUrnAddress } from './helpers/getSealUrn';
 import {
   getDelegate,
   delegationLockHandler,
   delegationFreeHandler,
-} from './helpers/delegates/index.js';
-import { getReward } from './helpers/getReward.js';
-import { readMkrSkyRate } from './helpers/contractCalls.js';
-import { ZERO_ADDRESS } from './helpers/constants.js';
+} from './helpers/delegates/index';
+import { getReward } from './helpers/getReward';
+import { readMkrSkyRate } from './helpers/contractCalls';
+import { ZERO_ADDRESS } from './helpers/constants';
 
 // MkrSky contract addresses per chain
 const MKR_SKY_ADDRESSES: Record<number, string> = {
