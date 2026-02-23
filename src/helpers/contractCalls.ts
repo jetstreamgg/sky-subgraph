@@ -77,18 +77,23 @@ function getClient(chainId: number): PublicClient {
   if (!clients[chainId]) {
     const rpcUrl =
       chainId === 1
-        ? process.env.MAINNET_RPC_URL || ''
+        ? process.env.MAINNET_RPC_URL ||
+          'https://mainnet.gateway.tenderly.co/2fWPiJ0Gnu8RsOBx7YzxQ4'
         : chainId === 314310
           ? 'https://virtual.rpc.tenderly.co/jetstreamgg/jetstream/public/jetstream-testnet'
           : chainId === 8453
-            ? process.env.BASE_RPC_URL || ''
+            ? process.env.BASE_RPC_URL ||
+              'https://base.gateway.tenderly.co/24BjVbbeeSyjlZAzD0CAKj'
             : chainId === 10
-              ? process.env.OPTIMISM_RPC_URL || ''
+              ? process.env.OPTIMISM_RPC_URL ||
+                'https://optimism.gateway.tenderly.co/1A96AkuGadycEK3KNUgdJW'
               : chainId === 42161
-                ? process.env.ARBITRUM_RPC_URL || ''
+                ? process.env.ARBITRUM_RPC_URL ||
+                  'https://arbitrum.gateway.tenderly.co/5R5UVFaPyITIBobelen0Mt'
                 : chainId === 130
-                  ? process.env.UNICHAIN_RPC_URL || ''
-                  : '';
+                  ? process.env.UNICHAIN_RPC_URL ||
+                    'https://unichain.gateway.tenderly.co/39xHYqwyuwCNH6Y89IFWeS'
+                  : 'https://mainnet.gateway.tenderly.co/2fWPiJ0Gnu8RsOBx7YzxQ4';
 
     clients[chainId] = createPublicClient({
       chain: mainnet,
