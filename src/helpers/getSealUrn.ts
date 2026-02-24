@@ -1,5 +1,4 @@
 import { ZERO_ADDRESS } from './constants';
-import { readOwnerUrns } from './contractCalls';
 
 export async function getSealUrn(urnAddress: string, context: any) {
   let urn = await context.SealUrn.get(urnAddress);
@@ -20,13 +19,4 @@ export async function getSealUrn(urnAddress: string, context: any) {
     };
   }
   return urn;
-}
-
-export async function getUrnAddress(
-  chainId: number,
-  contractAddress: string,
-  owner: string,
-  index: bigint,
-): Promise<string> {
-  return readOwnerUrns(chainId, contractAddress, owner, index);
 }

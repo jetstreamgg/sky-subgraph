@@ -5,6 +5,7 @@ import {
   type Address,
 } from 'viem';
 import { mainnet } from 'viem/chains';
+import { createEffect, S } from 'envio';
 
 // ABI fragments for the contract calls we need
 const dsChiefSlatesAbi = [
@@ -97,139 +98,162 @@ function getClient(chainId: number): PublicClient {
 
     clients[chainId] = createPublicClient({
       chain: mainnet,
+      batch: { multicall: true },
       transport: http(rpcUrl),
     });
   }
   return clients[chainId];
 }
 
-/**
- * Read a slate entry from DSChief contract
- * Returns the spell address at the given index, or null if the index is out of bounds
- */
-export async function readDSChiefSlate(
-  chainId: number,
-  chiefAddress: string,
-  slateId: string,
-  index: bigint,
-): Promise<string | null> {
-  try {
-    const client = getClient(chainId);
-    const result = await client.readContract({
-      address: chiefAddress as Address,
-      abi: dsChiefSlatesAbi,
-      functionName: 'slates',
-      args: [slateId as `0x${string}`, index],
-    });
-    return result as string;
-  } catch {
-    return null;
-  }
-}
+// === Effects ===
 
-/**
- * Read spell description from DSSpell contract
- */
-export async function readSpellDescription(
-  chainId: number,
-  spellAddress: string,
-): Promise<string> {
-  try {
-    const client = getClient(chainId);
-    const result = await client.readContract({
-      address: spellAddress as Address,
-      abi: dsSpellAbi,
-      functionName: 'description',
-    });
-    return result as string;
-  } catch {
-    return '';
-  }
-}
+export const readOwnerUrnsEffect = createEffect(
+  {
+    name: 'readOwnerUrns',
+    input: {
+      chainId: S.int32,
+      engineAddress: S.string,
+      owner: S.string,
+      index: S.bigint,
+    },
+    output: S.string,
+    rateLimit: { calls: 10, per: 'second' as const },
+    cache: true,
+  },
+  async ({ input }) => {
+    try {
+      const client = getClient(input.chainId);
+      const result = await client.readContract({
+        address: input.engineAddress as Address,
+        abi: ownerUrnsAbi,
+        functionName: 'ownerUrns',
+        args: [input.owner as Address, input.index],
+      });
+      return (result as string).toLowerCase();
+    } catch {
+      return `${input.engineAddress}-${input.owner}-${input.index}`.toLowerCase();
+    }
+  },
+);
 
-/**
- * Read spell expiration from DSSpell contract
- */
-export async function readSpellExpiration(
-  chainId: number,
-  spellAddress: string,
-): Promise<bigint> {
-  try {
-    const client = getClient(chainId);
-    const result = await client.readContract({
-      address: spellAddress as Address,
-      abi: dsSpellAbi,
-      functionName: 'expiration',
-    });
-    return result as bigint;
-  } catch {
-    return 0n;
-  }
-}
+export const readMkrSkyRateEffect = createEffect(
+  {
+    name: 'readMkrSkyRate',
+    input: { chainId: S.int32, mkrSkyAddress: S.string },
+    output: S.bigint,
+    rateLimit: { calls: 5, per: 'second' as const },
+    cache: true,
+  },
+  async ({ input }) => {
+    try {
+      const client = getClient(input.chainId);
+      const result = await client.readContract({
+        address: input.mkrSkyAddress as Address,
+        abi: mkrSkyRateAbi,
+        functionName: 'rate',
+      });
+      return result as bigint;
+    } catch {
+      return 24000n;
+    }
+  },
+);
 
-/**
- * Read MKR/SKY conversion rate from MkrSky contract
- */
-export async function readMkrSkyRate(
-  chainId: number,
-  mkrSkyAddress: string,
-): Promise<bigint> {
-  try {
-    const client = getClient(chainId);
-    const result = await client.readContract({
-      address: mkrSkyAddress as Address,
-      abi: mkrSkyRateAbi,
-      functionName: 'rate',
-    });
-    return result as bigint;
-  } catch {
-    // Default rate: 24000 (1 MKR = 24000 SKY)
-    return 24000n;
-  }
-}
+export const readCurvePoolCoinEffect = createEffect(
+  {
+    name: 'readCurvePoolCoin',
+    input: { chainId: S.int32, poolAddress: S.string, index: S.bigint },
+    output: S.string,
+    rateLimit: { calls: 5, per: 'second' as const },
+    cache: true,
+  },
+  async ({ input }) => {
+    try {
+      const client = getClient(input.chainId);
+      const result = await client.readContract({
+        address: input.poolAddress as Address,
+        abi: curveCoinsAbi,
+        functionName: 'coins',
+        args: [input.index],
+      });
+      return (result as string).toLowerCase();
+    } catch {
+      return 'unknown';
+    }
+  },
+);
 
-/**
- * Read urn address from LockstakeEngine or StakingEngine contract
- */
-export async function readOwnerUrns(
-  chainId: number,
-  engineAddress: string,
-  owner: string,
-  index: bigint,
-): Promise<string> {
-  try {
-    const client = getClient(chainId);
-    const result = await client.readContract({
-      address: engineAddress as Address,
-      abi: ownerUrnsAbi,
-      functionName: 'ownerUrns',
-      args: [owner as Address, index],
-    });
-    return (result as string).toLowerCase();
-  } catch {
-    // Fallback: derive deterministic address
-    return `${engineAddress}-${owner}-${index}`.toLowerCase();
-  }
-}
+export const readDSChiefSlateEffect = createEffect(
+  {
+    name: 'readDSChiefSlate',
+    input: {
+      chainId: S.int32,
+      chiefAddress: S.string,
+      slateId: S.string,
+      index: S.bigint,
+    },
+    output: S.string,
+    rateLimit: { calls: 10, per: 'second' as const },
+    cache: true,
+  },
+  async ({ input }) => {
+    try {
+      const client = getClient(input.chainId);
+      const result = await client.readContract({
+        address: input.chiefAddress as Address,
+        abi: dsChiefSlatesAbi,
+        functionName: 'slates',
+        args: [input.slateId as `0x${string}`, input.index],
+      });
+      return result as string;
+    } catch {
+      return '';
+    }
+  },
+);
 
-/**
- * Read token address from Curve pool
- */
-export async function readCurvePoolCoin(
-  chainId: number,
-  poolAddress: string,
-  index: bigint,
-): Promise<string> {
-  try {
-    const client = getClient(chainId);
-    const result = await client.readContract({
-      address: poolAddress as Address,
-      abi: curveCoinsAbi,
-      functionName: 'coins',
-      args: [index],
-    });
-    return (result as string).toLowerCase();
-  } catch {
-    return 'unknown';
-  }
-}
+export const readSpellDescriptionEffect = createEffect(
+  {
+    name: 'readSpellDescription',
+    input: { chainId: S.int32, spellAddress: S.string },
+    output: S.string,
+    rateLimit: { calls: 5, per: 'second' as const },
+    cache: true,
+  },
+  async ({ input }) => {
+    try {
+      const client = getClient(input.chainId);
+      const result = await client.readContract({
+        address: input.spellAddress as Address,
+        abi: dsSpellAbi,
+        functionName: 'description',
+      });
+      return result as string;
+    } catch {
+      return '';
+    }
+  },
+);
+
+export const readSpellExpirationEffect = createEffect(
+  {
+    name: 'readSpellExpiration',
+    input: { chainId: S.int32, spellAddress: S.string },
+    output: S.bigint,
+    rateLimit: { calls: 5, per: 'second' as const },
+    cache: true,
+  },
+  async ({ input }) => {
+    try {
+      const client = getClient(input.chainId);
+      const result = await client.readContract({
+        address: input.spellAddress as Address,
+        abi: dsSpellAbi,
+        functionName: 'expiration',
+      });
+      return result as bigint;
+    } catch {
+      return 0n;
+    }
+  },
+);

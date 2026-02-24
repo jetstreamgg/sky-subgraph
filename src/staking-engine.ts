@@ -1,14 +1,12 @@
 import { StakingEngine } from 'generated';
-import {
-  getStakingEngineUrn,
-  getUrnAddress,
-} from './helpers/getStakingEngineUrn';
+import { getStakingEngineUrn } from './helpers/getStakingEngineUrn';
 import {
   getDelegate,
   delegationLockHandler,
   delegationFreeHandler,
 } from './helpers/delegates/index';
 import { getReward } from './helpers/getReward';
+import { readOwnerUrnsEffect } from './helpers/contractCalls';
 import { ZERO_ADDRESS } from './helpers/constants';
 
 StakingEngine.StakingOpen.handler(async ({ event, context }) => {
@@ -37,12 +35,12 @@ StakingEngine.StakingOpen.handler(async ({ event, context }) => {
 });
 
 StakingEngine.StakingSelectVoteDelegate.handler(async ({ event, context }) => {
-  const urnAddress = await getUrnAddress(
-    event.chainId,
-    event.srcAddress,
-    event.params.owner,
-    event.params.index,
-  );
+  const urnAddress = await context.effect(readOwnerUrnsEffect, {
+    chainId: event.chainId,
+    engineAddress: event.srcAddress,
+    owner: event.params.owner,
+    index: event.params.index,
+  });
   let urn = await getStakingEngineUrn(urnAddress, context);
 
   const oldDelegateAddress = urn.voteDelegate_id;
@@ -138,12 +136,12 @@ StakingEngine.StakingSelectVoteDelegate.handler(async ({ event, context }) => {
 });
 
 StakingEngine.StakingSelectFarm.handler(async ({ event, context }) => {
-  const urnAddress = await getUrnAddress(
-    event.chainId,
-    event.srcAddress,
-    event.params.owner,
-    event.params.index,
-  );
+  const urnAddress = await context.effect(readOwnerUrnsEffect, {
+    chainId: event.chainId,
+    engineAddress: event.srcAddress,
+    owner: event.params.owner,
+    index: event.params.index,
+  });
   let urn = await getStakingEngineUrn(urnAddress, context);
   let reward = await getReward(event.params.farm, context);
 
@@ -168,12 +166,12 @@ StakingEngine.StakingSelectFarm.handler(async ({ event, context }) => {
 
 StakingEngine.StakingLock.handler(async ({ event, context }) => {
   const amount = event.params.wad;
-  const urnAddress = await getUrnAddress(
-    event.chainId,
-    event.srcAddress,
-    event.params.owner,
-    event.params.index,
-  );
+  const urnAddress = await context.effect(readOwnerUrnsEffect, {
+    chainId: event.chainId,
+    engineAddress: event.srcAddress,
+    owner: event.params.owner,
+    index: event.params.index,
+  });
   let urn = await getStakingEngineUrn(urnAddress, context);
 
   const ref = Number(event.params.ref) || 0;
@@ -215,12 +213,12 @@ StakingEngine.StakingLock.handler(async ({ event, context }) => {
 
 StakingEngine.StakingFree.handler(async ({ event, context }) => {
   const amount = event.params.wad;
-  const urnAddress = await getUrnAddress(
-    event.chainId,
-    event.srcAddress,
-    event.params.owner,
-    event.params.index,
-  );
+  const urnAddress = await context.effect(readOwnerUrnsEffect, {
+    chainId: event.chainId,
+    engineAddress: event.srcAddress,
+    owner: event.params.owner,
+    index: event.params.index,
+  });
   let urn = await getStakingEngineUrn(urnAddress, context);
 
   context.StakingFree.set({
@@ -260,12 +258,12 @@ StakingEngine.StakingFree.handler(async ({ event, context }) => {
 
 StakingEngine.StakingFreeNoFee.handler(async ({ event, context }) => {
   const amount = event.params.wad;
-  const urnAddress = await getUrnAddress(
-    event.chainId,
-    event.srcAddress,
-    event.params.owner,
-    event.params.index,
-  );
+  const urnAddress = await context.effect(readOwnerUrnsEffect, {
+    chainId: event.chainId,
+    engineAddress: event.srcAddress,
+    owner: event.params.owner,
+    index: event.params.index,
+  });
   let urn = await getStakingEngineUrn(urnAddress, context);
 
   context.StakingFreeNoFee.set({
@@ -304,12 +302,12 @@ StakingEngine.StakingFreeNoFee.handler(async ({ event, context }) => {
 });
 
 StakingEngine.StakingDraw.handler(async ({ event, context }) => {
-  const urnAddress = await getUrnAddress(
-    event.chainId,
-    event.srcAddress,
-    event.params.owner,
-    event.params.index,
-  );
+  const urnAddress = await context.effect(readOwnerUrnsEffect, {
+    chainId: event.chainId,
+    engineAddress: event.srcAddress,
+    owner: event.params.owner,
+    index: event.params.index,
+  });
   let urn = await getStakingEngineUrn(urnAddress, context);
 
   context.StakingDraw.set({
@@ -330,12 +328,12 @@ StakingEngine.StakingDraw.handler(async ({ event, context }) => {
 });
 
 StakingEngine.StakingWipe.handler(async ({ event, context }) => {
-  const urnAddress = await getUrnAddress(
-    event.chainId,
-    event.srcAddress,
-    event.params.owner,
-    event.params.index,
-  );
+  const urnAddress = await context.effect(readOwnerUrnsEffect, {
+    chainId: event.chainId,
+    engineAddress: event.srcAddress,
+    owner: event.params.owner,
+    index: event.params.index,
+  });
   let urn = await getStakingEngineUrn(urnAddress, context);
 
   context.StakingWipe.set({
@@ -355,12 +353,12 @@ StakingEngine.StakingWipe.handler(async ({ event, context }) => {
 });
 
 StakingEngine.StakingGetReward.handler(async ({ event, context }) => {
-  const urnAddress = await getUrnAddress(
-    event.chainId,
-    event.srcAddress,
-    event.params.owner,
-    event.params.index,
-  );
+  const urnAddress = await context.effect(readOwnerUrnsEffect, {
+    chainId: event.chainId,
+    engineAddress: event.srcAddress,
+    owner: event.params.owner,
+    index: event.params.index,
+  });
   let urn = await getStakingEngineUrn(urnAddress, context);
 
   context.StakingGetReward.set({

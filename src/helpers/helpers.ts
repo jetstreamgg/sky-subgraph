@@ -1,8 +1,8 @@
 import { BigDecimal } from 'generated';
 import {
-  readDSChiefSlate,
-  readSpellDescription,
-  readSpellExpiration,
+  readDSChiefSlateEffect,
+  readSpellDescriptionEffect,
+  readSpellExpirationEffect,
 } from './contractCalls';
 import { SpellState, ZERO_ADDRESS } from './constants';
 
@@ -92,22 +92,31 @@ export async function createSlate(
   const chiefAddress = event.srcAddress;
   const chainId = event.chainId;
 
-  // Read slate contents by iterating until null is returned (index out of bounds)
+  // Read slate contents by iterating until empty string is returned (index out of bounds)
   for (let i = 0n; ; i++) {
-    const spellAddress = await readDSChiefSlate(
+    const spellAddress = await context.effect(readDSChiefSlateEffect, {
       chainId,
       chiefAddress,
-      slateID,
-      i,
-    );
+      slateId: slateID,
+      index: i,
+    });
     if (!spellAddress) break;
 
     const spellId = spellAddress.toLowerCase();
     if (spellId !== ZERO_ADDRESS) {
       let spell = await context.Spell.get(spellId);
       if (!spell) {
-        const description = await readSpellDescription(chainId, spellId);
-        const expiryTime = await readSpellExpiration(chainId, spellId);
+        // Fetch description and expiration in parallel
+        const [description, expiryTime] = await Promise.all([
+          context.effect(readSpellDescriptionEffect, {
+            chainId,
+            spellAddress: spellId,
+          }),
+          context.effect(readSpellExpirationEffect, {
+            chainId,
+            spellAddress: spellId,
+          }),
+        ]);
         spell = {
           id: spellId,
           description,
@@ -156,22 +165,31 @@ export async function createSlateV2(
   const chiefAddress = event.srcAddress;
   const chainId = event.chainId;
 
-  // Read slate contents by iterating until null is returned (index out of bounds)
+  // Read slate contents by iterating until empty string is returned (index out of bounds)
   for (let i = 0n; ; i++) {
-    const spellAddress = await readDSChiefSlate(
+    const spellAddress = await context.effect(readDSChiefSlateEffect, {
       chainId,
       chiefAddress,
-      slateID,
-      i,
-    );
+      slateId: slateID,
+      index: i,
+    });
     if (!spellAddress) break;
 
     const spellId = spellAddress.toLowerCase();
     if (spellId !== ZERO_ADDRESS) {
       let spell = await context.SpellV2.get(spellId);
       if (!spell) {
-        const description = await readSpellDescription(chainId, spellId);
-        const expiryTime = await readSpellExpiration(chainId, spellId);
+        // Fetch description and expiration in parallel
+        const [description, expiryTime] = await Promise.all([
+          context.effect(readSpellDescriptionEffect, {
+            chainId,
+            spellAddress: spellId,
+          }),
+          context.effect(readSpellExpirationEffect, {
+            chainId,
+            spellAddress: spellId,
+          }),
+        ]);
         spell = {
           id: spellId,
           description,

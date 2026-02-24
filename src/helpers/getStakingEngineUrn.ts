@@ -1,5 +1,4 @@
 import { ZERO_ADDRESS } from './constants';
-import { readOwnerUrns } from './contractCalls';
 
 export async function getStakingEngineUrn(urnAddress: string, context: any) {
   let urn = await context.StakingUrn.get(urnAddress);
@@ -19,13 +18,4 @@ export async function getStakingEngineUrn(urnAddress: string, context: any) {
     };
   }
   return urn;
-}
-
-export async function getUrnAddress(
-  chainId: number,
-  contractAddress: string,
-  owner: string,
-  index: bigint,
-): Promise<string> {
-  return readOwnerUrns(chainId, contractAddress, owner, index);
 }

@@ -1,12 +1,15 @@
 import { LockstakeEngine } from 'generated';
-import { getSealUrn, getUrnAddress } from './helpers/getSealUrn';
+import { getSealUrn } from './helpers/getSealUrn';
 import {
   getDelegate,
   delegationLockHandler,
   delegationFreeHandler,
 } from './helpers/delegates/index';
 import { getReward } from './helpers/getReward';
-import { readMkrSkyRate } from './helpers/contractCalls';
+import {
+  readOwnerUrnsEffect,
+  readMkrSkyRateEffect,
+} from './helpers/contractCalls';
 import { ZERO_ADDRESS } from './helpers/constants';
 
 // MkrSky contract addresses per chain
@@ -14,12 +17,6 @@ const MKR_SKY_ADDRESSES: Record<number, string> = {
   1: '0xBDcFCA946b6CDd965f99a839e4435Bcdc1bc470B',
   314310: '0xBDcFCA946b6CDd965f99a839e4435Bcdc1bc470B',
 };
-
-async function getMkrSkyRate(chainId: number): Promise<bigint> {
-  const mkrSkyAddress = MKR_SKY_ADDRESSES[chainId];
-  if (!mkrSkyAddress) return 24000n;
-  return readMkrSkyRate(chainId, mkrSkyAddress);
-}
 
 LockstakeEngine.SealOpen.handler(async ({ event, context }) => {
   const urn = await getSealUrn(event.params.urn, context);
@@ -47,12 +44,12 @@ LockstakeEngine.SealOpen.handler(async ({ event, context }) => {
 });
 
 LockstakeEngine.SealSelectVoteDelegate.handler(async ({ event, context }) => {
-  const urnAddress = await getUrnAddress(
-    event.chainId,
-    event.srcAddress,
-    event.params.owner,
-    event.params.index,
-  );
+  const urnAddress = await context.effect(readOwnerUrnsEffect, {
+    chainId: event.chainId,
+    engineAddress: event.srcAddress,
+    owner: event.params.owner,
+    index: event.params.index,
+  });
   let urn = await getSealUrn(urnAddress, context);
 
   const oldDelegateAddress = urn.voteDelegate_id;
@@ -148,12 +145,12 @@ LockstakeEngine.SealSelectVoteDelegate.handler(async ({ event, context }) => {
 });
 
 LockstakeEngine.SealSelectFarm.handler(async ({ event, context }) => {
-  const urnAddress = await getUrnAddress(
-    event.chainId,
-    event.srcAddress,
-    event.params.owner,
-    event.params.index,
-  );
+  const urnAddress = await context.effect(readOwnerUrnsEffect, {
+    chainId: event.chainId,
+    engineAddress: event.srcAddress,
+    owner: event.params.owner,
+    index: event.params.index,
+  });
   let urn = await getSealUrn(urnAddress, context);
   let reward = await getReward(event.params.farm, context);
 
@@ -194,12 +191,12 @@ LockstakeEngine.SealDelFarm.handler(async ({ event, context }) => {
 
 LockstakeEngine.SealLock.handler(async ({ event, context }) => {
   const amount = event.params.wad;
-  const urnAddress = await getUrnAddress(
-    event.chainId,
-    event.srcAddress,
-    event.params.owner,
-    event.params.index,
-  );
+  const urnAddress = await context.effect(readOwnerUrnsEffect, {
+    chainId: event.chainId,
+    engineAddress: event.srcAddress,
+    owner: event.params.owner,
+    index: event.params.index,
+  });
   let urn = await getSealUrn(urnAddress, context);
 
   const ref = Number(event.params.ref) || 0;
@@ -241,12 +238,24 @@ LockstakeEngine.SealLock.handler(async ({ event, context }) => {
 
 LockstakeEngine.LockSky.handler(async ({ event, context }) => {
   const amount = event.params.skyWad;
-  const urnAddress = await getUrnAddress(
-    event.chainId,
-    event.srcAddress,
-    event.params.owner,
-    event.params.index,
-  );
+  const mkrSkyAddress = MKR_SKY_ADDRESSES[event.chainId];
+
+  // Kick off both contract calls in parallel at the top of the handler
+  const [urnAddress, rateMkrSky] = await Promise.all([
+    context.effect(readOwnerUrnsEffect, {
+      chainId: event.chainId,
+      engineAddress: event.srcAddress,
+      owner: event.params.owner,
+      index: event.params.index,
+    }),
+    mkrSkyAddress
+      ? context.effect(readMkrSkyRateEffect, {
+          chainId: event.chainId,
+          mkrSkyAddress,
+        })
+      : Promise.resolve(24000n),
+  ]);
+
   let urn = await getSealUrn(urnAddress, context);
 
   const ref = Number(event.params.ref) || 0;
@@ -262,7 +271,6 @@ LockstakeEngine.LockSky.handler(async ({ event, context }) => {
     transactionHash: event.transaction.hash,
   });
 
-  const rateMkrSky = await getMkrSkyRate(event.chainId);
   const mkrAmount = amount / rateMkrSky;
 
   context.SealUrn.set({
@@ -291,12 +299,12 @@ LockstakeEngine.LockSky.handler(async ({ event, context }) => {
 
 LockstakeEngine.SealFree.handler(async ({ event, context }) => {
   const amount = event.params.wad;
-  const urnAddress = await getUrnAddress(
-    event.chainId,
-    event.srcAddress,
-    event.params.owner,
-    event.params.index,
-  );
+  const urnAddress = await context.effect(readOwnerUrnsEffect, {
+    chainId: event.chainId,
+    engineAddress: event.srcAddress,
+    owner: event.params.owner,
+    index: event.params.index,
+  });
   let urn = await getSealUrn(urnAddress, context);
 
   context.SealFree.set({
@@ -337,12 +345,24 @@ LockstakeEngine.SealFree.handler(async ({ event, context }) => {
 
 LockstakeEngine.FreeSky.handler(async ({ event, context }) => {
   const amount = event.params.skyWad;
-  const urnAddress = await getUrnAddress(
-    event.chainId,
-    event.srcAddress,
-    event.params.owner,
-    event.params.index,
-  );
+  const mkrSkyAddress = MKR_SKY_ADDRESSES[event.chainId];
+
+  // Kick off both contract calls in parallel at the top of the handler
+  const [urnAddress, rateMkrSky] = await Promise.all([
+    context.effect(readOwnerUrnsEffect, {
+      chainId: event.chainId,
+      engineAddress: event.srcAddress,
+      owner: event.params.owner,
+      index: event.params.index,
+    }),
+    mkrSkyAddress
+      ? context.effect(readMkrSkyRateEffect, {
+          chainId: event.chainId,
+          mkrSkyAddress,
+        })
+      : Promise.resolve(24000n),
+  ]);
+
   let urn = await getSealUrn(urnAddress, context);
 
   context.SealFreeSky.set({
@@ -357,7 +377,6 @@ LockstakeEngine.FreeSky.handler(async ({ event, context }) => {
     transactionHash: event.transaction.hash,
   });
 
-  const rateMkrSky = await getMkrSkyRate(event.chainId);
   const mkrAmount = amount / rateMkrSky;
 
   context.SealUrn.set({
@@ -386,12 +405,12 @@ LockstakeEngine.FreeSky.handler(async ({ event, context }) => {
 
 LockstakeEngine.SealFreeNoFee.handler(async ({ event, context }) => {
   const amount = event.params.wad;
-  const urnAddress = await getUrnAddress(
-    event.chainId,
-    event.srcAddress,
-    event.params.owner,
-    event.params.index,
-  );
+  const urnAddress = await context.effect(readOwnerUrnsEffect, {
+    chainId: event.chainId,
+    engineAddress: event.srcAddress,
+    owner: event.params.owner,
+    index: event.params.index,
+  });
   let urn = await getSealUrn(urnAddress, context);
 
   context.SealFreeNoFee.set({
@@ -430,12 +449,12 @@ LockstakeEngine.SealFreeNoFee.handler(async ({ event, context }) => {
 });
 
 LockstakeEngine.SealDraw.handler(async ({ event, context }) => {
-  const urnAddress = await getUrnAddress(
-    event.chainId,
-    event.srcAddress,
-    event.params.owner,
-    event.params.index,
-  );
+  const urnAddress = await context.effect(readOwnerUrnsEffect, {
+    chainId: event.chainId,
+    engineAddress: event.srcAddress,
+    owner: event.params.owner,
+    index: event.params.index,
+  });
   let urn = await getSealUrn(urnAddress, context);
 
   context.SealDraw.set({
@@ -456,12 +475,12 @@ LockstakeEngine.SealDraw.handler(async ({ event, context }) => {
 });
 
 LockstakeEngine.SealWipe.handler(async ({ event, context }) => {
-  const urnAddress = await getUrnAddress(
-    event.chainId,
-    event.srcAddress,
-    event.params.owner,
-    event.params.index,
-  );
+  const urnAddress = await context.effect(readOwnerUrnsEffect, {
+    chainId: event.chainId,
+    engineAddress: event.srcAddress,
+    owner: event.params.owner,
+    index: event.params.index,
+  });
   let urn = await getSealUrn(urnAddress, context);
 
   context.SealWipe.set({
@@ -481,12 +500,12 @@ LockstakeEngine.SealWipe.handler(async ({ event, context }) => {
 });
 
 LockstakeEngine.GetReward.handler(async ({ event, context }) => {
-  const urnAddress = await getUrnAddress(
-    event.chainId,
-    event.srcAddress,
-    event.params.owner,
-    event.params.index,
-  );
+  const urnAddress = await context.effect(readOwnerUrnsEffect, {
+    chainId: event.chainId,
+    engineAddress: event.srcAddress,
+    owner: event.params.owner,
+    index: event.params.index,
+  });
   let urn = await getSealUrn(urnAddress, context);
 
   context.SealGetReward.set({

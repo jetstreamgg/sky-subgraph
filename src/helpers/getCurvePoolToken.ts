@@ -1,9 +1,2 @@
-import { readCurvePoolCoin } from './contractCalls';
-
-export async function getCurvePoolToken(
-  chainId: number,
-  poolAddress: string,
-  tokenIndex: bigint,
-): Promise<string> {
-  return readCurvePoolCoin(chainId, poolAddress, tokenIndex);
-}
+// This file is kept for backwards compatibility but is no longer used.
+// Contract calls now use the Effect API via readCurvePoolCoinEffect directly in handlers.
