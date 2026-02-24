@@ -146,8 +146,6 @@ type Delegate {
   blockTimestamp: BigInt!
   "Block number of event"
   blockNumber: BigInt!
-  "Delegate metadata"
-  metadata: DelegateMetadata
   "Delegate contract version"
   version: String!
 }
@@ -416,31 +414,6 @@ type ContentHashRegistry {
   cid: String!
 }
 
-type DelegateMetadata {
-  "Delegate contract address"
-  id: String!
-  "Delegate name"
-  name: String!
-  "Delegate description"
-  description: String!
-  "Delegate image"
-  image: String!
-  "Delegate external profile URL"
-  externalProfileURL: String!
-  "Metrics"
-  metrics: DelegateMetrics!
-  "Core unit member"
-  coreUnitMember: Boolean!
-}
-
-type DelegateMetrics {
-  "Delegate contract address"
-  id: String!
-  combinedParticipation: BigDecimal!
-  pollParticipation: BigDecimal!
-  executiveParticipation: BigDecimal!
-  communication: BigDecimal!
-}
 
 type VotingStrategy {
   id: String!

@@ -53,7 +53,6 @@ DelegateFactory.CreateVoteDelegate.handler(async ({ event, context }) => {
       txnHash: event.transaction.hash,
       totalDelegated: 0n,
       delegationHistory: [],
-      metadata_id: delegateContractAddress,
       version: '1',
     };
     context.Delegate.set(delegateInfo);
