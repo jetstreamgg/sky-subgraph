@@ -246,7 +246,7 @@ export const readSpellDescriptionEffect = createEffect(
     rateLimit: { calls: 5, per: 'second' as const },
     cache: true,
   },
-  async ({ input, context }) => {
+  async ({ input }) => {
     try {
       const client = getClient(input.chainId);
       const result = await client.readContract({
@@ -255,13 +255,8 @@ export const readSpellDescriptionEffect = createEffect(
         functionName: 'description',
       });
       return result as string;
-    } catch (error) {
-      context.log.error('Failed to read spell description', {
-        spellAddress: input.spellAddress,
-        chainId: input.chainId.toString(),
-        err: error,
-      });
-      throw error;
+    } catch {
+      return '';
     }
   },
 );
@@ -270,11 +265,11 @@ export const readSpellExpirationEffect = createEffect(
   {
     name: 'readSpellExpiration',
     input: { chainId: S.int32, spellAddress: S.string },
-    output: S.bigint,
+    output: S.nullable(S.bigint),
     rateLimit: { calls: 5, per: 'second' as const },
     cache: true,
   },
-  async ({ input, context }) => {
+  async ({ input }) => {
     try {
       const client = getClient(input.chainId);
       const result = await client.readContract({
@@ -283,13 +278,8 @@ export const readSpellExpirationEffect = createEffect(
         functionName: 'expiration',
       });
       return result as bigint;
-    } catch (error) {
-      context.log.error('Failed to read spell expiration', {
-        spellAddress: input.spellAddress,
-        chainId: input.chainId.toString(),
-        err: error,
-      });
-      throw error;
+    } catch {
+      return undefined;
     }
   },
 );

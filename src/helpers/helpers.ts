@@ -106,7 +106,6 @@ export async function createSlate(
     if (spellId !== ZERO_ADDRESS) {
       let spell = await context.Spell.get(spellId);
       if (!spell) {
-        // Fetch description and expiration in parallel
         const [description, expiryTime] = await Promise.all([
           context.effect(readSpellDescriptionEffect, {
             chainId,
@@ -117,28 +116,32 @@ export async function createSlate(
             spellAddress: spellId,
           }),
         ]);
-        spell = {
-          id: spellId,
-          description,
-          state: SpellState.ACTIVE,
-          creationBlock: BigInt(event.block.number),
-          creationTime: BigInt(event.block.timestamp),
-          expiryTime,
-          totalVotes: 0n,
-          totalWeightedVotes: 0n,
-          castBlock: undefined,
-          castTime: undefined,
-          castTxnHash: undefined,
-          castWith: undefined,
-          liftedBlock: undefined,
-          liftedTime: undefined,
-          liftedTxnHash: undefined,
-          liftedWith: undefined,
-          scheduledBlock: undefined,
-          scheduledTime: undefined,
-          scheduledTxnHash: undefined,
-        };
-        context.Spell.set(spell);
+        // Only save the spell if expiration() didn't revert
+        // (matches original subgraph behavior)
+        if (expiryTime !== undefined) {
+          spell = {
+            id: spellId,
+            description,
+            state: SpellState.ACTIVE,
+            creationBlock: BigInt(event.block.number),
+            creationTime: BigInt(event.block.timestamp),
+            expiryTime,
+            totalVotes: 0n,
+            totalWeightedVotes: 0n,
+            castBlock: undefined,
+            castTime: undefined,
+            castTxnHash: undefined,
+            castWith: undefined,
+            liftedBlock: undefined,
+            liftedTime: undefined,
+            liftedTxnHash: undefined,
+            liftedWith: undefined,
+            scheduledBlock: undefined,
+            scheduledTime: undefined,
+            scheduledTxnHash: undefined,
+          };
+          context.Spell.set(spell);
+        }
       }
       yays.push(spellId);
     }
@@ -179,7 +182,6 @@ export async function createSlateV2(
     if (spellId !== ZERO_ADDRESS) {
       let spell = await context.SpellV2.get(spellId);
       if (!spell) {
-        // Fetch description and expiration in parallel
         const [description, expiryTime] = await Promise.all([
           context.effect(readSpellDescriptionEffect, {
             chainId,
@@ -190,28 +192,32 @@ export async function createSlateV2(
             spellAddress: spellId,
           }),
         ]);
-        spell = {
-          id: spellId,
-          description,
-          state: SpellState.ACTIVE,
-          creationBlock: BigInt(event.block.number),
-          creationTime: BigInt(event.block.timestamp),
-          expiryTime,
-          totalVotes: 0n,
-          totalWeightedVotes: 0n,
-          castBlock: undefined,
-          castTime: undefined,
-          castTxnHash: undefined,
-          castWith: undefined,
-          liftedBlock: undefined,
-          liftedTime: undefined,
-          liftedTxnHash: undefined,
-          liftedWith: undefined,
-          scheduledBlock: undefined,
-          scheduledTime: undefined,
-          scheduledTxnHash: undefined,
-        };
-        context.SpellV2.set(spell);
+        // Only save the spell if expiration() didn't revert
+        // (matches original subgraph behavior)
+        if (expiryTime !== undefined) {
+          spell = {
+            id: spellId,
+            description,
+            state: SpellState.ACTIVE,
+            creationBlock: BigInt(event.block.number),
+            creationTime: BigInt(event.block.timestamp),
+            expiryTime,
+            totalVotes: 0n,
+            totalWeightedVotes: 0n,
+            castBlock: undefined,
+            castTime: undefined,
+            castTxnHash: undefined,
+            castWith: undefined,
+            liftedBlock: undefined,
+            liftedTime: undefined,
+            liftedTxnHash: undefined,
+            liftedWith: undefined,
+            scheduledBlock: undefined,
+            scheduledTime: undefined,
+            scheduledTxnHash: undefined,
+          };
+          context.SpellV2.set(spell);
+        }
       }
       yays.push(spellId);
     }
