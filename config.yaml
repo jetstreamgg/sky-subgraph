@@ -20,19 +20,19 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/maker/DSChiefV2.json
     events:
-      - event: 'Lock(address usr, uint256 wad)'
+      - event: 'Lock(address indexed usr, uint256 wad)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Free(address usr, uint256 wad)'
+      - event: 'Free(address indexed usr, uint256 wad)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Vote(address usr, bytes32 slate)'
+      - event: 'Vote(address indexed usr, bytes32 indexed slate)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Lift(address whom)'
+      - event: 'Lift(address indexed whom)'
         field_selection:
           transaction_fields:
             - hash
@@ -42,15 +42,15 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/maker/PollingEmitter.json
     events:
-      - event: 'Voted(address voter, uint256 pollId, uint256 optionId)'
+      - event: 'Voted(address indexed voter, uint256 indexed pollId, uint256 indexed optionId)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'PollCreated(address creator, uint256 blockCreated, uint256 pollId, uint256 startDate, uint256 endDate, string multiHash, string url)'
+      - event: 'PollCreated(address indexed creator, uint256 blockCreated, uint256 indexed pollId, uint256 startDate, uint256 endDate, string multiHash, string url)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'PollWithdrawn(address creator, uint256 blockWithdrawn, uint256 pollId)'
+      - event: 'PollWithdrawn(address indexed creator, uint256 blockWithdrawn, uint256 pollId)'
         field_selection:
           transaction_fields:
             - hash
@@ -60,15 +60,15 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/maker/PollingEmitter.json
     events:
-      - event: 'Voted(address voter, uint256 pollId, uint256 optionId)'
+      - event: 'Voted(address indexed voter, uint256 indexed pollId, uint256 indexed optionId)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'PollCreated(address creator, uint256 blockCreated, uint256 pollId, uint256 startDate, uint256 endDate, string multiHash, string url)'
+      - event: 'PollCreated(address indexed creator, uint256 blockCreated, uint256 indexed pollId, uint256 startDate, uint256 endDate, string multiHash, string url)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'PollWithdrawn(address creator, uint256 blockWithdrawn, uint256 pollId)'
+      - event: 'PollWithdrawn(address indexed creator, uint256 blockWithdrawn, uint256 pollId)'
         field_selection:
           transaction_fields:
             - hash
@@ -78,11 +78,11 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/maker/PollingEmitter.json
     events:
-      - event: 'Voted(address voter, uint256 pollId, uint256 optionId)'
+      - event: 'Voted(address indexed voter, uint256 indexed pollId, uint256 indexed optionId)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'PollCreated(address creator, uint256 blockCreated, uint256 pollId, uint256 startDate, uint256 endDate, string multiHash, string url)'
+      - event: 'PollCreated(address indexed creator, uint256 blockCreated, uint256 indexed pollId, uint256 startDate, uint256 endDate, string multiHash, string url)'
         field_selection:
           transaction_fields:
             - hash
@@ -92,7 +92,7 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/maker/DelegateFactory.json
     events:
-      - event: 'CreateVoteDelegate(address delegate, address voteDelegate)'
+      - event: 'CreateVoteDelegate(address indexed delegate, address indexed voteDelegate)'
         field_selection:
           transaction_fields:
             - hash
@@ -101,7 +101,7 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/maker/DelegateFactoryV2.json
     events:
-      - event: 'CreateVoteDelegate(address delegate, address voteDelegate)'
+      - event: 'CreateVoteDelegate(address indexed delegate, address indexed voteDelegate)'
         field_selection:
           transaction_fields:
             - hash
@@ -110,7 +110,7 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/maker/DelegateFactoryV3.json
     events:
-      - event: 'CreateVoteDelegate(address delegate, address voteDelegate)'
+      - event: 'CreateVoteDelegate(address indexed delegate, address indexed voteDelegate)'
         field_selection:
           transaction_fields:
             - hash
@@ -120,11 +120,11 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/maker/VoteDelegate.json
     events:
-      - event: 'Lock(address usr, uint256 wad)'
+      - event: 'Lock(address indexed usr, uint256 wad)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Free(address usr, uint256 wad)'
+      - event: 'Free(address indexed usr, uint256 wad)'
         field_selection:
           transaction_fields:
             - hash
@@ -133,11 +133,11 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/maker/VoteDelegateV2.json
     events:
-      - event: 'Lock(address usr, uint256 wad)'
+      - event: 'Lock(address indexed usr, uint256 wad)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Free(address usr, uint256 wad)'
+      - event: 'Free(address indexed usr, uint256 wad)'
         field_selection:
           transaction_fields:
             - hash
@@ -150,11 +150,11 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/maker/VoteDelegateV3.json
     events:
-      - event: 'Lock(address usr, uint256 wad)'
+      - event: 'Lock(address indexed usr, uint256 wad)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Free(address usr, uint256 wad)'
+      - event: 'Free(address indexed usr, uint256 wad)'
         field_selection:
           transaction_fields:
             - hash
@@ -164,15 +164,15 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/rewards/RewardsUsdsClePoints.json
     events:
-      - event: 'Staked(address user, uint256 amount)'
+      - event: 'Staked(address indexed user, uint256 amount)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Withdrawn(address user, uint256 amount)'
+      - event: 'Withdrawn(address indexed user, uint256 amount)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Referral(uint16 referral, address user, uint256 amount)'
+      - event: 'Referral(uint16 indexed referral, address indexed user, uint256 amount)'
         field_selection:
           transaction_fields:
             - hash
@@ -181,19 +181,19 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/rewards/RewardsUsdsSky.json
     events:
-      - event: 'RewardPaid(address user, uint256 reward)'
+      - event: 'RewardPaid(address indexed user, uint256 reward)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Staked(address user, uint256 amount)'
+      - event: 'Staked(address indexed user, uint256 amount)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Withdrawn(address user, uint256 amount)'
+      - event: 'Withdrawn(address indexed user, uint256 amount)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Referral(uint16 referral, address user, uint256 amount)'
+      - event: 'Referral(uint16 indexed referral, address indexed user, uint256 amount)'
         field_selection:
           transaction_fields:
             - hash
@@ -202,19 +202,19 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/rewards/RewardsUsdsSpk.json
     events:
-      - event: 'RewardPaid(address user, uint256 reward)'
+      - event: 'RewardPaid(address indexed user, uint256 reward)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Staked(address user, uint256 amount)'
+      - event: 'Staked(address indexed user, uint256 amount)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Withdrawn(address user, uint256 amount)'
+      - event: 'Withdrawn(address indexed user, uint256 amount)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Referral(uint16 referral, address user, uint256 amount)'
+      - event: 'Referral(uint16 indexed referral, address indexed user, uint256 amount)'
         field_selection:
           transaction_fields:
             - hash
@@ -223,19 +223,19 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/rewards/RewardsLsmkrUsds.json
     events:
-      - event: 'RewardPaid(address user, uint256 reward)'
+      - event: 'RewardPaid(address indexed user, uint256 reward)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Staked(address user, uint256 amount)'
+      - event: 'Staked(address indexed user, uint256 amount)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Withdrawn(address user, uint256 amount)'
+      - event: 'Withdrawn(address indexed user, uint256 amount)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Referral(uint16 referral, address user, uint256 amount)'
+      - event: 'Referral(uint16 indexed referral, address indexed user, uint256 amount)'
         field_selection:
           transaction_fields:
             - hash
@@ -244,19 +244,19 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/rewards/RewardsLsskyUsds.json
     events:
-      - event: 'RewardPaid(address user, uint256 reward)'
+      - event: 'RewardPaid(address indexed user, uint256 reward)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Staked(address user, uint256 amount)'
+      - event: 'Staked(address indexed user, uint256 amount)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Withdrawn(address user, uint256 amount)'
+      - event: 'Withdrawn(address indexed user, uint256 amount)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Referral(uint16 referral, address user, uint256 amount)'
+      - event: 'Referral(uint16 indexed referral, address indexed user, uint256 amount)'
         field_selection:
           transaction_fields:
             - hash
@@ -265,19 +265,19 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/rewards/RewardsLsskySpk.json
     events:
-      - event: 'RewardPaid(address user, uint256 reward)'
+      - event: 'RewardPaid(address indexed user, uint256 reward)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Staked(address user, uint256 amount)'
+      - event: 'Staked(address indexed user, uint256 amount)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Withdrawn(address user, uint256 amount)'
+      - event: 'Withdrawn(address indexed user, uint256 amount)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Referral(uint16 referral, address user, uint256 amount)'
+      - event: 'Referral(uint16 indexed referral, address indexed user, uint256 amount)'
         field_selection:
           transaction_fields:
             - hash
@@ -286,19 +286,19 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/rewards/RewardsLsskySky.json
     events:
-      - event: 'RewardPaid(address user, uint256 reward)'
+      - event: 'RewardPaid(address indexed user, uint256 reward)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Staked(address user, uint256 amount)'
+      - event: 'Staked(address indexed user, uint256 amount)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Withdrawn(address user, uint256 amount)'
+      - event: 'Withdrawn(address indexed user, uint256 amount)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Referral(uint16 referral, address user, uint256 amount)'
+      - event: 'Referral(uint16 indexed referral, address indexed user, uint256 amount)'
         field_selection:
           transaction_fields:
             - hash
@@ -308,15 +308,15 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/maker/SavingsUsds.json
     events:
-      - event: 'Deposit(address sender, address owner, uint256 assets, uint256 shares)'
+      - event: 'Deposit(address indexed sender, address indexed owner, uint256 assets, uint256 shares)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Withdraw(address sender, address receiver, address owner, uint256 assets, uint256 shares)'
+      - event: 'Withdraw(address indexed sender, address indexed receiver, address indexed owner, uint256 assets, uint256 shares)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Referral(uint16 referral, address owner, uint256 assets, uint256 shares)'
+      - event: 'Referral(uint16 indexed referral, address indexed owner, uint256 assets, uint256 shares)'
         field_selection:
           transaction_fields:
             - hash
@@ -325,15 +325,15 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/maker/Stusds.json
     events:
-      - event: 'Deposit(address sender, address owner, uint256 assets, uint256 shares)'
+      - event: 'Deposit(address indexed sender, address indexed owner, uint256 assets, uint256 shares)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Withdraw(address sender, address receiver, address owner, uint256 assets, uint256 shares)'
+      - event: 'Withdraw(address indexed sender, address indexed receiver, address indexed owner, uint256 assets, uint256 shares)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Referral(uint16 referral, address owner, uint256 assets, uint256 shares)'
+      - event: 'Referral(uint16 indexed referral, address indexed owner, uint256 assets, uint256 shares)'
         field_selection:
           transaction_fields:
             - hash
@@ -343,11 +343,11 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/maker/DaiUsds.json
     events:
-      - event: 'DaiToUsds(address caller, address usr, uint256 wad)'
+      - event: 'DaiToUsds(address indexed caller, address indexed usr, uint256 wad)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'UsdsToDai(address caller, address usr, uint256 wad)'
+      - event: 'UsdsToDai(address indexed caller, address indexed usr, uint256 wad)'
         field_selection:
           transaction_fields:
             - hash
@@ -356,11 +356,11 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/maker/MkrSky.json
     events:
-      - event: 'MkrToSky(address caller, address usr, uint256 mkrAmt, uint256 skyAmt)'
+      - event: 'MkrToSky(address indexed caller, address indexed usr, uint256 mkrAmt, uint256 skyAmt)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'SkyToMkr(address caller, address usr, uint256 skyAmt, uint256 mkrAmt)'
+      - event: 'SkyToMkr(address indexed caller, address indexed usr, uint256 skyAmt, uint256 mkrAmt)'
         field_selection:
           transaction_fields:
             - hash
@@ -369,7 +369,7 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/maker/MkrSkyV2.json
     events:
-      - event: 'MkrToSky(address caller, address usr, uint256 mkrAmt, uint256 skyAmt, uint256 skyFee)'
+      - event: 'MkrToSky(address indexed caller, address indexed usr, uint256 mkrAmt, uint256 skyAmt, uint256 skyFee)'
         field_selection:
           transaction_fields:
             - hash
@@ -379,33 +379,33 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/maker/LockstakeClipper.json
     events:
-      - event: 'Rely(address usr)'
+      - event: 'Rely(address indexed usr)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Deny(address usr)'
+      - event: 'Deny(address indexed usr)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'File(bytes32 what, uint256 data)'
+      - event: 'File(bytes32 indexed what, uint256 data)'
         name: 'FileUint'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'File(bytes32 what, address data)'
+      - event: 'File(bytes32 indexed what, address data)'
         name: 'FileAddress'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Kick(uint256 id, uint256 top, uint256 tab, uint256 lot, address usr, address kpr, uint256 coin)'
+      - event: 'Kick(uint256 indexed id, uint256 top, uint256 tab, uint256 lot, address indexed usr, address indexed kpr, uint256 coin)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Take(uint256 id, uint256 max, uint256 price, uint256 owe, uint256 tab, uint256 lot, address usr)'
+      - event: 'Take(uint256 indexed id, uint256 max, uint256 price, uint256 owe, uint256 tab, uint256 lot, address indexed usr)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Redo(uint256 id, uint256 top, uint256 tab, uint256 lot, address usr, address kpr, uint256 coin)'
+      - event: 'Redo(uint256 indexed id, uint256 top, uint256 tab, uint256 lot, address indexed usr, address indexed kpr, uint256 coin)'
         field_selection:
           transaction_fields:
             - hash
@@ -418,21 +418,21 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/maker/LockstakeMkr.json
     events:
-      - event: 'Rely(address usr)'
+      - event: 'Rely(address indexed usr)'
         name: 'LockstakeMkrRely'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Deny(address usr)'
+      - event: 'Deny(address indexed usr)'
         name: 'LockstakeMkrDeny'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Approval(address owner, address spender, uint256 value)'
+      - event: 'Approval(address indexed owner, address indexed spender, uint256 value)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Transfer(address from, address to, uint256 value)'
+      - event: 'Transfer(address indexed from, address indexed to, uint256 value)'
         field_selection:
           transaction_fields:
             - hash
@@ -441,85 +441,85 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/maker/LockstakeEngine.json
     events:
-      - event: 'Rely(address usr)'
+      - event: 'Rely(address indexed usr)'
         name: 'SealRely'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Deny(address usr)'
+      - event: 'Deny(address indexed usr)'
         name: 'SealDeny'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Hope(address owner, uint256 index, address usr)'
+      - event: 'Hope(address indexed owner, uint256 indexed index, address indexed usr)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Nope(address owner, uint256 index, address usr)'
+      - event: 'Nope(address indexed owner, uint256 indexed index, address indexed usr)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Open(address owner, uint256 index, address urn)'
+      - event: 'Open(address indexed owner, uint256 indexed index, address urn)'
         name: 'SealOpen'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'SelectVoteDelegate(address owner, uint256 index, address voteDelegate)'
+      - event: 'SelectVoteDelegate(address indexed owner, uint256 indexed index, address indexed voteDelegate)'
         name: 'SealSelectVoteDelegate'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'SelectFarm(address owner, uint256 index, address farm, uint16 ref)'
+      - event: 'SelectFarm(address indexed owner, uint256 indexed index, address indexed farm, uint16 ref)'
         name: 'SealSelectFarm'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Lock(address owner, uint256 index, uint256 wad, uint16 ref)'
+      - event: 'Lock(address indexed owner, uint256 indexed index, uint256 wad, uint16 ref)'
         name: 'SealLock'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'LockSky(address owner, uint256 index, uint256 skyWad, uint16 ref)'
+      - event: 'LockSky(address indexed owner, uint256 indexed index, uint256 skyWad, uint16 ref)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Free(address owner, uint256 index, address to, uint256 wad, uint256 freed)'
+      - event: 'Free(address indexed owner, uint256 indexed index, address to, uint256 wad, uint256 freed)'
         name: 'SealFree'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'FreeSky(address owner, uint256 index, address to, uint256 skyWad, uint256 skyFreed)'
+      - event: 'FreeSky(address indexed owner, uint256 indexed index, address to, uint256 skyWad, uint256 skyFreed)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'FreeNoFee(address owner, uint256 index, address to, uint256 wad)'
+      - event: 'FreeNoFee(address indexed owner, uint256 indexed index, address to, uint256 wad)'
         name: 'SealFreeNoFee'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Draw(address owner, uint256 index, address to, uint256 wad)'
+      - event: 'Draw(address indexed owner, uint256 indexed index, address to, uint256 wad)'
         name: 'SealDraw'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Wipe(address owner, uint256 index, uint256 wad)'
+      - event: 'Wipe(address indexed owner, uint256 indexed index, uint256 wad)'
         name: 'SealWipe'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'GetReward(address owner, uint256 index, address farm, address to, uint256 amt)'
+      - event: 'GetReward(address indexed owner, uint256 indexed index, address indexed farm, address to, uint256 amt)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'OnKick(address urn, uint256 wad)'
+      - event: 'OnKick(address indexed urn, uint256 wad)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'OnTake(address urn, address who, uint256 wad)'
+      - event: 'OnTake(address indexed urn, address indexed who, uint256 wad)'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'OnRemove(address urn, uint256 sold, uint256 burn, uint256 refund)'
+      - event: 'OnRemove(address indexed urn, uint256 sold, uint256 burn, uint256 refund)'
         field_selection:
           transaction_fields:
             - hash
@@ -539,52 +539,52 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/maker/StakingEngine.json
     events:
-      - event: 'Open(address owner, uint256 index, address urn)'
+      - event: 'Open(address indexed owner, uint256 indexed index, address urn)'
         name: 'StakingOpen'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'SelectVoteDelegate(address owner, uint256 index, address voteDelegate)'
+      - event: 'SelectVoteDelegate(address indexed owner, uint256 indexed index, address indexed voteDelegate)'
         name: 'StakingSelectVoteDelegate'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'SelectFarm(address owner, uint256 index, address farm, uint16 ref)'
+      - event: 'SelectFarm(address indexed owner, uint256 indexed index, address indexed farm, uint16 ref)'
         name: 'StakingSelectFarm'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Lock(address owner, uint256 index, uint256 wad, uint16 ref)'
+      - event: 'Lock(address indexed owner, uint256 indexed index, uint256 wad, uint16 ref)'
         name: 'StakingLock'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Free(address owner, uint256 index, address to, uint256 wad, uint256 freed)'
+      - event: 'Free(address indexed owner, uint256 indexed index, address to, uint256 wad, uint256 freed)'
         name: 'StakingFree'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'FreeNoFee(address owner, uint256 index, address to, uint256 wad)'
+      - event: 'FreeNoFee(address indexed owner, uint256 indexed index, address to, uint256 wad)'
         name: 'StakingFreeNoFee'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Draw(address owner, uint256 index, address to, uint256 wad)'
+      - event: 'Draw(address indexed owner, uint256 indexed index, address to, uint256 wad)'
         name: 'StakingDraw'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'Wipe(address owner, uint256 index, uint256 wad)'
+      - event: 'Wipe(address indexed owner, uint256 indexed index, uint256 wad)'
         name: 'StakingWipe'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'GetReward(address owner, uint256 index, address farm, address to, uint256 amt)'
+      - event: 'GetReward(address indexed owner, uint256 indexed index, address indexed farm, address to, uint256 amt)'
         name: 'StakingGetReward'
         field_selection:
           transaction_fields:
             - hash
-      - event: 'OnKick(address urn, uint256 wad)'
+      - event: 'OnKick(address indexed urn, uint256 wad)'
         name: 'StakingOnKick'
         field_selection:
           transaction_fields:
@@ -615,7 +615,7 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/maker/McdDog.json
     events:
-      - event: 'Bark(bytes32 ilk, address urn, uint256 ink, uint256 art, uint256 due, address clip, uint256 id)'
+      - event: 'Bark(bytes32 indexed ilk, address indexed urn, uint256 ink, uint256 art, uint256 due, address clip, uint256 indexed id)'
         field_selection:
           transaction_fields:
             - hash
@@ -625,7 +625,7 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/psm/Psm3.json
     events:
-      - event: 'Swap(address assetIn, address assetOut, address sender, address receiver, uint256 amountIn, uint256 amountOut, uint256 referralCode)'
+      - event: 'Swap(address indexed assetIn, address indexed assetOut, address sender, address indexed receiver, uint256 amountIn, uint256 amountOut, uint256 referralCode)'
         field_selection:
           transaction_fields:
             - hash
@@ -635,7 +635,7 @@ contracts:
     handler: src/EventHandlers.ts
     abi_file_path: abis/curve/CurveStableSwapNG.json
     events:
-      - event: 'TokenExchange(address buyer, int128 sold_id, uint256 tokens_sold, int128 bought_id, uint256 tokens_bought)'
+      - event: 'TokenExchange(address indexed buyer, int128 sold_id, uint256 tokens_sold, int128 bought_id, uint256 tokens_bought)'
         field_selection:
           transaction_fields:
             - hash
