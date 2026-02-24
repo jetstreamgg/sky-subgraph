@@ -71,38 +71,43 @@ const curveCoinsAbi = [
   },
 ] as const;
 
-// Client cache per chain
+// RPC URLs per chain
+const RPC_URLS: Record<number, string> = {
+  1:
+    process.env.MAINNET_RPC_URL ||
+    'https://mainnet.gateway.tenderly.co/2fWPiJ0Gnu8RsOBx7YzxQ4',
+  314310:
+    'https://virtual.rpc.tenderly.co/jetstreamgg/jetstream/public/jetstream-testnet',
+  8453:
+    process.env.BASE_RPC_URL ||
+    'https://base.gateway.tenderly.co/24BjVbbeeSyjlZAzD0CAKj',
+  10:
+    process.env.OPTIMISM_RPC_URL ||
+    'https://optimism.gateway.tenderly.co/1A96AkuGadycEK3KNUgdJW',
+  42161:
+    process.env.ARBITRUM_RPC_URL ||
+    'https://arbitrum.gateway.tenderly.co/5R5UVFaPyITIBobelen0Mt',
+  130:
+    process.env.UNICHAIN_RPC_URL ||
+    'https://unichain.gateway.tenderly.co/39xHYqwyuwCNH6Y89IFWeS',
+};
+
+// Pre-create public clients per chain at module level
 const clients: Record<number, PublicClient> = {};
+for (const [chainId, rpcUrl] of Object.entries(RPC_URLS)) {
+  clients[Number(chainId)] = createPublicClient({
+    chain: mainnet,
+    batch: { multicall: true },
+    transport: http(rpcUrl, { batch: true }),
+  });
+}
 
 function getClient(chainId: number): PublicClient {
-  if (!clients[chainId]) {
-    const rpcUrl =
-      chainId === 1
-        ? process.env.MAINNET_RPC_URL ||
-          'https://mainnet.gateway.tenderly.co/2fWPiJ0Gnu8RsOBx7YzxQ4'
-        : chainId === 314310
-          ? 'https://virtual.rpc.tenderly.co/jetstreamgg/jetstream/public/jetstream-testnet'
-          : chainId === 8453
-            ? process.env.BASE_RPC_URL ||
-              'https://base.gateway.tenderly.co/24BjVbbeeSyjlZAzD0CAKj'
-            : chainId === 10
-              ? process.env.OPTIMISM_RPC_URL ||
-                'https://optimism.gateway.tenderly.co/1A96AkuGadycEK3KNUgdJW'
-              : chainId === 42161
-                ? process.env.ARBITRUM_RPC_URL ||
-                  'https://arbitrum.gateway.tenderly.co/5R5UVFaPyITIBobelen0Mt'
-                : chainId === 130
-                  ? process.env.UNICHAIN_RPC_URL ||
-                    'https://unichain.gateway.tenderly.co/39xHYqwyuwCNH6Y89IFWeS'
-                  : 'https://mainnet.gateway.tenderly.co/2fWPiJ0Gnu8RsOBx7YzxQ4';
-
-    clients[chainId] = createPublicClient({
-      chain: mainnet,
-      batch: { multicall: true },
-      transport: http(rpcUrl),
-    });
+  const client = clients[chainId];
+  if (!client) {
+    throw new Error(`No RPC client configured for chain ${chainId}`);
   }
-  return clients[chainId];
+  return client;
 }
 
 // === Effects ===
@@ -120,7 +125,7 @@ export const readOwnerUrnsEffect = createEffect(
     rateLimit: { calls: 10, per: 'second' as const },
     cache: true,
   },
-  async ({ input }) => {
+  async ({ input, context }) => {
     try {
       const client = getClient(input.chainId);
       const result = await client.readContract({
@@ -130,8 +135,15 @@ export const readOwnerUrnsEffect = createEffect(
         args: [input.owner as Address, input.index],
       });
       return (result as string).toLowerCase();
-    } catch {
-      return `${input.engineAddress}-${input.owner}-${input.index}`.toLowerCase();
+    } catch (error) {
+      context.log.error('Failed to read ownerUrns', {
+        engineAddress: input.engineAddress,
+        owner: input.owner,
+        index: input.index.toString(),
+        chainId: input.chainId.toString(),
+        err: error,
+      });
+      throw error;
     }
   },
 );
@@ -144,7 +156,7 @@ export const readMkrSkyRateEffect = createEffect(
     rateLimit: { calls: 5, per: 'second' as const },
     cache: true,
   },
-  async ({ input }) => {
+  async ({ input, context }) => {
     try {
       const client = getClient(input.chainId);
       const result = await client.readContract({
@@ -153,8 +165,13 @@ export const readMkrSkyRateEffect = createEffect(
         functionName: 'rate',
       });
       return result as bigint;
-    } catch {
-      return 24000n;
+    } catch (error) {
+      context.log.error('Failed to read MkrSky rate', {
+        mkrSkyAddress: input.mkrSkyAddress,
+        chainId: input.chainId.toString(),
+        err: error,
+      });
+      throw error;
     }
   },
 );
@@ -167,7 +184,7 @@ export const readCurvePoolCoinEffect = createEffect(
     rateLimit: { calls: 5, per: 'second' as const },
     cache: true,
   },
-  async ({ input }) => {
+  async ({ input, context }) => {
     try {
       const client = getClient(input.chainId);
       const result = await client.readContract({
@@ -177,12 +194,20 @@ export const readCurvePoolCoinEffect = createEffect(
         args: [input.index],
       });
       return (result as string).toLowerCase();
-    } catch {
-      return 'unknown';
+    } catch (error) {
+      context.log.error('Failed to read Curve pool coin', {
+        poolAddress: input.poolAddress,
+        index: input.index.toString(),
+        chainId: input.chainId.toString(),
+        err: error,
+      });
+      throw error;
     }
   },
 );
 
+// readDSChiefSlateEffect: returning '' on index out-of-bounds is the expected
+// loop termination signal used by createSlate/createSlateV2
 export const readDSChiefSlateEffect = createEffect(
   {
     name: 'readDSChiefSlate',
@@ -207,6 +232,7 @@ export const readDSChiefSlateEffect = createEffect(
       });
       return result as string;
     } catch {
+      // Index out of bounds = end of slate
       return '';
     }
   },
@@ -220,7 +246,7 @@ export const readSpellDescriptionEffect = createEffect(
     rateLimit: { calls: 5, per: 'second' as const },
     cache: true,
   },
-  async ({ input }) => {
+  async ({ input, context }) => {
     try {
       const client = getClient(input.chainId);
       const result = await client.readContract({
@@ -229,8 +255,13 @@ export const readSpellDescriptionEffect = createEffect(
         functionName: 'description',
       });
       return result as string;
-    } catch {
-      return '';
+    } catch (error) {
+      context.log.error('Failed to read spell description', {
+        spellAddress: input.spellAddress,
+        chainId: input.chainId.toString(),
+        err: error,
+      });
+      throw error;
     }
   },
 );
@@ -243,7 +274,7 @@ export const readSpellExpirationEffect = createEffect(
     rateLimit: { calls: 5, per: 'second' as const },
     cache: true,
   },
-  async ({ input }) => {
+  async ({ input, context }) => {
     try {
       const client = getClient(input.chainId);
       const result = await client.readContract({
@@ -252,8 +283,13 @@ export const readSpellExpirationEffect = createEffect(
         functionName: 'expiration',
       });
       return result as bigint;
-    } catch {
-      return 0n;
+    } catch (error) {
+      context.log.error('Failed to read spell expiration', {
+        spellAddress: input.spellAddress,
+        chainId: input.chainId.toString(),
+        err: error,
+      });
+      throw error;
     }
   },
 );
