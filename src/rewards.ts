@@ -167,10 +167,7 @@ async function handleRewardReferral(event: any, context: any) {
   const reward = await getReward(event.srcAddress, context);
 
   const entityId = `${event.transaction.hash}-${event.logIndex}`;
-  let ref = event.params.referral;
-  if (!ref) {
-    ref = 0;
-  }
+  const ref = Number(event.params.referral) || 0;
 
   context.RewardReferral.set({
     id: entityId,
