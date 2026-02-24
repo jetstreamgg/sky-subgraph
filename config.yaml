@@ -724,9 +724,6 @@ networks:
       - name: McdDog
         address:
           - 0x135954d155898D42C90D2a57824C690e0c7BEf1B
-      - name: Psm3
-        address:
-          - 0x3a10DC1d6dAeC3C52F3CaeC78A62e18E37FAa5cB
       - name: CurveUsdsStUsdsPool
         address:
           - 0x2C7C98A3b1582D83c43987202aEFf638312478aE
