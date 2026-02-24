@@ -643,189 +643,189 @@ contracts:
 # === Network Configuration ===
 networks:
   # Ethereum Mainnet (HyperSync)
-  # - id: 1
-  #   start_block: 8122207
-  #   contracts:
-  #     - name: DSChief
-  #       address:
-  #         - 0x0a3f6849f78076aefadf113f5bed87720274ddc0
-  #     - name: DSChiefV2
-  #       address:
-  #         - 0x929d9A1435662357F54AdcF64DcEE4d6b867a6f9
-  #     - name: PollingEmitter
-  #       address:
-  #         - 0xf9be8f0945acddeedaa64dfca5fe9629d0cf8e5d
-  #     - name: PollingEmitterV2
-  #       address:
-  #         - 0xD3A9FE267852281a1e6307a1C37CDfD76d39b133
-  #     - name: DelegateFactory
-  #       address:
-  #         - 0xD897F108670903D1d6070fcf818f9db3615AF272
-  #     - name: DelegateFactoryV2
-  #       address:
-  #         - 0xC3D809E87A2C9da4F6d98fECea9135d834d6F5A0
-  #     - name: DelegateFactoryV3
-  #       address:
-  #         - 0x4Cf3DaeFA2683Cd18df00f7AFF5169C00a9EccD5
-  #     - name: VoteDelegate
-  #     - name: VoteDelegateV2
-  #     - name: VoteDelegateV3
-  #     - name: RewardsUsdsClePoints
-  #       address:
-  #         - 0x10ab606B067C9C461d8893c47C7512472E19e2Ce
-  #     - name: RewardsUsdsSky
-  #       address:
-  #         - 0x0650CAF159C5A49f711e8169D4336ECB9b950275
-  #     - name: RewardsUsdsSpk
-  #       address:
-  #         - 0x173e314C7635B45322cd8Cb14f44b312e079F3af
-  #     - name: RewardsLsmkrUsds
-  #       address:
-  #         - 0x92282235a39bE957fF1f37619fD22A9aE5507CB1
-  #     - name: RewardsLsskyUsds
-  #       address:
-  #         - 0x38E4254bD82ED5Ee97CD1C4278FAae748d998865
-  #     - name: RewardsLsskySpk
-  #       address:
-  #         - 0x99cBC0e4E6427F6939536eD24d1275B95ff77404
-  #     - name: RewardsLsskySky
-  #       address:
-  #         - 0xB44C2Fb4181D7Cb06bdFf34A46FdFe4a259B40Fc
-  #     - name: SavingsUsds
-  #       address:
-  #         - 0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD
-  #     - name: Stusds
-  #       address:
-  #         - 0x99CD4Ec3f88A45940936F469E4bB72A2A701EEB9
-  #     - name: DaiUsds
-  #       address:
-  #         - 0x3225737a9Bbb6473CB4a45b7244ACa2BeFdB276A
-  #     - name: MkrSky
-  #       address:
-  #         - 0xBDcFCA946b6CDd965f99a839e4435Bcdc1bc470B
-  #     - name: MkrSkyV2
-  #       address:
-  #         - 0xA1Ea1bA18E88C381C724a75F23a130420C403f9a
-  #     - name: LockstakeClipper
-  #       address:
-  #         - 0xA85621D35cAf9Cf5C146D2376Ce553D7B78A6239
-  #     - name: LockstakeMkr
-  #       address:
-  #         - 0xb4e0e45e142101dC3Ed768bac219fC35EDBED295
-  #     - name: LockstakeEngine
-  #       address:
-  #         - 0x2b16C07D5fD5cC701a0a871eae2aad6DA5fc8f12
-  #     - name: StakingEngine
-  #       address:
-  #         - 0xCe01C90dE7FD1bcFa39e237FE6D8D9F569e8A6a3
-  #     - name: LockstakeMigrator
-  #       address:
-  #         - 0x473d777f608C3C24B441AB6bD4bBcA6b7F9AF90B
-  #     - name: McdDog
-  #       address:
-  #         - 0x135954d155898D42C90D2a57824C690e0c7BEf1B
-  #     - name: Psm3
-  #       address:
-  #         - 0x3a10DC1d6dAeC3C52F3CaeC78A62e18E37FAa5cB
-  #     - name: CurveUsdsStUsdsPool
-  #       address:
-  #         - 0x2C7C98A3b1582D83c43987202aEFf638312478aE
+  - id: 1
+    start_block: 8122207
+    contracts:
+      - name: DSChief
+        address:
+          - 0x0a3f6849f78076aefadf113f5bed87720274ddc0
+      - name: DSChiefV2
+        address:
+          - 0x929d9A1435662357F54AdcF64DcEE4d6b867a6f9
+      - name: PollingEmitter
+        address:
+          - 0xf9be8f0945acddeedaa64dfca5fe9629d0cf8e5d
+      - name: PollingEmitterV2
+        address:
+          - 0xD3A9FE267852281a1e6307a1C37CDfD76d39b133
+      - name: DelegateFactory
+        address:
+          - 0xD897F108670903D1d6070fcf818f9db3615AF272
+      - name: DelegateFactoryV2
+        address:
+          - 0xC3D809E87A2C9da4F6d98fECea9135d834d6F5A0
+      - name: DelegateFactoryV3
+        address:
+          - 0x4Cf3DaeFA2683Cd18df00f7AFF5169C00a9EccD5
+      - name: VoteDelegate
+      - name: VoteDelegateV2
+      - name: VoteDelegateV3
+      - name: RewardsUsdsClePoints
+        address:
+          - 0x10ab606B067C9C461d8893c47C7512472E19e2Ce
+      - name: RewardsUsdsSky
+        address:
+          - 0x0650CAF159C5A49f711e8169D4336ECB9b950275
+      - name: RewardsUsdsSpk
+        address:
+          - 0x173e314C7635B45322cd8Cb14f44b312e079F3af
+      - name: RewardsLsmkrUsds
+        address:
+          - 0x92282235a39bE957fF1f37619fD22A9aE5507CB1
+      - name: RewardsLsskyUsds
+        address:
+          - 0x38E4254bD82ED5Ee97CD1C4278FAae748d998865
+      - name: RewardsLsskySpk
+        address:
+          - 0x99cBC0e4E6427F6939536eD24d1275B95ff77404
+      - name: RewardsLsskySky
+        address:
+          - 0xB44C2Fb4181D7Cb06bdFf34A46FdFe4a259B40Fc
+      - name: SavingsUsds
+        address:
+          - 0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD
+      - name: Stusds
+        address:
+          - 0x99CD4Ec3f88A45940936F469E4bB72A2A701EEB9
+      - name: DaiUsds
+        address:
+          - 0x3225737a9Bbb6473CB4a45b7244ACa2BeFdB276A
+      - name: MkrSky
+        address:
+          - 0xBDcFCA946b6CDd965f99a839e4435Bcdc1bc470B
+      - name: MkrSkyV2
+        address:
+          - 0xA1Ea1bA18E88C381C724a75F23a130420C403f9a
+      - name: LockstakeClipper
+        address:
+          - 0xA85621D35cAf9Cf5C146D2376Ce553D7B78A6239
+      - name: LockstakeMkr
+        address:
+          - 0xb4e0e45e142101dC3Ed768bac219fC35EDBED295
+      - name: LockstakeEngine
+        address:
+          - 0x2b16C07D5fD5cC701a0a871eae2aad6DA5fc8f12
+      - name: StakingEngine
+        address:
+          - 0xCe01C90dE7FD1bcFa39e237FE6D8D9F569e8A6a3
+      - name: LockstakeMigrator
+        address:
+          - 0x473d777f608C3C24B441AB6bD4bBcA6b7F9AF90B
+      - name: McdDog
+        address:
+          - 0x135954d155898D42C90D2a57824C690e0c7BEf1B
+      - name: Psm3
+        address:
+          - 0x3a10DC1d6dAeC3C52F3CaeC78A62e18E37FAa5cB
+      - name: CurveUsdsStUsdsPool
+        address:
+          - 0x2C7C98A3b1582D83c43987202aEFf638312478aE
 
-  # # Tenderly Testnet (RPC fallback)
-  # - id: 314310
-  #   rpc_config:
-  #     url: https://virtual.rpc.tenderly.co/jetstreamgg/jetstream/public/jetstream-testnet
-  #   start_block: 8122207
-  #   contracts:
-  #     - name: DSChief
-  #       address:
-  #         - 0x0a3f6849f78076aefadf113f5bed87720274ddc0
-  #     - name: DSChiefV2
-  #       address:
-  #         - 0x929d9A1435662357F54AdcF64DcEE4d6b867a6f9
-  #     - name: PollingEmitter
-  #       address:
-  #         - 0xf9be8f0945acddeedaa64dfca5fe9629d0cf8e5d
-  #     - name: PollingEmitterV2
-  #       address:
-  #         - 0xD3A9FE267852281a1e6307a1C37CDfD76d39b133
-  #     - name: DelegateFactory
-  #       address:
-  #         - 0xD897F108670903D1d6070fcf818f9db3615AF272
-  #     - name: DelegateFactoryV2
-  #       address:
-  #         - 0xC3D809E87A2C9da4F6d98fECea9135d834d6F5A0
-  #     - name: DelegateFactoryV3
-  #       address:
-  #         - 0x4Cf3DaeFA2683Cd18df00f7AFF5169C00a9EccD5
-  #     - name: VoteDelegate
-  #     - name: VoteDelegateV2
-  #     - name: VoteDelegateV3
-  #     - name: RewardsUsdsClePoints
-  #       address:
-  #         - 0x10ab606B067C9C461d8893c47C7512472E19e2Ce
-  #     - name: RewardsUsdsSky
-  #       address:
-  #         - 0x0650CAF159C5A49f711e8169D4336ECB9b950275
-  #     - name: RewardsUsdsSpk
-  #       address:
-  #         - 0x173e314C7635B45322cd8Cb14f44b312e079F3af
-  #     - name: RewardsLsmkrUsds
-  #       address:
-  #         - 0x92282235a39bE957fF1f37619fD22A9aE5507CB1
-  #     - name: RewardsLsskyUsds
-  #       address:
-  #         - 0x38E4254bD82ED5Ee97CD1C4278FAae748d998865
-  #     - name: RewardsLsskySpk
-  #       address:
-  #         - 0x99cBC0e4E6427F6939536eD24d1275B95ff77404
-  #     - name: RewardsLsskySky
-  #       address:
-  #         - 0xB44C2Fb4181D7Cb06bdFf34A46FdFe4a259B40Fc
-  #     - name: SavingsUsds
-  #       address:
-  #         - 0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD
-  #     - name: Stusds
-  #       address:
-  #         - 0x99CD4Ec3f88A45940936F469E4bB72A2A701EEB9
-  #     - name: DaiUsds
-  #       address:
-  #         - 0x3225737a9Bbb6473CB4a45b7244ACa2BeFdB276A
-  #     - name: MkrSky
-  #       address:
-  #         - 0xBDcFCA946b6CDd965f99a839e4435Bcdc1bc470B
-  #     - name: MkrSkyV2
-  #       address:
-  #         - 0xA1Ea1bA18E88C381C724a75F23a130420C403f9a
-  #     - name: LockstakeClipper
-  #       address:
-  #         - 0x2e590d65dd357a7565efb5ffb329f8465f18c494
-  #     - name: LockstakeMkr
-  #       address:
-  #         - 0xb4e0e45e142101dC3Ed768bac219fC35EDBED295
-  #     - name: LockstakeEngine
-  #       address:
-  #         - 0x2b16C07D5fD5cC701a0a871eae2aad6DA5fc8f12
-  #     - name: StakingEngine
-  #       address:
-  #         - 0xCe01C90dE7FD1bcFa39e237FE6D8D9F569e8A6a3
-  #     - name: LockstakeMigrator
-  #       address:
-  #         - 0x473d777f608C3C24B441AB6bD4bBcA6b7F9AF90B
-  #     - name: McdDog
-  #       address:
-  #         - 0x135954d155898D42C90D2a57824C690e0c7BEf1B
-  #     - name: CurveUsdsStUsdsPool
-  #       address:
-  #         - 0x2C7C98A3b1582D83c43987202aEFf638312478aE
+  # Tenderly Testnet (RPC fallback)
+  - id: 314310
+    rpc_config:
+      url: https://virtual.rpc.tenderly.co/jetstreamgg/jetstream/public/jetstream-testnet
+    start_block: 8122207
+    contracts:
+      - name: DSChief
+        address:
+          - 0x0a3f6849f78076aefadf113f5bed87720274ddc0
+      - name: DSChiefV2
+        address:
+          - 0x929d9A1435662357F54AdcF64DcEE4d6b867a6f9
+      - name: PollingEmitter
+        address:
+          - 0xf9be8f0945acddeedaa64dfca5fe9629d0cf8e5d
+      - name: PollingEmitterV2
+        address:
+          - 0xD3A9FE267852281a1e6307a1C37CDfD76d39b133
+      - name: DelegateFactory
+        address:
+          - 0xD897F108670903D1d6070fcf818f9db3615AF272
+      - name: DelegateFactoryV2
+        address:
+          - 0xC3D809E87A2C9da4F6d98fECea9135d834d6F5A0
+      - name: DelegateFactoryV3
+        address:
+          - 0x4Cf3DaeFA2683Cd18df00f7AFF5169C00a9EccD5
+      - name: VoteDelegate
+      - name: VoteDelegateV2
+      - name: VoteDelegateV3
+      - name: RewardsUsdsClePoints
+        address:
+          - 0x10ab606B067C9C461d8893c47C7512472E19e2Ce
+      - name: RewardsUsdsSky
+        address:
+          - 0x0650CAF159C5A49f711e8169D4336ECB9b950275
+      - name: RewardsUsdsSpk
+        address:
+          - 0x173e314C7635B45322cd8Cb14f44b312e079F3af
+      - name: RewardsLsmkrUsds
+        address:
+          - 0x92282235a39bE957fF1f37619fD22A9aE5507CB1
+      - name: RewardsLsskyUsds
+        address:
+          - 0x38E4254bD82ED5Ee97CD1C4278FAae748d998865
+      - name: RewardsLsskySpk
+        address:
+          - 0x99cBC0e4E6427F6939536eD24d1275B95ff77404
+      - name: RewardsLsskySky
+        address:
+          - 0xB44C2Fb4181D7Cb06bdFf34A46FdFe4a259B40Fc
+      - name: SavingsUsds
+        address:
+          - 0xa3931d71877C0E7a3148CB7Eb4463524FEc27fbD
+      - name: Stusds
+        address:
+          - 0x99CD4Ec3f88A45940936F469E4bB72A2A701EEB9
+      - name: DaiUsds
+        address:
+          - 0x3225737a9Bbb6473CB4a45b7244ACa2BeFdB276A
+      - name: MkrSky
+        address:
+          - 0xBDcFCA946b6CDd965f99a839e4435Bcdc1bc470B
+      - name: MkrSkyV2
+        address:
+          - 0xA1Ea1bA18E88C381C724a75F23a130420C403f9a
+      - name: LockstakeClipper
+        address:
+          - 0x2e590d65dd357a7565efb5ffb329f8465f18c494
+      - name: LockstakeMkr
+        address:
+          - 0xb4e0e45e142101dC3Ed768bac219fC35EDBED295
+      - name: LockstakeEngine
+        address:
+          - 0x2b16C07D5fD5cC701a0a871eae2aad6DA5fc8f12
+      - name: StakingEngine
+        address:
+          - 0xCe01C90dE7FD1bcFa39e237FE6D8D9F569e8A6a3
+      - name: LockstakeMigrator
+        address:
+          - 0x473d777f608C3C24B441AB6bD4bBcA6b7F9AF90B
+      - name: McdDog
+        address:
+          - 0x135954d155898D42C90D2a57824C690e0c7BEf1B
+      - name: CurveUsdsStUsdsPool
+        address:
+          - 0x2C7C98A3b1582D83c43987202aEFf638312478aE
 
-  # # Base (HyperSync)
-  # - id: 8453
-  #   start_block: 21452622
-  #   contracts:
-  #     - name: Psm3
-  #       address:
-  #         - 0x1601843c5E9bC251A3272907010AFa41Fa18347E
+  # Base (HyperSync)
+  - id: 8453
+    start_block: 21452622
+    contracts:
+      - name: Psm3
+        address:
+          - 0x1601843c5E9bC251A3272907010AFa41Fa18347E
 
   # Optimism (HyperSync)
   - id: 10
@@ -836,20 +836,20 @@ networks:
           - 0xe0F9978b907853F354d79188A3dEfbD41978af62
 
   # Arbitrum (HyperSync)
-  # - id: 42161
-  #   start_block: 24755861
-  #   contracts:
-  #     - name: Psm3
-  #       address:
-  #         - 0x2B05F8e1cACC6974fD79A673a341Fe1f58d27266
-  #     - name: PollingEmitterArbitrum
-  #       address:
-  #         - 0x4f4e551b4920a5417F8d4e7f8f099660dAdadcEC
+  - id: 42161
+    start_block: 24755861
+    contracts:
+      - name: Psm3
+        address:
+          - 0x2B05F8e1cACC6974fD79A673a341Fe1f58d27266
+      - name: PollingEmitterArbitrum
+        address:
+          - 0x4f4e551b4920a5417F8d4e7f8f099660dAdadcEC
 
-  # # Unichain (HyperSync)
-  # - id: 130
-  #   start_block: 16411311
-  #   contracts:
-  #     - name: Psm3
-  #       address:
-  #         - 0x7b42Ed932f26509465F7cE3FAF76FfCe1275312f
+  # Unichain (HyperSync)
+  - id: 130
+    start_block: 16411311
+    contracts:
+      - name: Psm3
+        address:
+          - 0x7b42Ed932f26509465F7cE3FAF76FfCe1275312f
