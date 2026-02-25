@@ -1,3 +1,5 @@
+import type { delegate as Delegate, delegation as Delegation } from 'generated';
+
 function getLseAddresses(): string[] {
   return [
     '0x2b16C07D5fD5cC701a0a871eae2aad6DA5fc8f12', // Tenderly LSE address
@@ -33,12 +35,8 @@ export async function delegationLockHandler(
   logIndex: string,
   context: any,
 ): Promise<void> {
-  const delegation = await getDelegation(
-    delegate,
-    address,
-    blockTimestamp,
-    context,
-  );
+  const { delegation, updatedDelegate: delegateWithDelegation } =
+    await getDelegation(delegate, address, blockTimestamp, context);
 
   const lseAddresses = getLseAddresses();
   const stakingEngineAddresses = getStakingEngineAddresses();
@@ -54,7 +52,7 @@ export async function delegationLockHandler(
   }
 
   // If previous delegation amount was 0, increment the delegators count
-  let updatedDelegate = { ...delegate };
+  let updatedDelegate = { ...delegateWithDelegation };
   if (delegation.amount === 0n) {
     updatedDelegate = {
       ...updatedDelegate,
@@ -111,12 +109,8 @@ export async function delegationFreeHandler(
   logIndex: string,
   context: any,
 ): Promise<void> {
-  const delegation = await getDelegation(
-    delegate,
-    address,
-    blockTimestamp,
-    context,
-  );
+  const { delegation, updatedDelegate: delegateWithDelegation } =
+    await getDelegation(delegate, address, blockTimestamp, context);
 
   const lseAddresses = getLseAddresses();
   const stakingEngineAddresses = getStakingEngineAddresses();
@@ -134,7 +128,7 @@ export async function delegationFreeHandler(
   // Decrease the total amount delegated to the delegate
   const newAmount = delegation.amount - amount;
 
-  let updatedDelegate = { ...delegate };
+  let updatedDelegate = { ...delegateWithDelegation };
 
   // If the delegation amount is 0, decrement the delegators count
   if (newAmount === 0n) {
@@ -180,13 +174,14 @@ export async function delegationFreeHandler(
 }
 
 export async function getDelegation(
-  delegate: any,
+  delegate: Delegate,
   address: string,
   blockTimestamp: bigint,
   context: any,
-) {
+): Promise<{ delegation: Delegation; updatedDelegate: Delegate }> {
   const delegationId = delegate.id + '-' + address;
   let delegation = await context.Delegation.get(delegationId);
+  let updatedDelegate = delegate;
   if (!delegation) {
     delegation = {
       id: delegationId,
@@ -195,13 +190,12 @@ export async function getDelegation(
       amount: 0n,
       timestamp: blockTimestamp,
     };
-    // Add delegation to delegate's delegations list
-    context.Delegate.set({
+    updatedDelegate = {
       ...delegate,
       delegations: delegate.delegations.concat([delegationId]),
-    });
+    };
   }
-  return delegation;
+  return { delegation, updatedDelegate };
 }
 
 export async function getDelegate(

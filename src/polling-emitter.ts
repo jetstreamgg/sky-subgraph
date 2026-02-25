@@ -1,29 +1,5 @@
-import { PollingEmitter, PollingEmitterV2, BigDecimal } from 'generated';
-
-// Helper: get or create a Voter entity
-async function getVoter(address: string, context: any) {
-  let voter = await context.Voter.get(address);
-  if (!voter) {
-    voter = {
-      id: address,
-      isVoteDelegate: false,
-      isVoteProxy: false,
-      mkrLockedInChiefRaw: 0n,
-      mkrLockedInChief: new BigDecimal('0.0'),
-      skyLockedInChiefRaw: 0n,
-      skyLockedInChief: new BigDecimal('0.0'),
-      currentSpells: [],
-      currentSpellsV2: [],
-      numberExecutiveVotes: 0,
-      numberExecutiveVotesV2: 0,
-      numberPollVotes: 0,
-      lastVotedTimestamp: 0n,
-      delegateContract_id: undefined,
-      proxyContract_id: undefined,
-    };
-  }
-  return voter;
-}
+import { PollingEmitter, PollingEmitterV2 } from 'generated';
+import { getVoter } from './helpers/helpers';
 
 // Helper: create a default Poll entity with all required fields
 function createDefaultPoll(pollId: string) {

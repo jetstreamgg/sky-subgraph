@@ -20,7 +20,7 @@ export async function getVoter(address: string, context: any) {
   if (!voter) {
     voter = {
       id: address,
-      isVoteDelegate: undefined,
+      isVoteDelegate: false,
       isVoteProxy: undefined,
       delegateContract_id: undefined,
       proxyContract_id: undefined,

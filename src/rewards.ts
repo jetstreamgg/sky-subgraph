@@ -8,17 +8,6 @@ import {
   RewardsUsdsClePoints,
 } from 'generated';
 
-// LSE and Staking Engine addresses for filtering
-const LSE_ADDRESSES = [
-  '0x2b16c07d5fd5cc701a0a871eae2aad6da5fc8f12', // Tenderly LSE address
-  '0x2b16c07d5fd5cc701a0a871eae2aad6da5fc8f12', // Mainnet LSE address
-];
-
-const STAKING_ENGINE_ADDRESSES = [
-  '0xce01c90de7fd1bcfa39e237fe6d8d9f569e8a6a3', // Tenderly Staking Engine address
-  '0xce01c90de7fd1bcfa39e237fe6d8d9f569e8a6a3', // Mainnet Staking Engine address
-];
-
 // Helper: get or initialize a Reward entity
 async function getReward(rewardAddress: string, context: any) {
   let reward = await context.Reward.get(rewardAddress);

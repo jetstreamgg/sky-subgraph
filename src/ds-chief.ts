@@ -147,13 +147,9 @@ async function _handleSlateVote(
 }
 
 async function handleLift(event: any, context: any): Promise<void> {
-  // foo is the spellId in bytes, we trim and convert to address
-  // In the original: Address.fromString(event.params.foo.toHexString().slice(26))
-  // The foo param is a bytes32, with the address in the last 20 bytes
-  // In hex: 0x + 24 zeros + 40 hex chars of address = 66 chars total, slice(26) gives last 40 chars
-  const fooHex =
-    typeof event.params.foo === 'string' ? event.params.foo : event.params.foo;
-  const spellId = '0x' + fooHex.slice(26);
+  // foo is a bytes32 with the address in the last 20 bytes
+  // 0x + 24 zeros + 40 hex chars = 66 chars total, slice(26) gives last 40 chars
+  const spellId = '0x' + event.params.foo.slice(26);
 
   const spell = await context.Spell.get(spellId);
   if (!spell) return;
