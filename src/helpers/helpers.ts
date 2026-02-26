@@ -48,7 +48,7 @@ export function createExecutiveVotingPowerChange(
   newBalance: bigint,
   voter: string,
 ) {
-  const id = `${event.chainId}-${event.block.timestamp}-${event.logIndex}`;
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
   return {
     id,
     chainId: event.chainId,
@@ -71,7 +71,7 @@ export function createExecutiveVotingPowerChangeV2(
   newBalance: bigint,
   voter: string,
 ) {
-  const id = `${event.chainId}-${event.block.timestamp}-${event.logIndex}`;
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
   return {
     id,
     chainId: event.chainId,
