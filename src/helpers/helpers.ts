@@ -21,6 +21,7 @@ export async function getVoter(address: string, chainId: number, context: any) {
   if (!voter) {
     voter = {
       id,
+      chainId,
       isVoteDelegate: false,
       isVoteProxy: undefined,
       delegateContract_id: undefined,
@@ -50,6 +51,7 @@ export function createExecutiveVotingPowerChange(
   const id = `${event.chainId}-${event.block.timestamp}-${event.logIndex}`;
   return {
     id,
+    chainId: event.chainId,
     amount,
     previousBalance,
     newBalance,
@@ -72,6 +74,7 @@ export function createExecutiveVotingPowerChangeV2(
   const id = `${event.chainId}-${event.block.timestamp}-${event.logIndex}`;
   return {
     id,
+    chainId: event.chainId,
     amount,
     previousBalance,
     newBalance,
@@ -123,6 +126,7 @@ export async function createSlate(
         if (expiryTime !== undefined) {
           spell = {
             id: spellId,
+            chainId,
             description,
             state: SpellState.ACTIVE,
             creationBlock: BigInt(event.block.number),
@@ -151,6 +155,7 @@ export async function createSlate(
 
   const slate = {
     id: `${chainId}-${slateID}`,
+    chainId,
     yays,
     txnHash: event.transaction.hash,
     creationBlock: BigInt(event.block.number),
@@ -200,6 +205,7 @@ export async function createSlateV2(
         if (expiryTime !== undefined) {
           spell = {
             id: spellId,
+            chainId,
             description,
             state: SpellState.ACTIVE,
             creationBlock: BigInt(event.block.number),
@@ -228,6 +234,7 @@ export async function createSlateV2(
 
   const slate = {
     id: `${chainId}-${slateID}`,
+    chainId,
     yays,
     txnHash: event.transaction.hash,
     creationBlock: BigInt(event.block.number),

@@ -32,6 +32,7 @@ VoteDelegateV2.Lock.handler(async ({ event, context }) => {
   if (!delegation) {
     delegation = {
       id: delegationId,
+      chainId: event.chainId,
       delegator: sender,
       amount: 0n,
       timestamp: BigInt(event.block.timestamp),
@@ -72,6 +73,7 @@ VoteDelegateV2.Lock.handler(async ({ event, context }) => {
     delegate_id: delegate.id,
     isLockstake: false,
     isStakingEngine: false,
+    chainId: event.chainId,
   });
 
   context.Delegate.set({
@@ -101,6 +103,7 @@ VoteDelegateV2.Free.handler(async ({ event, context }) => {
   if (!delegation) {
     delegation = {
       id: delegationId,
+      chainId: event.chainId,
       delegator: sender,
       amount: 0n,
       timestamp: BigInt(event.block.timestamp),
@@ -142,6 +145,7 @@ VoteDelegateV2.Free.handler(async ({ event, context }) => {
     delegate_id: delegate.id,
     isLockstake: false,
     isStakingEngine: false,
+    chainId: event.chainId,
   });
 
   context.Delegate.set({

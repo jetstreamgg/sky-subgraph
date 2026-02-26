@@ -7,6 +7,7 @@ async function getArbitrumVoter(address: string, chainId: number, context: any) 
   if (!voter) {
     voter = {
       id,
+      chainId: chainId,
       numberPollVotes: 0,
       lastVotedTimestamp: 0n,
     };
@@ -41,6 +42,7 @@ PollingEmitterArbitrum.Voted.handler(async ({ event, context }) => {
   if (!poll) {
     poll = {
       id: pollId,
+      chainId: event.chainId,
       blockCreated: undefined,
       blockWithdrawn: undefined,
       creator: undefined,
@@ -55,6 +57,7 @@ PollingEmitterArbitrum.Voted.handler(async ({ event, context }) => {
 
   context.ArbitrumPollVote.set({
     id: voteId,
+    chainId: event.chainId,
     voter_id: voter.id,
     poll_id: poll.id,
     choice: optionId,
@@ -81,6 +84,7 @@ PollingEmitterArbitrum.PollCreated.handler(async ({ event, context }) => {
   if (!poll) {
     poll = {
       id: pollId,
+      chainId: event.chainId,
       blockCreated: undefined,
       blockWithdrawn: undefined,
       creator: undefined,

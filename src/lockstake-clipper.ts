@@ -5,6 +5,7 @@ LockstakeClipper.Rely.handler(async ({ event, context }) => {
 
   context.Rely.set({
     id,
+    chainId: event.chainId,
     usr: event.params.usr,
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
@@ -17,6 +18,7 @@ LockstakeClipper.Deny.handler(async ({ event, context }) => {
 
   context.Deny.set({
     id,
+    chainId: event.chainId,
     usr: event.params.usr,
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
@@ -29,6 +31,7 @@ LockstakeClipper.FileUint.handler(async ({ event, context }) => {
 
   context.FileUint.set({
     id,
+    chainId: event.chainId,
     what: event.params.what,
     data: event.params.data,
     blockNumber: BigInt(event.block.number),
@@ -42,6 +45,7 @@ LockstakeClipper.FileAddress.handler(async ({ event, context }) => {
 
   context.FileAddress.set({
     id,
+    chainId: event.chainId,
     what: event.params.what,
     data: event.params.data,
     blockNumber: BigInt(event.block.number),
@@ -55,6 +59,7 @@ LockstakeClipper.Kick.handler(async ({ event, context }) => {
 
   context.Kick.set({
     id,
+    chainId: event.chainId,
     top: event.params.top,
     tab: event.params.tab,
     lot: event.params.lot,
@@ -72,6 +77,7 @@ LockstakeClipper.Take.handler(async ({ event, context }) => {
 
   context.Take.set({
     id,
+    chainId: event.chainId,
     max: event.params.max,
     price: event.params.price,
     owe: event.params.owe,
@@ -89,6 +95,7 @@ LockstakeClipper.Redo.handler(async ({ event, context }) => {
 
   context.Redo.set({
     id,
+    chainId: event.chainId,
     top: event.params.top,
     tab: event.params.tab,
     lot: event.params.lot,
@@ -106,6 +113,7 @@ LockstakeClipper.Yank.handler(async ({ event, context }) => {
 
   context.Yank.set({
     id,
+    chainId: event.chainId,
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,

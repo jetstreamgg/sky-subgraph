@@ -5,6 +5,7 @@ LockstakeMigrator.Migrate.handler(async ({ event, context }) => {
 
   context.LockstakeMigrate.set({
     id,
+    chainId: event.chainId,
     oldOwner: event.params.oldOwner,
     oldIndex: event.params.oldIndex,
     newOwner: event.params.newOwner,

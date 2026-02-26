@@ -20,6 +20,7 @@ CurveUsdsStUsdsPool.TokenExchange.handler(async ({ event, context }) => {
 
   context.CurveTokenExchange.set({
     id: entityId,
+    chainId: event.chainId,
     buyer: event.params.buyer,
     soldId: event.params.sold_id,
     amountSold: event.params.tokens_sold,

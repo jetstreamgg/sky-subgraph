@@ -40,6 +40,7 @@ LockstakeEngine.SealOpen.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
+    chainId: event.chainId,
   });
 });
 
@@ -70,6 +71,7 @@ LockstakeEngine.SealSelectVoteDelegate.handler(async ({ event, context }) => {
       blockNumber: BigInt(event.block.number),
       blockTimestamp: BigInt(event.block.timestamp),
       transactionHash: event.transaction.hash,
+      chainId: event.chainId,
     });
 
     context.SealUrn.set({
@@ -89,6 +91,7 @@ LockstakeEngine.SealSelectVoteDelegate.handler(async ({ event, context }) => {
         true,
         false,
         event.logIndex.toString(),
+        event.chainId,
         context,
       );
     }
@@ -104,6 +107,7 @@ LockstakeEngine.SealSelectVoteDelegate.handler(async ({ event, context }) => {
         blockNumber: BigInt(event.block.number),
         blockTimestamp: BigInt(event.block.timestamp),
         transactionHash: event.transaction.hash,
+        chainId: event.chainId,
       });
 
       context.SealUrn.set({
@@ -123,6 +127,7 @@ LockstakeEngine.SealSelectVoteDelegate.handler(async ({ event, context }) => {
           true,
           false,
           event.logIndex.toString(),
+          event.chainId,
           context,
         );
       }
@@ -137,6 +142,7 @@ LockstakeEngine.SealSelectVoteDelegate.handler(async ({ event, context }) => {
           true,
           false,
           event.logIndex.toString(),
+          event.chainId,
           context,
         );
       }
@@ -165,6 +171,7 @@ LockstakeEngine.SealSelectFarm.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
+    chainId: event.chainId,
   });
 
   context.SealUrn.set({
@@ -210,6 +217,7 @@ LockstakeEngine.SealLock.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
+    chainId: event.chainId,
   });
 
   context.SealUrn.set({
@@ -230,6 +238,7 @@ LockstakeEngine.SealLock.handler(async ({ event, context }) => {
         true,
         false,
         event.logIndex.toString(),
+        event.chainId,
         context,
       );
     }
@@ -269,6 +278,7 @@ LockstakeEngine.LockSky.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
+    chainId: event.chainId,
   });
 
   const mkrAmount = amount / rateMkrSky;
@@ -291,6 +301,7 @@ LockstakeEngine.LockSky.handler(async ({ event, context }) => {
         true,
         false,
         event.logIndex.toString(),
+        event.chainId,
         context,
       );
     }
@@ -317,6 +328,7 @@ LockstakeEngine.SealFree.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
+    chainId: event.chainId,
   });
 
   context.SealUrn.set({
@@ -337,6 +349,7 @@ LockstakeEngine.SealFree.handler(async ({ event, context }) => {
         true,
         false,
         event.logIndex.toString(),
+        event.chainId,
         context,
       );
     }
@@ -375,6 +388,7 @@ LockstakeEngine.FreeSky.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
+    chainId: event.chainId,
   });
 
   const mkrAmount = amount / rateMkrSky;
@@ -397,6 +411,7 @@ LockstakeEngine.FreeSky.handler(async ({ event, context }) => {
         true,
         false,
         event.logIndex.toString(),
+        event.chainId,
         context,
       );
     }
@@ -422,6 +437,7 @@ LockstakeEngine.SealFreeNoFee.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
+    chainId: event.chainId,
   });
 
   context.SealUrn.set({
@@ -442,6 +458,7 @@ LockstakeEngine.SealFreeNoFee.handler(async ({ event, context }) => {
         true,
         false,
         event.logIndex.toString(),
+        event.chainId,
         context,
       );
     }
@@ -466,6 +483,7 @@ LockstakeEngine.SealDraw.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
+    chainId: event.chainId,
   });
 
   context.SealUrn.set({
@@ -491,6 +509,7 @@ LockstakeEngine.SealWipe.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
+    chainId: event.chainId,
   });
 
   context.SealUrn.set({
@@ -518,6 +537,7 @@ LockstakeEngine.GetReward.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
+    chainId: event.chainId,
   });
 });
 
@@ -531,6 +551,7 @@ LockstakeEngine.OnKick.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
+    chainId: event.chainId,
   });
 
   context.SealUrn.set({
@@ -550,6 +571,7 @@ LockstakeEngine.OnTake.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
+    chainId: event.chainId,
   });
 });
 
@@ -563,6 +585,7 @@ LockstakeEngine.OnRemove.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
+    chainId: event.chainId,
   });
 
   context.SealUrn.set({
@@ -578,6 +601,7 @@ LockstakeEngine.SealRely.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
+    chainId: event.chainId,
   });
 });
 
@@ -588,6 +612,7 @@ LockstakeEngine.SealDeny.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
+    chainId: event.chainId,
   });
 });
 
@@ -602,6 +627,7 @@ LockstakeEngine.Hope.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
+    chainId: event.chainId,
   });
 });
 
@@ -614,5 +640,6 @@ LockstakeEngine.Nope.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
+    chainId: event.chainId,
   });
 });

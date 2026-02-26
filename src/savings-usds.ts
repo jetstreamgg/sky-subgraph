@@ -5,6 +5,7 @@ SavingsUsds.Deposit.handler(async ({ event, context }) => {
 
   context.SavingsSupply.set({
     id,
+    chainId: event.chainId,
     sender: event.params.sender,
     owner: event.params.owner,
     assets: event.params.assets,
@@ -19,7 +20,7 @@ SavingsUsds.Deposit.handler(async ({ event, context }) => {
   const supplierId = `${event.chainId}-${owner}`;
   let supplier = await context.SavingsSupplier.get(supplierId);
   if (!supplier) {
-    context.SavingsSupplier.set({ id: supplierId });
+    context.SavingsSupplier.set({ id: supplierId, chainId: event.chainId });
   }
 });
 
@@ -28,6 +29,7 @@ SavingsUsds.Withdraw.handler(async ({ event, context }) => {
 
   context.SavingsWithdraw.set({
     id,
+    chainId: event.chainId,
     sender: event.params.sender,
     receiver: event.params.receiver,
     owner: event.params.owner,
@@ -46,6 +48,7 @@ SavingsUsds.Referral.handler(async ({ event, context }) => {
 
   context.SavingsReferral.set({
     id,
+    chainId: event.chainId,
     referral: ref,
     owner: event.params.owner,
     assets: event.params.assets,

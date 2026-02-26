@@ -5,6 +5,7 @@ LockstakeMkr.LockstakeMkrRely.handler(async ({ event, context }) => {
 
   context.LockstakeMkrRely.set({
     id,
+    chainId: event.chainId,
     usr: event.params.usr,
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
@@ -17,6 +18,7 @@ LockstakeMkr.LockstakeMkrDeny.handler(async ({ event, context }) => {
 
   context.LockstakeMkrDeny.set({
     id,
+    chainId: event.chainId,
     usr: event.params.usr,
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
@@ -29,6 +31,7 @@ LockstakeMkr.Approval.handler(async ({ event, context }) => {
 
   context.LockstakeMkrApproval.set({
     id,
+    chainId: event.chainId,
     owner: event.params.owner,
     spender: event.params.spender,
     value: event.params.value,
@@ -43,6 +46,7 @@ LockstakeMkr.Transfer.handler(async ({ event, context }) => {
 
   context.LockstakeMkrTransfer.set({
     id,
+    chainId: event.chainId,
     from: event.params.from,
     to: event.params.to,
     value: event.params.value,

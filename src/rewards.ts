@@ -19,6 +19,7 @@ async function getReward(
   if (!reward) {
     reward = {
       id: rewardId,
+      chainId: chainId,
       totalSupplied: 0n,
       totalRewardsClaimed: 0n,
       lockstakeActive: false,
@@ -40,6 +41,7 @@ async function getRewardSupplier(
   if (!supplier) {
     supplier = {
       id: rewardSupplierId,
+      chainId: chainId,
       reward_id: rewardId,
       user: userId,
       amount: 0n,
@@ -55,6 +57,7 @@ async function handleRewardClaimed(event: any, context: any) {
   const entityId = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
   context.RewardClaim.set({
     id: entityId,
+    chainId: event.chainId,
     user: event.params.user,
     amount: event.params.reward,
     reward_id: reward.id,
@@ -76,6 +79,7 @@ async function handleRewardSupplied(event: any, context: any) {
   const entityId = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
   context.RewardSupply.set({
     id: entityId,
+    chainId: event.chainId,
     user: event.params.user,
     amount: event.params.amount,
     reward_id: reward.id,
@@ -106,6 +110,7 @@ async function handleRewardSupplied(event: any, context: any) {
   // Add new TVL event
   context.TvlUpdate.set({
     id: entityId,
+    chainId: event.chainId,
     reward_id: reward.id,
     amount: updatedReward.totalSupplied,
     blockNumber: BigInt(event.block.number),
@@ -121,6 +126,7 @@ async function handleRewardWithdrawn(event: any, context: any) {
   const entityId = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
   context.RewardWithdraw.set({
     id: entityId,
+    chainId: event.chainId,
     user: event.params.user,
     amount: event.params.amount,
     reward_id: reward.id,
@@ -151,6 +157,7 @@ async function handleRewardWithdrawn(event: any, context: any) {
   // Add new TVL event
   context.TvlUpdate.set({
     id: entityId,
+    chainId: event.chainId,
     reward_id: reward.id,
     amount: updatedReward.totalSupplied,
     blockNumber: BigInt(event.block.number),
@@ -168,6 +175,7 @@ async function handleRewardReferral(event: any, context: any) {
 
   context.RewardReferral.set({
     id: entityId,
+    chainId: event.chainId,
     referral: ref,
     reward_id: reward.id,
     user: event.params.user,

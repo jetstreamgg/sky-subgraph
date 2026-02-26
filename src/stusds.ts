@@ -5,6 +5,7 @@ Stusds.Deposit.handler(async ({ event, context }) => {
 
   context.StusdsDeposit.set({
     id,
+    chainId: event.chainId,
     sender: event.params.sender,
     owner: event.params.owner,
     assets: event.params.assets,
@@ -20,6 +21,7 @@ Stusds.Withdraw.handler(async ({ event, context }) => {
 
   context.StusdsWithdraw.set({
     id,
+    chainId: event.chainId,
     sender: event.params.sender,
     receiver: event.params.receiver,
     owner: event.params.owner,
@@ -36,6 +38,7 @@ Stusds.Referral.handler(async ({ event, context }) => {
 
   context.StusdsReferral.set({
     id,
+    chainId: event.chainId,
     referral: Number(event.params.referral),
     owner: event.params.owner,
     assets: event.params.assets,

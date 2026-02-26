@@ -31,6 +31,7 @@ StakingEngine.StakingOpen.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
+    chainId: event.chainId,
   });
 });
 
@@ -61,6 +62,7 @@ StakingEngine.StakingSelectVoteDelegate.handler(async ({ event, context }) => {
       blockNumber: BigInt(event.block.number),
       blockTimestamp: BigInt(event.block.timestamp),
       transactionHash: event.transaction.hash,
+      chainId: event.chainId,
     });
 
     context.StakingUrn.set({
@@ -80,6 +82,7 @@ StakingEngine.StakingSelectVoteDelegate.handler(async ({ event, context }) => {
         false,
         true,
         event.logIndex.toString(),
+        event.chainId,
         context,
       );
     }
@@ -95,6 +98,7 @@ StakingEngine.StakingSelectVoteDelegate.handler(async ({ event, context }) => {
         blockNumber: BigInt(event.block.number),
         blockTimestamp: BigInt(event.block.timestamp),
         transactionHash: event.transaction.hash,
+        chainId: event.chainId,
       });
 
       context.StakingUrn.set({
@@ -114,6 +118,7 @@ StakingEngine.StakingSelectVoteDelegate.handler(async ({ event, context }) => {
           false,
           true,
           event.logIndex.toString(),
+          event.chainId,
           context,
         );
       }
@@ -128,6 +133,7 @@ StakingEngine.StakingSelectVoteDelegate.handler(async ({ event, context }) => {
           false,
           true,
           event.logIndex.toString(),
+          event.chainId,
           context,
         );
       }
@@ -156,6 +162,7 @@ StakingEngine.StakingSelectFarm.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
+    chainId: event.chainId,
   });
 
   context.StakingUrn.set({
@@ -185,6 +192,7 @@ StakingEngine.StakingLock.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
+    chainId: event.chainId,
   });
 
   context.StakingUrn.set({
@@ -205,6 +213,7 @@ StakingEngine.StakingLock.handler(async ({ event, context }) => {
         false,
         true,
         event.logIndex.toString(),
+        event.chainId,
         context,
       );
     }
@@ -230,6 +239,7 @@ StakingEngine.StakingFree.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
+    chainId: event.chainId,
   });
 
   context.StakingUrn.set({
@@ -250,6 +260,7 @@ StakingEngine.StakingFree.handler(async ({ event, context }) => {
         false,
         true,
         event.logIndex.toString(),
+        event.chainId,
         context,
       );
     }
@@ -275,6 +286,7 @@ StakingEngine.StakingFreeNoFee.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
+    chainId: event.chainId,
   });
 
   context.StakingUrn.set({
@@ -295,6 +307,7 @@ StakingEngine.StakingFreeNoFee.handler(async ({ event, context }) => {
         false,
         true,
         event.logIndex.toString(),
+        event.chainId,
         context,
       );
     }
@@ -319,6 +332,7 @@ StakingEngine.StakingDraw.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
+    chainId: event.chainId,
   });
 
   context.StakingUrn.set({
@@ -344,6 +358,7 @@ StakingEngine.StakingWipe.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
+    chainId: event.chainId,
   });
 
   context.StakingUrn.set({
@@ -371,6 +386,7 @@ StakingEngine.StakingGetReward.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
+    chainId: event.chainId,
   });
 });
 
@@ -384,6 +400,7 @@ StakingEngine.StakingOnKick.handler(async ({ event, context }) => {
     blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
+    chainId: event.chainId,
   });
 
   context.StakingUrn.set({

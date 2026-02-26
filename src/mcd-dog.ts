@@ -10,6 +10,7 @@ McdDog.Bark.handler(async ({ event, context }) => {
 
   context.Bark.set({
     id: barkId,
+    chainId: event.chainId,
     ilk: event.params.ilk,
     urn: event.params.urn,
     ink: event.params.ink,

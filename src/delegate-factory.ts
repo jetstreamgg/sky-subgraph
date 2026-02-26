@@ -20,6 +20,7 @@ DelegateFactory.CreateVoteDelegate.handler(async ({ event, context }) => {
   if (!voter) {
     voter = {
       id: voterId,
+      chainId: event.chainId,
       isVoteDelegate: false,
       isVoteProxy: false,
       mkrLockedInChiefRaw: 0n,
@@ -58,6 +59,7 @@ DelegateFactory.CreateVoteDelegate.handler(async ({ event, context }) => {
       totalDelegated: 0n,
       delegationHistory: [],
       version: '1',
+      chainId: event.chainId,
     };
     context.Delegate.set(delegateInfo);
   }
@@ -68,6 +70,7 @@ DelegateFactory.CreateVoteDelegate.handler(async ({ event, context }) => {
     context.DelegateAdmin.set({
       id: adminId,
       delegateContract_id: delegateInfo.id,
+      chainId: event.chainId,
     });
   } else {
     context.DelegateAdmin.set({

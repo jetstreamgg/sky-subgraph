@@ -4,6 +4,7 @@ export async function getReward(rewardAddress: string, chainId: number, context:
   if (!reward) {
     reward = {
       id,
+      chainId,
       totalSupplied: 0n,
       totalRewardsClaimed: 0n,
       lockstakeActive: false,

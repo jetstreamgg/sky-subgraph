@@ -5,6 +5,7 @@ MkrSky.MkrToSky.handler(async ({ event, context }) => {
 
   context.MkrToSkyUpgrade.set({
     id,
+    chainId: event.chainId,
     caller: event.params.caller,
     usr: event.params.usr,
     mkrAmt: event.params.mkrAmt,
@@ -18,7 +19,7 @@ MkrSky.MkrToSky.handler(async ({ event, context }) => {
   const mkrTotalId = `${event.chainId}-mkrUpgraded`;
   let totalMkrUpgraded = await context.Total.get(mkrTotalId);
   if (!totalMkrUpgraded) {
-    totalMkrUpgraded = { id: mkrTotalId, total: 0n };
+    totalMkrUpgraded = { id: mkrTotalId, chainId: event.chainId, total: 0n };
   }
   context.Total.set({
     ...totalMkrUpgraded,
@@ -29,7 +30,7 @@ MkrSky.MkrToSky.handler(async ({ event, context }) => {
   const skyTotalId = `${event.chainId}-skyUpgraded`;
   let totalSkyUpgraded = await context.Total.get(skyTotalId);
   if (!totalSkyUpgraded) {
-    totalSkyUpgraded = { id: skyTotalId, total: 0n };
+    totalSkyUpgraded = { id: skyTotalId, chainId: event.chainId, total: 0n };
   }
   context.Total.set({
     ...totalSkyUpgraded,
@@ -42,6 +43,7 @@ MkrSky.SkyToMkr.handler(async ({ event, context }) => {
 
   context.SkyToMkrRevert.set({
     id,
+    chainId: event.chainId,
     caller: event.params.caller,
     usr: event.params.usr,
     mkrAmt: event.params.mkrAmt,
@@ -55,7 +57,7 @@ MkrSky.SkyToMkr.handler(async ({ event, context }) => {
   const mkrTotalId = `${event.chainId}-mkrUpgraded`;
   let totalMkrUpgraded = await context.Total.get(mkrTotalId);
   if (!totalMkrUpgraded) {
-    totalMkrUpgraded = { id: mkrTotalId, total: 0n };
+    totalMkrUpgraded = { id: mkrTotalId, chainId: event.chainId, total: 0n };
   }
   context.Total.set({
     ...totalMkrUpgraded,
@@ -66,7 +68,7 @@ MkrSky.SkyToMkr.handler(async ({ event, context }) => {
   const skyTotalId = `${event.chainId}-skyUpgraded`;
   let totalSkyUpgraded = await context.Total.get(skyTotalId);
   if (!totalSkyUpgraded) {
-    totalSkyUpgraded = { id: skyTotalId, total: 0n };
+    totalSkyUpgraded = { id: skyTotalId, chainId: event.chainId, total: 0n };
   }
   context.Total.set({
     ...totalSkyUpgraded,

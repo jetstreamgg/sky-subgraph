@@ -1,6 +1,7 @@
 type Slate {
   "Unique Slate ID, produced by hashing the addresses in the slate"
   id: ID!
+  chainId: Int!
   "Transaction hash of the Slate creation"
   txnHash: String!
   "Block number slate was created "
@@ -15,6 +16,7 @@ type Slate {
 type SlateV2 {
   "Unique Slate ID, produced by hashing the addresses in the slate"
   id: ID!
+  chainId: Int!
   "Transaction hash of the Slate creation"
   txnHash: String!
   "Block number slate was created "
@@ -30,6 +32,7 @@ type SlateV2 {
 type Spell {
   "Spell's contract address"
   id: ID!
+  chainId: Int!
   "Spell description"
   description: String!
   "State of the spell"
@@ -72,6 +75,7 @@ type Spell {
 type SpellV2 {
   "Spell's contract address"
   id: ID!
+  chainId: Int!
   "Spell description"
   description: String!
   "State of the spell"
@@ -120,6 +124,7 @@ enum SpellState {
 type DelegateAdmin {
   "A delegate admin is an address that controls a delegate contract"
   id: String!
+  chainId: Int!
 
   "Delegate contracts addresses"
   delegateContract: Delegate!
@@ -128,6 +133,7 @@ type DelegateAdmin {
 type Delegate {
   "A delegate is a contract owned by an address, Id is the address of the delegate contract"
   id: String!
+  chainId: Int!
   "Voter entity of the delegate"
   voter: Voter!
   "Address of the delegate owner"
@@ -153,6 +159,7 @@ type Delegate {
 type VoteProxy {
   "A proxy is a contract owned by an address, Id is the address of the proxy contract"
   id: String!
+  chainId: Int!
 
   hot: String!
 
@@ -162,6 +169,7 @@ type VoteProxy {
 type Voter {
   "A Voter is any address that has participated in governance, a proxy contract or a delegate contract"
   id: String!
+  chainId: Int!
   "Is a vote delegate contract"
   isVoteDelegate: Boolean
   "Is a vote proxy contract"
@@ -195,6 +203,7 @@ type Voter {
 type ArbitrumVoter {
   "A Voter is any address that has participated in governance on Arbitrum"
   id: String!
+  chainId: Int!
   "Last time voted"
   lastVotedTimestamp: BigInt!
   "Number of polls voted on"
@@ -204,6 +213,7 @@ type ArbitrumVoter {
 type Delegation {
   "delegate-delegator"
   id: String!
+  chainId: Int!
   "Voter entity of the delegator"
   delegator: String!
   "Total amount delegated"
@@ -217,6 +227,7 @@ type Delegation {
 type DelegationHistory {
   "delegate-delegator-date"
   id: String!
+  chainId: Int!
   "Voter entity of the delegator"
   delegator: String!
   "Change in total amount, can be negative"
@@ -240,6 +251,7 @@ type DelegationHistory {
 type ExecutiveVotingPowerChange {
   "Unique entity used to keep track of voting power delta"
   id: ID!
+  chainId: Int!
   "Token addresss"
   tokenAddress: String
   "Token address for voter"
@@ -263,6 +275,7 @@ type ExecutiveVotingPowerChange {
 type ExecutiveVotingPowerChangeV2 {
   "Unique entity used to keep track of voting power delta"
   id: ID!
+  chainId: Int!
   "Token addresss"
   tokenAddress: String
   "Token address for voter"
@@ -286,6 +299,7 @@ type ExecutiveVotingPowerChangeV2 {
 type ExecutiveVote {
   "Spell ID + Voter ID"
   id: ID!
+  chainId: Int!
   "Voting weight expressed in the vote"
   weight: BigInt!
   "Reason for voting choice"
@@ -307,6 +321,7 @@ type ExecutiveVote {
 type ExecutiveVoteV2 {
   "Spell ID + Voter ID"
   id: ID!
+  chainId: Int!
   "Voting weight expressed in the vote"
   weight: BigInt!
   "Reason for voting choice"
@@ -329,6 +344,7 @@ type ExecutiveVoteV2 {
 type PollVote {
   "Poll ID + Voter ID"
   id: String!
+  chainId: Int!
   "Voting choice expressed in the vote"
   choice: BigInt!
   "Voter that emitted the vote"
@@ -346,6 +362,7 @@ type PollVote {
 type ArbitrumPollVote {
   "Poll ID + Voter ID + Block Number"
   id: String!
+  chainId: Int!
   "Voting choice expressed in the vote"
   choice: BigInt!
   "Voter that emitted the vote"
@@ -363,6 +380,7 @@ type ArbitrumPollVote {
 type Poll {
   "Poll id"
   id: String!
+  chainId: Int!
   "Poll creator"
   creator: String
   "Poll block created"
@@ -384,6 +402,7 @@ type Poll {
 type ArbitrumPoll {
   "Poll id"
   id: String!
+  chainId: Int!
   "Poll creator"
   creator: String
   "Poll block created"
@@ -404,6 +423,7 @@ type ArbitrumPoll {
 
 type ContentHashRegistry {
   id: ID!
+  chainId: Int!
   blockNumber: Int!
   transactionID: String!
   hash: String!
@@ -417,6 +437,7 @@ type ContentHashRegistry {
 
 type VotingStrategy {
   id: String!
+  chainId: Int!
   name: String!
   description: String!
   delegates: [String!]!
@@ -424,6 +445,7 @@ type VotingStrategy {
 
 type VotingCommittee {
   id: String!
+  chainId: Int!
   name: String!
   description: String
   image: String
@@ -433,6 +455,7 @@ type VotingCommittee {
 
 type Reward {
   id: ID!
+  chainId: Int!
   totalSupplied: BigInt!
   totalRewardsClaimed: BigInt!
   lockstakeActive: Boolean!
@@ -441,6 +464,7 @@ type Reward {
 
 type RewardSupplier {
   id: ID!
+  chainId: Int!
   user: String!
   reward: Reward!
   amount: BigInt!
@@ -448,6 +472,7 @@ type RewardSupplier {
 
 type RewardClaim {
   id: ID!
+  chainId: Int!
   reward: Reward!
   user: String!
   amount: BigInt!
@@ -458,6 +483,7 @@ type RewardClaim {
 
 type RewardSupply {
   id: ID!
+  chainId: Int!
   reward: Reward!
   user: String!
   amount: BigInt!
@@ -468,6 +494,7 @@ type RewardSupply {
 
 type RewardWithdraw {
   id: ID!
+  chainId: Int!
   reward: Reward!
   user: String!
   amount: BigInt!
@@ -478,6 +505,7 @@ type RewardWithdraw {
 
 type RewardReferral {
   id: ID!
+  chainId: Int!
   referral: Int!
   reward: Reward!
   user: String!
@@ -489,6 +517,7 @@ type RewardReferral {
 
 type TvlUpdate {
   id: ID!
+  chainId: Int!
   reward: Reward!
   amount: BigInt!
   blockNumber: BigInt!
@@ -498,6 +527,7 @@ type TvlUpdate {
 
 type SavingsSupply {
   id: ID!
+  chainId: Int!
   sender: String!
   owner: String!
   assets: BigInt!
@@ -509,6 +539,7 @@ type SavingsSupply {
 
 type SavingsWithdraw {
   id: ID!
+  chainId: Int!
   sender: String!
   receiver: String!
   owner: String!
@@ -521,6 +552,7 @@ type SavingsWithdraw {
 
 type SavingsReferral {
   id: ID!
+  chainId: Int!
   referral: Int!
   owner: String!
   assets: BigInt!
@@ -532,10 +564,12 @@ type SavingsReferral {
 
 type SavingsSupplier {
   id: ID!
+  chainId: Int!
 }
 
 type DaiToUsdsUpgrade {
   id: ID!
+  chainId: Int!
   caller: String!
   usr: String!
   wad: BigInt!
@@ -546,6 +580,7 @@ type DaiToUsdsUpgrade {
 
 type UsdsToDaiRevert {
   id: ID!
+  chainId: Int!
   caller: String!
   usr: String!
   wad: BigInt!
@@ -556,6 +591,7 @@ type UsdsToDaiRevert {
 
 type MkrToSkyUpgrade {
   id: ID!
+  chainId: Int!
   caller: String!
   usr: String!
   mkrAmt: BigInt!
@@ -567,6 +603,7 @@ type MkrToSkyUpgrade {
 
 type MkrToSkyUpgradeV2 {
   id: ID!
+  chainId: Int!
   caller: String!
   usr: String!
   mkrAmt: BigInt!
@@ -579,6 +616,7 @@ type MkrToSkyUpgradeV2 {
 
 type SkyToMkrRevert {
   id: ID!
+  chainId: Int!
   caller: String!
   usr: String!
   skyAmt: BigInt!
@@ -590,11 +628,13 @@ type SkyToMkrRevert {
 
 type Total {
   id: ID!
+  chainId: Int!
   total: BigInt!
 }
 
 type Rely {
   id: ID!
+  chainId: Int!
   usr: String!
   blockNumber: BigInt!
   blockTimestamp: BigInt!
@@ -603,6 +643,7 @@ type Rely {
 
 type Deny {
   id: ID!
+  chainId: Int!
   usr: String!
   blockNumber: BigInt!
   blockTimestamp: BigInt!
@@ -611,6 +652,7 @@ type Deny {
 
 type FileUint {
   id: ID!
+  chainId: Int!
   what: String!
   data: BigInt!
   blockNumber: BigInt!
@@ -620,6 +662,7 @@ type FileUint {
 
 type FileAddress {
   id: ID!
+  chainId: Int!
   what: String!
   data: String!
   blockNumber: BigInt!
@@ -629,6 +672,7 @@ type FileAddress {
 
 type Kick {
   id: ID!
+  chainId: Int!
   top: BigInt!
   tab: BigInt!
   lot: BigInt!
@@ -642,6 +686,7 @@ type Kick {
 
 type Take {
   id: ID!
+  chainId: Int!
   max: BigInt!
   price: BigInt!
   owe: BigInt!
@@ -655,6 +700,7 @@ type Take {
 
 type Redo {
   id: ID!
+  chainId: Int!
   top: BigInt!
   tab: BigInt!
   lot: BigInt!
@@ -668,6 +714,7 @@ type Redo {
 
 type Yank {
   id: ID!
+  chainId: Int!
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: String!
@@ -675,6 +722,7 @@ type Yank {
 
 type LockstakeMkrRely {
   id: ID!
+  chainId: Int!
   usr: String!
   blockNumber: BigInt!
   blockTimestamp: BigInt!
@@ -683,6 +731,7 @@ type LockstakeMkrRely {
 
 type LockstakeMkrDeny {
   id: ID!
+  chainId: Int!
   usr: String!
   blockNumber: BigInt!
   blockTimestamp: BigInt!
@@ -691,6 +740,7 @@ type LockstakeMkrDeny {
 
 type LockstakeMkrApproval {
   id: ID!
+  chainId: Int!
   owner: String!
   spender: String!
   value: BigInt!
@@ -701,6 +751,7 @@ type LockstakeMkrApproval {
 
 type LockstakeMkrTransfer {
   id: ID!
+  chainId: Int!
   from: String!
   to: String!
   value: BigInt!
@@ -711,6 +762,7 @@ type LockstakeMkrTransfer {
 
 type SealRely {
   id: ID!
+  chainId: Int!
   usr: String!
   blockNumber: BigInt!
   blockTimestamp: BigInt!
@@ -719,6 +771,7 @@ type SealRely {
 
 type SealDeny {
   id: ID!
+  chainId: Int!
   usr: String!
   blockNumber: BigInt!
   blockTimestamp: BigInt!
@@ -727,6 +780,7 @@ type SealDeny {
 
 type SealFile {
   id: ID!
+  chainId: Int!
   what: String!
   data: String!
   blockNumber: BigInt!
@@ -736,6 +790,7 @@ type SealFile {
 
 type SealAddReward {
   id: ID!
+  chainId: Int!
   reward: String!
   blockNumber: BigInt!
   blockTimestamp: BigInt!
@@ -744,6 +799,7 @@ type SealAddReward {
 
 type SealDelReward {
   id: ID!
+  chainId: Int!
   reward: String!
   blockNumber: BigInt!
   blockTimestamp: BigInt!
@@ -752,6 +808,7 @@ type SealDelReward {
 
 type SealOpen {
   id: ID!
+  chainId: Int!
   owner: String!
   index: BigInt!
   urn: String!
@@ -762,6 +819,7 @@ type SealOpen {
 
 type SealHope {
   id: ID!
+  chainId: Int!
   owner: String!
   index: BigInt!
   usr: String!
@@ -772,6 +830,7 @@ type SealHope {
 
 type SealNope {
   id: ID!
+  chainId: Int!
   owner: String!
   index: BigInt!
   usr: String!
@@ -782,6 +841,7 @@ type SealNope {
 
 type SealSelectVoteDelegate {
   id: ID!
+  chainId: Int!
   urn: SealUrn
   index: BigInt!
   voteDelegate: Delegate
@@ -792,6 +852,7 @@ type SealSelectVoteDelegate {
 
 type SealSelectReward {
   id: ID!
+  chainId: Int!
   index: BigInt!
   urn: SealUrn
   reward: Reward
@@ -803,6 +864,7 @@ type SealSelectReward {
 
 type SealLock {
   id: ID!
+  chainId: Int!
   index: BigInt!
   urn: SealUrn
   wad: BigInt!
@@ -814,6 +876,7 @@ type SealLock {
 
 type SealLockSky {
   id: ID!
+  chainId: Int!
   index: BigInt!
   urn: SealUrn
   wad: BigInt!
@@ -825,6 +888,7 @@ type SealLockSky {
 
 type SealFree {
   id: ID!
+  chainId: Int!
   urn: SealUrn
   index: BigInt!
   to: String!
@@ -837,6 +901,7 @@ type SealFree {
 
 type SealFreeSky {
   id: ID!
+  chainId: Int!
   urn: SealUrn
   index: BigInt!
   to: String!
@@ -849,6 +914,7 @@ type SealFreeSky {
 
 type SealFreeNoFee {
   id: ID!
+  chainId: Int!
   urn: SealUrn
   index: BigInt!
   to: String!
@@ -860,6 +926,7 @@ type SealFreeNoFee {
 
 type SealDraw {
   id: ID!
+  chainId: Int!
   urn: SealUrn
   index: BigInt!
   to: String!
@@ -871,6 +938,7 @@ type SealDraw {
 
 type SealWipe {
   id: ID!
+  chainId: Int!
   urn: SealUrn
   index: BigInt!
   wad: BigInt!
@@ -881,6 +949,7 @@ type SealWipe {
 
 type SealGetReward {
   id: ID!
+  chainId: Int!
   urn: SealUrn
   index: BigInt!
   reward: String!
@@ -893,6 +962,7 @@ type SealGetReward {
 
 type SealOnKick {
   id: ID!
+  chainId: Int!
   urn: SealUrn
   wad: BigInt!
   blockNumber: BigInt!
@@ -902,6 +972,7 @@ type SealOnKick {
 
 type SealOnTake {
   id: ID!
+  chainId: Int!
   urn: SealUrn
   who: String!
   wad: BigInt!
@@ -912,6 +983,7 @@ type SealOnTake {
 
 type SealOnRemove {
   id: ID!
+  chainId: Int!
   urn: SealUrn
   sold: BigInt!
   blockNumber: BigInt!
@@ -921,6 +993,7 @@ type SealOnRemove {
 
 type SealUrn {
   id: ID!
+  chainId: Int!
   owner: String!
   index: BigInt!
   blockNumber: BigInt!
@@ -936,6 +1009,7 @@ type SealUrn {
 
 type LockstakeMigrate {
   id: ID!
+  chainId: Int!
   oldOwner: String!
   oldIndex: BigInt!
   newOwner: String!
@@ -949,6 +1023,7 @@ type LockstakeMigrate {
 
 type StakingOpen {
   id: ID!
+  chainId: Int!
   owner: String!
   index: BigInt!
   urn: String!
@@ -959,6 +1034,7 @@ type StakingOpen {
 
 type StakingSelectVoteDelegate {
   id: ID!
+  chainId: Int!
   urn: StakingUrn
   index: BigInt!
   voteDelegate: Delegate
@@ -969,6 +1045,7 @@ type StakingSelectVoteDelegate {
 
 type StakingSelectReward {
   id: ID!
+  chainId: Int!
   index: BigInt!
   urn: StakingUrn
   reward: Reward
@@ -980,6 +1057,7 @@ type StakingSelectReward {
 
 type StakingLock {
   id: ID!
+  chainId: Int!
   index: BigInt!
   urn: StakingUrn
   wad: BigInt!
@@ -991,6 +1069,7 @@ type StakingLock {
 
 type StakingFree {
   id: ID!
+  chainId: Int!
   urn: StakingUrn
   index: BigInt!
   to: String!
@@ -1002,6 +1081,7 @@ type StakingFree {
 
 type StakingFreeNoFee {
   id: ID!
+  chainId: Int!
   urn: StakingUrn
   index: BigInt!
   to: String!
@@ -1013,6 +1093,7 @@ type StakingFreeNoFee {
 
 type StakingDraw {
   id: ID!
+  chainId: Int!
   urn: StakingUrn
   index: BigInt!
   to: String!
@@ -1024,6 +1105,7 @@ type StakingDraw {
 
 type StakingWipe {
   id: ID!
+  chainId: Int!
   urn: StakingUrn
   index: BigInt!
   wad: BigInt!
@@ -1034,6 +1116,7 @@ type StakingWipe {
 
 type StakingGetReward {
   id: ID!
+  chainId: Int!
   urn: StakingUrn
   index: BigInt!
   reward: String!
@@ -1046,6 +1129,7 @@ type StakingGetReward {
 
 type StakingOnKick {
   id: ID!
+  chainId: Int!
   urn: StakingUrn
   wad: BigInt!
   blockNumber: BigInt!
@@ -1055,6 +1139,7 @@ type StakingOnKick {
 
 type StakingUrn {
   id: ID!
+  chainId: Int!
   owner: String!
   index: BigInt!
   blockNumber: BigInt!
@@ -1069,6 +1154,7 @@ type StakingUrn {
 
 type Bark {
   id: String!
+  chainId: Int!
   ilk: String!
   urn: String!
   ink: BigInt!
@@ -1085,6 +1171,7 @@ type Bark {
 
 type Swap {
   id: ID!
+  chainId: Int!
   assetIn: String!
   assetOut: String!
   receiver: String!
@@ -1099,6 +1186,7 @@ type Swap {
 
 type StusdsDeposit {
   id: ID!
+  chainId: Int!
   sender: String!
   owner: String!
   assets: BigInt!
@@ -1110,6 +1198,7 @@ type StusdsDeposit {
 
 type StusdsWithdraw {
   id: ID!
+  chainId: Int!
   sender: String!
   receiver: String!
   owner: String!
@@ -1122,6 +1211,7 @@ type StusdsWithdraw {
 
 type StusdsReferral {
   id: ID!
+  chainId: Int!
   referral: Int!
   owner: String!
   assets: BigInt!
@@ -1133,6 +1223,7 @@ type StusdsReferral {
 
 type CurveTokenExchange {
   id: ID!
+  chainId: Int!
   buyer: String!
   soldId: BigInt!
   soldTokenAddress: String!

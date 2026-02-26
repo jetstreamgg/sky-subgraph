@@ -97,6 +97,7 @@ async function _handleSlateVote(
       const voteId = `${event.chainId}-${spellId}-${sender}`;
       context.ExecutiveVoteV2.set({
         id: voteId,
+        chainId: event.chainId,
         weight: voter.skyLockedInChiefRaw,
         reason: '',
         voter_id: voter.id,

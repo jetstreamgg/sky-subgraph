@@ -34,6 +34,7 @@ async function handlePollCreated(event: any, context: any) {
   // Always update poll properties, in case it was previously created with just an id in the vote handler
   context.Poll.set({
     ...poll,
+    chainId: event.chainId,
     creator: creator,
     blockCreated: blockCreated,
     startDate: startDate,
@@ -71,7 +72,7 @@ async function handlePollVote(event: any, context: any) {
   if (!poll) {
     // Poll won't exist if it was created on arbitrum
     poll = createDefaultPoll(pollId);
-    context.Poll.set(poll);
+    context.Poll.set({ ...poll, chainId: event.chainId });
   }
 
   const voteId = `${event.chainId}-${pollId}-${sender}-${event.block.number}`;
@@ -91,6 +92,7 @@ async function handlePollVote(event: any, context: any) {
 
   context.PollVote.set({
     id: voteId,
+    chainId: event.chainId,
     voter_id: voter.id,
     poll_id: poll.id,
     choice: optionId,

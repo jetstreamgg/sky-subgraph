@@ -33,10 +33,11 @@ export async function delegationLockHandler(
   isLockstake: boolean,
   isStakingEngine: boolean,
   logIndex: string,
+  chainId: number,
   context: any,
 ): Promise<void> {
   const { delegation, updatedDelegate: delegateWithDelegation } =
-    await getDelegation(delegate, address, blockTimestamp, context);
+    await getDelegation(delegate, address, blockTimestamp, chainId, context);
 
   const lseAddresses = getLseAddresses();
   const stakingEngineAddresses = getStakingEngineAddresses();
@@ -68,6 +69,7 @@ export async function delegationLockHandler(
     delegation.id + '-' + blockNumber.toString() + '-' + logIndex;
   const delegationHistory = {
     id: delegationHistoryId,
+    chainId,
     delegator: delegation.delegator,
     delegate_id: delegation.delegate_id,
     amount,
@@ -107,10 +109,11 @@ export async function delegationFreeHandler(
   isLockstake: boolean,
   isStakingEngine: boolean,
   logIndex: string,
+  chainId: number,
   context: any,
 ): Promise<void> {
   const { delegation, updatedDelegate: delegateWithDelegation } =
-    await getDelegation(delegate, address, blockTimestamp, context);
+    await getDelegation(delegate, address, blockTimestamp, chainId, context);
 
   const lseAddresses = getLseAddresses();
   const stakingEngineAddresses = getStakingEngineAddresses();
@@ -143,6 +146,7 @@ export async function delegationFreeHandler(
     delegation.id + '-' + blockNumber.toString() + '-' + logIndex;
   const delegationHistory = {
     id: delegationHistoryId,
+    chainId,
     delegator: delegation.delegator,
     delegate_id: delegation.delegate_id,
     // Amount is negative because it is a free event
@@ -177,6 +181,7 @@ export async function getDelegation(
   delegate: Delegate,
   address: string,
   blockTimestamp: bigint,
+  chainId: number,
   context: any,
 ): Promise<{ delegation: Delegation; updatedDelegate: Delegate }> {
   const delegationId = delegate.id + '-' + address;
@@ -185,6 +190,7 @@ export async function getDelegation(
   if (!delegation) {
     delegation = {
       id: delegationId,
+      chainId,
       delegator: address,
       delegate_id: delegate.id,
       amount: 0n,

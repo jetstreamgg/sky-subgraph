@@ -6,6 +6,7 @@ export async function getSealUrn(urnAddress: string, chainId: number, context: a
   if (!urn) {
     urn = {
       id,
+      chainId,
       owner: ZERO_ADDRESS,
       index: 0n,
       blockNumber: 0n,

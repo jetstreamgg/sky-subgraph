@@ -6,6 +6,7 @@ export async function getStakingEngineUrn(urnAddress: string, chainId: number, c
   if (!urn) {
     urn = {
       id,
+      chainId,
       owner: ZERO_ADDRESS,
       index: 0n,
       blockNumber: 0n,
