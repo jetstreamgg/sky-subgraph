@@ -1,9 +1,9 @@
-export async function getReward(rewardAddress: string, context: any) {
-  const normalizedAddress = rewardAddress.toLowerCase();
-  let reward = await context.Reward.get(normalizedAddress);
+export async function getReward(rewardAddress: string, chainId: number, context: any) {
+  const id = `${chainId}-${rewardAddress.toLowerCase()}`;
+  let reward = await context.Reward.get(id);
   if (!reward) {
     reward = {
-      id: normalizedAddress,
+      id,
       totalSupplied: 0n,
       totalRewardsClaimed: 0n,
       lockstakeActive: false,

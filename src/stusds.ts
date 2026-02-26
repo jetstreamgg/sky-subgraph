@@ -1,7 +1,7 @@
 import { Stusds } from 'generated';
 
 Stusds.Deposit.handler(async ({ event, context }) => {
-  const id = `${event.transaction.hash}-${event.logIndex}`;
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
   context.StusdsDeposit.set({
     id,
@@ -16,7 +16,7 @@ Stusds.Deposit.handler(async ({ event, context }) => {
 });
 
 Stusds.Withdraw.handler(async ({ event, context }) => {
-  const id = `${event.transaction.hash}-${event.logIndex}`;
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
   context.StusdsWithdraw.set({
     id,
@@ -32,7 +32,7 @@ Stusds.Withdraw.handler(async ({ event, context }) => {
 });
 
 Stusds.Referral.handler(async ({ event, context }) => {
-  const id = `${event.transaction.hash}-${event.logIndex}`;
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
   context.StusdsReferral.set({
     id,

@@ -1,11 +1,12 @@
 import { PollingEmitterArbitrum } from 'generated';
 
 // Helper: get or create an ArbitrumVoter entity
-async function getArbitrumVoter(address: string, context: any) {
-  let voter = await context.ArbitrumVoter.get(address);
+async function getArbitrumVoter(address: string, chainId: number, context: any) {
+  const id = `${chainId}-${address}`;
+  let voter = await context.ArbitrumVoter.get(id);
   if (!voter) {
     voter = {
-      id: address,
+      id,
       numberPollVotes: 0,
       lastVotedTimestamp: 0n,
     };
@@ -16,12 +17,12 @@ async function getArbitrumVoter(address: string, context: any) {
 // Handler logic: Voted
 PollingEmitterArbitrum.Voted.handler(async ({ event, context }) => {
   const sender = event.params.voter;
-  const pollId = event.params.pollId.toString();
+  const pollId = `${event.chainId}-${event.params.pollId.toString()}`;
   const optionId = event.params.optionId;
 
-  const voter = await getArbitrumVoter(sender, context);
+  const voter = await getArbitrumVoter(sender, event.chainId, context);
 
-  const voteId = `${pollId}-${sender}-${event.block.number}`;
+  const voteId = `${event.chainId}-${pollId}-${sender}-${event.block.number}`;
 
   let pollVote = await context.ArbitrumPollVote.get(voteId);
   let updatedVoter = {
@@ -69,7 +70,7 @@ PollingEmitterArbitrum.Voted.handler(async ({ event, context }) => {
 PollingEmitterArbitrum.PollCreated.handler(async ({ event, context }) => {
   const creator = event.params.creator;
   const blockCreated = event.params.blockCreated;
-  const pollId = event.params.pollId.toString();
+  const pollId = `${event.chainId}-${event.params.pollId.toString()}`;
   const startDate = event.params.startDate;
   const endDate = event.params.endDate;
   const multiHash = event.params.multiHash;

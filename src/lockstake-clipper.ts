@@ -1,7 +1,7 @@
 import { LockstakeClipper } from 'generated';
 
 LockstakeClipper.Rely.handler(async ({ event, context }) => {
-  const id = `${event.transaction.hash}-${event.logIndex}`;
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
   context.Rely.set({
     id,
@@ -13,7 +13,7 @@ LockstakeClipper.Rely.handler(async ({ event, context }) => {
 });
 
 LockstakeClipper.Deny.handler(async ({ event, context }) => {
-  const id = `${event.transaction.hash}-${event.logIndex}`;
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
   context.Deny.set({
     id,
@@ -25,7 +25,7 @@ LockstakeClipper.Deny.handler(async ({ event, context }) => {
 });
 
 LockstakeClipper.FileUint.handler(async ({ event, context }) => {
-  const id = `${event.transaction.hash}-${event.logIndex}`;
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
   context.FileUint.set({
     id,
@@ -38,7 +38,7 @@ LockstakeClipper.FileUint.handler(async ({ event, context }) => {
 });
 
 LockstakeClipper.FileAddress.handler(async ({ event, context }) => {
-  const id = `${event.transaction.hash}-${event.logIndex}`;
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
   context.FileAddress.set({
     id,
@@ -51,7 +51,7 @@ LockstakeClipper.FileAddress.handler(async ({ event, context }) => {
 });
 
 LockstakeClipper.Kick.handler(async ({ event, context }) => {
-  const id = `${event.transaction.hash}-${event.logIndex}`;
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
   context.Kick.set({
     id,
@@ -68,7 +68,7 @@ LockstakeClipper.Kick.handler(async ({ event, context }) => {
 });
 
 LockstakeClipper.Take.handler(async ({ event, context }) => {
-  const id = `${event.transaction.hash}-${event.logIndex}`;
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
   context.Take.set({
     id,
@@ -85,7 +85,7 @@ LockstakeClipper.Take.handler(async ({ event, context }) => {
 });
 
 LockstakeClipper.Redo.handler(async ({ event, context }) => {
-  const id = `${event.transaction.hash}-${event.logIndex}`;
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
   context.Redo.set({
     id,
@@ -102,7 +102,7 @@ LockstakeClipper.Redo.handler(async ({ event, context }) => {
 });
 
 LockstakeClipper.Yank.handler(async ({ event, context }) => {
-  const id = `${event.transaction.hash}-${event.logIndex}`;
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
   context.Yank.set({
     id,

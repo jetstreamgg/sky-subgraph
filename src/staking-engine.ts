@@ -10,7 +10,7 @@ import { readOwnerUrnsEffect } from './helpers/contractCalls';
 import { ZERO_ADDRESS } from './helpers/constants';
 
 StakingEngine.StakingOpen.handler(async ({ event, context }) => {
-  let urn = await getStakingEngineUrn(event.params.urn, context);
+  let urn = await getStakingEngineUrn(event.params.urn, event.chainId, context);
 
   const updatedUrn = {
     ...urn,
@@ -24,7 +24,7 @@ StakingEngine.StakingOpen.handler(async ({ event, context }) => {
   context.StakingUrn.set(updatedUrn);
 
   context.StakingOpen.set({
-    id: `${event.transaction.hash}-${event.logIndex}`,
+    id: `${event.chainId}-${event.transaction.hash}-${event.logIndex}`,
     owner: event.params.owner,
     index: event.params.index,
     urn: event.params.urn,
@@ -41,20 +41,20 @@ StakingEngine.StakingSelectVoteDelegate.handler(async ({ event, context }) => {
     owner: event.params.owner,
     index: event.params.index,
   });
-  let urn = await getStakingEngineUrn(urnAddress, context);
+  let urn = await getStakingEngineUrn(urnAddress, event.chainId, context);
 
   const oldDelegateAddress = urn.voteDelegate_id;
   let oldDelegate: any | null = null;
   if (oldDelegateAddress) {
-    oldDelegate = await getDelegate(oldDelegateAddress, context);
+    oldDelegate = await getDelegate(oldDelegateAddress, event.chainId, context);
   }
   const newDelegateAddress = event.params.voteDelegate;
-  let newDelegate = await getDelegate(newDelegateAddress, context);
+  let newDelegate = await getDelegate(newDelegateAddress, event.chainId, context);
 
   // if voteDelegate address is zero address, urn is undelegating
   if (newDelegateAddress === ZERO_ADDRESS) {
     context.StakingSelectVoteDelegate.set({
-      id: `${event.transaction.hash}-${event.logIndex}`,
+      id: `${event.chainId}-${event.transaction.hash}-${event.logIndex}`,
       urn_id: urn.id,
       index: event.params.index,
       voteDelegate_id: undefined,
@@ -88,7 +88,7 @@ StakingEngine.StakingSelectVoteDelegate.handler(async ({ event, context }) => {
     // delegate should always be found
     if (newDelegate) {
       context.StakingSelectVoteDelegate.set({
-        id: `${event.transaction.hash}-${event.logIndex}`,
+        id: `${event.chainId}-${event.transaction.hash}-${event.logIndex}`,
         urn_id: urn.id,
         index: event.params.index,
         voteDelegate_id: newDelegate.id,
@@ -142,13 +142,13 @@ StakingEngine.StakingSelectFarm.handler(async ({ event, context }) => {
     owner: event.params.owner,
     index: event.params.index,
   });
-  let urn = await getStakingEngineUrn(urnAddress, context);
-  let reward = await getReward(event.params.farm, context);
+  let urn = await getStakingEngineUrn(urnAddress, event.chainId, context);
+  let reward = await getReward(event.params.farm, event.chainId, context);
 
   const ref = Number(event.params.ref) || 0;
 
   context.StakingSelectReward.set({
-    id: `${event.transaction.hash}-${event.logIndex}`,
+    id: `${event.chainId}-${event.transaction.hash}-${event.logIndex}`,
     urn_id: urn.id,
     index: event.params.index,
     reward_id: reward.id,
@@ -172,12 +172,12 @@ StakingEngine.StakingLock.handler(async ({ event, context }) => {
     owner: event.params.owner,
     index: event.params.index,
   });
-  let urn = await getStakingEngineUrn(urnAddress, context);
+  let urn = await getStakingEngineUrn(urnAddress, event.chainId, context);
 
   const ref = Number(event.params.ref) || 0;
 
   context.StakingLock.set({
-    id: `${event.transaction.hash}-${event.logIndex}`,
+    id: `${event.chainId}-${event.transaction.hash}-${event.logIndex}`,
     urn_id: urn.id,
     index: event.params.index,
     wad: amount,
@@ -193,7 +193,7 @@ StakingEngine.StakingLock.handler(async ({ event, context }) => {
   });
 
   if (urn.voteDelegate_id && amount > 0n) {
-    const delegate = await getDelegate(urn.voteDelegate_id, context);
+    const delegate = await getDelegate(urn.voteDelegate_id, event.chainId, context);
     if (delegate) {
       await delegationLockHandler(
         delegate,
@@ -219,10 +219,10 @@ StakingEngine.StakingFree.handler(async ({ event, context }) => {
     owner: event.params.owner,
     index: event.params.index,
   });
-  let urn = await getStakingEngineUrn(urnAddress, context);
+  let urn = await getStakingEngineUrn(urnAddress, event.chainId, context);
 
   context.StakingFree.set({
-    id: `${event.transaction.hash}-${event.logIndex}`,
+    id: `${event.chainId}-${event.transaction.hash}-${event.logIndex}`,
     urn_id: urn.id,
     index: event.params.index,
     to: event.params.to,
@@ -238,7 +238,7 @@ StakingEngine.StakingFree.handler(async ({ event, context }) => {
   });
 
   if (urn.voteDelegate_id && amount > 0n) {
-    const delegate = await getDelegate(urn.voteDelegate_id, context);
+    const delegate = await getDelegate(urn.voteDelegate_id, event.chainId, context);
     if (delegate) {
       await delegationFreeHandler(
         delegate,
@@ -264,10 +264,10 @@ StakingEngine.StakingFreeNoFee.handler(async ({ event, context }) => {
     owner: event.params.owner,
     index: event.params.index,
   });
-  let urn = await getStakingEngineUrn(urnAddress, context);
+  let urn = await getStakingEngineUrn(urnAddress, event.chainId, context);
 
   context.StakingFreeNoFee.set({
-    id: `${event.transaction.hash}-${event.logIndex}`,
+    id: `${event.chainId}-${event.transaction.hash}-${event.logIndex}`,
     urn_id: urn.id,
     index: event.params.index,
     to: event.params.to,
@@ -283,7 +283,7 @@ StakingEngine.StakingFreeNoFee.handler(async ({ event, context }) => {
   });
 
   if (urn.voteDelegate_id && amount > 0n) {
-    const delegate = await getDelegate(urn.voteDelegate_id, context);
+    const delegate = await getDelegate(urn.voteDelegate_id, event.chainId, context);
     if (delegate) {
       await delegationFreeHandler(
         delegate,
@@ -308,10 +308,10 @@ StakingEngine.StakingDraw.handler(async ({ event, context }) => {
     owner: event.params.owner,
     index: event.params.index,
   });
-  let urn = await getStakingEngineUrn(urnAddress, context);
+  let urn = await getStakingEngineUrn(urnAddress, event.chainId, context);
 
   context.StakingDraw.set({
-    id: `${event.transaction.hash}-${event.logIndex}`,
+    id: `${event.chainId}-${event.transaction.hash}-${event.logIndex}`,
     urn_id: urn.id,
     index: event.params.index,
     to: event.params.to,
@@ -334,10 +334,10 @@ StakingEngine.StakingWipe.handler(async ({ event, context }) => {
     owner: event.params.owner,
     index: event.params.index,
   });
-  let urn = await getStakingEngineUrn(urnAddress, context);
+  let urn = await getStakingEngineUrn(urnAddress, event.chainId, context);
 
   context.StakingWipe.set({
-    id: `${event.transaction.hash}-${event.logIndex}`,
+    id: `${event.chainId}-${event.transaction.hash}-${event.logIndex}`,
     urn_id: urn.id,
     index: event.params.index,
     wad: event.params.wad,
@@ -359,10 +359,10 @@ StakingEngine.StakingGetReward.handler(async ({ event, context }) => {
     owner: event.params.owner,
     index: event.params.index,
   });
-  let urn = await getStakingEngineUrn(urnAddress, context);
+  let urn = await getStakingEngineUrn(urnAddress, event.chainId, context);
 
   context.StakingGetReward.set({
-    id: `${event.transaction.hash}-${event.logIndex}`,
+    id: `${event.chainId}-${event.transaction.hash}-${event.logIndex}`,
     urn_id: urn.id,
     index: event.params.index,
     reward: event.params.farm,
@@ -375,10 +375,10 @@ StakingEngine.StakingGetReward.handler(async ({ event, context }) => {
 });
 
 StakingEngine.StakingOnKick.handler(async ({ event, context }) => {
-  let urn = await getStakingEngineUrn(event.params.urn, context);
+  let urn = await getStakingEngineUrn(event.params.urn, event.chainId, context);
 
   context.StakingOnKick.set({
-    id: `${event.transaction.hash}-${event.logIndex}`,
+    id: `${event.chainId}-${event.transaction.hash}-${event.logIndex}`,
     urn_id: urn.id,
     wad: event.params.wad,
     blockNumber: BigInt(event.block.number),
@@ -393,7 +393,7 @@ StakingEngine.StakingOnKick.handler(async ({ event, context }) => {
 });
 
 StakingEngine.StakingAddFarm.handler(async ({ event, context }) => {
-  let reward = await getReward(event.params.farm, context);
+  let reward = await getReward(event.params.farm, event.chainId, context);
   context.Reward.set({
     ...reward,
     stakingEngineActive: true,
@@ -401,7 +401,7 @@ StakingEngine.StakingAddFarm.handler(async ({ event, context }) => {
 });
 
 StakingEngine.StakingDelFarm.handler(async ({ event, context }) => {
-  let reward = await getReward(event.params.farm, context);
+  let reward = await getReward(event.params.farm, event.chainId, context);
   context.Reward.set({
     ...reward,
     stakingEngineActive: false,

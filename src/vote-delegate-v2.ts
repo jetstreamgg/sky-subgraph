@@ -17,7 +17,7 @@ VoteDelegateV2.Lock.handler(async ({ event, context }) => {
   const delegateAddress = event.srcAddress;
   const amount = event.params.wad;
 
-  const delegate = await context.Delegate.get(delegateAddress);
+  const delegate = await context.Delegate.get(`${event.chainId}-${delegateAddress}`);
   if (!delegate) return;
 
   // Lockstake engine delegations are already handled in the lockstake engine handlers
@@ -86,7 +86,7 @@ VoteDelegateV2.Free.handler(async ({ event, context }) => {
   const delegateAddress = event.srcAddress;
   const amount = event.params.wad;
 
-  const delegate = await context.Delegate.get(delegateAddress);
+  const delegate = await context.Delegate.get(`${event.chainId}-${delegateAddress}`);
   if (!delegate) return;
 
   // Lockstake engine delegations are already handled in the lockstake engine handlers

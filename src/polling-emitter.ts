@@ -20,7 +20,7 @@ function createDefaultPoll(pollId: string) {
 async function handlePollCreated(event: any, context: any) {
   const creator = event.params.creator;
   const blockCreated = event.params.blockCreated;
-  const pollId = event.params.pollId.toString();
+  const pollId = `${event.chainId}-${event.params.pollId.toString()}`;
   const startDate = event.params.startDate;
   const endDate = event.params.endDate;
   const multiHash = event.params.multiHash;
@@ -46,7 +46,7 @@ async function handlePollCreated(event: any, context: any) {
 async function handlePollWithdrawn(event: any, context: any) {
   const creator = event.params.creator;
   const blockWithdrawn = event.params.blockWithdrawn;
-  const pollId = event.params.pollId.toString();
+  const pollId = `${event.chainId}-${event.params.pollId.toString()}`;
 
   let poll = await context.Poll.get(pollId);
 
@@ -62,10 +62,10 @@ async function handlePollWithdrawn(event: any, context: any) {
 // Handler logic: Voted
 async function handlePollVote(event: any, context: any) {
   const sender = event.params.voter;
-  const pollId = event.params.pollId.toString();
+  const pollId = `${event.chainId}-${event.params.pollId.toString()}`;
   const optionId = event.params.optionId;
 
-  const voter = await getVoter(sender, context);
+  const voter = await getVoter(sender, event.chainId, context);
 
   let poll = await context.Poll.get(pollId);
   if (!poll) {
@@ -74,7 +74,7 @@ async function handlePollVote(event: any, context: any) {
     context.Poll.set(poll);
   }
 
-  const voteId = `${pollId}-${sender}-${event.block.number}`;
+  const voteId = `${event.chainId}-${pollId}-${sender}-${event.block.number}`;
 
   let pollVote = await context.PollVote.get(voteId);
   let updatedVoter = {

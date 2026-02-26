@@ -1,7 +1,7 @@
 import { SavingsUsds } from 'generated';
 
 SavingsUsds.Deposit.handler(async ({ event, context }) => {
-  const id = `${event.transaction.hash}-${event.logIndex}`;
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
   context.SavingsSupply.set({
     id,
@@ -16,14 +16,15 @@ SavingsUsds.Deposit.handler(async ({ event, context }) => {
 
   // Track unique suppliers
   const owner = event.params.owner;
-  let supplier = await context.SavingsSupplier.get(owner);
+  const supplierId = `${event.chainId}-${owner}`;
+  let supplier = await context.SavingsSupplier.get(supplierId);
   if (!supplier) {
-    context.SavingsSupplier.set({ id: owner });
+    context.SavingsSupplier.set({ id: supplierId });
   }
 });
 
 SavingsUsds.Withdraw.handler(async ({ event, context }) => {
-  const id = `${event.transaction.hash}-${event.logIndex}`;
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
   context.SavingsWithdraw.set({
     id,
@@ -39,7 +40,7 @@ SavingsUsds.Withdraw.handler(async ({ event, context }) => {
 });
 
 SavingsUsds.Referral.handler(async ({ event, context }) => {
-  const id = `${event.transaction.hash}-${event.logIndex}`;
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
   const ref = Number(event.params.referral) || 0;
 

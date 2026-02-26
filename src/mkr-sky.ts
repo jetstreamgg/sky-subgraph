@@ -1,7 +1,7 @@
 import { MkrSky } from 'generated';
 
 MkrSky.MkrToSky.handler(async ({ event, context }) => {
-  const id = `${event.transaction.hash}-${event.logIndex}`;
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
   context.MkrToSkyUpgrade.set({
     id,
@@ -15,7 +15,7 @@ MkrSky.MkrToSky.handler(async ({ event, context }) => {
   });
 
   // Add to running total of mkrUpgraded
-  const mkrTotalId = 'mkrUpgraded';
+  const mkrTotalId = `${event.chainId}-mkrUpgraded`;
   let totalMkrUpgraded = await context.Total.get(mkrTotalId);
   if (!totalMkrUpgraded) {
     totalMkrUpgraded = { id: mkrTotalId, total: 0n };
@@ -26,7 +26,7 @@ MkrSky.MkrToSky.handler(async ({ event, context }) => {
   });
 
   // Add to running total of skyUpgraded
-  const skyTotalId = 'skyUpgraded';
+  const skyTotalId = `${event.chainId}-skyUpgraded`;
   let totalSkyUpgraded = await context.Total.get(skyTotalId);
   if (!totalSkyUpgraded) {
     totalSkyUpgraded = { id: skyTotalId, total: 0n };
@@ -38,7 +38,7 @@ MkrSky.MkrToSky.handler(async ({ event, context }) => {
 });
 
 MkrSky.SkyToMkr.handler(async ({ event, context }) => {
-  const id = `${event.transaction.hash}-${event.logIndex}`;
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
   context.SkyToMkrRevert.set({
     id,
@@ -52,7 +52,7 @@ MkrSky.SkyToMkr.handler(async ({ event, context }) => {
   });
 
   // Subtract from running total of mkrUpgraded (since MKR is being reverted back)
-  const mkrTotalId = 'mkrUpgraded';
+  const mkrTotalId = `${event.chainId}-mkrUpgraded`;
   let totalMkrUpgraded = await context.Total.get(mkrTotalId);
   if (!totalMkrUpgraded) {
     totalMkrUpgraded = { id: mkrTotalId, total: 0n };
@@ -63,7 +63,7 @@ MkrSky.SkyToMkr.handler(async ({ event, context }) => {
   });
 
   // Subtract from running total of skyUpgraded (since SKY is being reverted back)
-  const skyTotalId = 'skyUpgraded';
+  const skyTotalId = `${event.chainId}-skyUpgraded`;
   let totalSkyUpgraded = await context.Total.get(skyTotalId);
   if (!totalSkyUpgraded) {
     totalSkyUpgraded = { id: skyTotalId, total: 0n };

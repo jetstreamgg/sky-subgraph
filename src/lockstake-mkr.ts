@@ -1,7 +1,7 @@
 import { LockstakeMkr } from 'generated';
 
 LockstakeMkr.LockstakeMkrRely.handler(async ({ event, context }) => {
-  const id = `${event.transaction.hash}-${event.logIndex}`;
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
   context.LockstakeMkrRely.set({
     id,
@@ -13,7 +13,7 @@ LockstakeMkr.LockstakeMkrRely.handler(async ({ event, context }) => {
 });
 
 LockstakeMkr.LockstakeMkrDeny.handler(async ({ event, context }) => {
-  const id = `${event.transaction.hash}-${event.logIndex}`;
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
   context.LockstakeMkrDeny.set({
     id,
@@ -25,7 +25,7 @@ LockstakeMkr.LockstakeMkrDeny.handler(async ({ event, context }) => {
 });
 
 LockstakeMkr.Approval.handler(async ({ event, context }) => {
-  const id = `${event.transaction.hash}-${event.logIndex}`;
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
   context.LockstakeMkrApproval.set({
     id,
@@ -39,7 +39,7 @@ LockstakeMkr.Approval.handler(async ({ event, context }) => {
 });
 
 LockstakeMkr.Transfer.handler(async ({ event, context }) => {
-  const id = `${event.transaction.hash}-${event.logIndex}`;
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
   context.LockstakeMkrTransfer.set({
     id,

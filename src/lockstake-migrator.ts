@@ -1,7 +1,7 @@
 import { LockstakeMigrator } from 'generated';
 
 LockstakeMigrator.Migrate.handler(async ({ event, context }) => {
-  const id = `${event.transaction.hash}-${event.logIndex}`;
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
   context.LockstakeMigrate.set({
     id,

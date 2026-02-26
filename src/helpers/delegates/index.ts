@@ -200,12 +200,13 @@ export async function getDelegation(
 
 export async function getDelegate(
   delegateAddress: string | null | undefined,
+  chainId: number,
   context: any,
 ): Promise<any | null> {
   if (!delegateAddress) {
     return null;
   }
-  const delegate = await context.Delegate.get(delegateAddress.toLowerCase());
+  const delegate = await context.Delegate.get(`${chainId}-${delegateAddress.toLowerCase()}`);
   if (!delegate) {
     return null;
   }

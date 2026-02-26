@@ -9,11 +9,16 @@ import {
 } from 'generated';
 
 // Helper: get or initialize a Reward entity
-async function getReward(rewardAddress: string, context: any) {
-  let reward = await context.Reward.get(rewardAddress);
+async function getReward(
+  chainId: number,
+  rewardAddress: string,
+  context: any,
+) {
+  const rewardId = `${chainId}-${rewardAddress}`;
+  let reward = await context.Reward.get(rewardId);
   if (!reward) {
     reward = {
-      id: rewardAddress,
+      id: rewardId,
       totalSupplied: 0n,
       totalRewardsClaimed: 0n,
       lockstakeActive: false,
@@ -25,11 +30,12 @@ async function getReward(rewardAddress: string, context: any) {
 
 // Helper: get or initialize a RewardSupplier entity
 async function getRewardSupplier(
+  chainId: number,
   rewardId: string,
   userId: string,
   context: any,
 ) {
-  const rewardSupplierId = `${rewardId}-${userId}`;
+  const rewardSupplierId = `${chainId}-${rewardId}-${userId}`;
   let supplier = await context.RewardSupplier.get(rewardSupplierId);
   if (!supplier) {
     supplier = {
@@ -44,9 +50,9 @@ async function getRewardSupplier(
 
 // Handler logic: RewardPaid (RewardClaimed)
 async function handleRewardClaimed(event: any, context: any) {
-  const reward = await getReward(event.srcAddress, context);
+  const reward = await getReward(event.chainId, event.srcAddress, context);
 
-  const entityId = `${event.transaction.hash}-${event.logIndex}`;
+  const entityId = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
   context.RewardClaim.set({
     id: entityId,
     user: event.params.user,
@@ -65,9 +71,9 @@ async function handleRewardClaimed(event: any, context: any) {
 
 // Handler logic: Staked (RewardSupplied)
 async function handleRewardSupplied(event: any, context: any) {
-  const reward = await getReward(event.srcAddress, context);
+  const reward = await getReward(event.chainId, event.srcAddress, context);
 
-  const entityId = `${event.transaction.hash}-${event.logIndex}`;
+  const entityId = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
   context.RewardSupply.set({
     id: entityId,
     user: event.params.user,
@@ -80,6 +86,7 @@ async function handleRewardSupplied(event: any, context: any) {
 
   // Update supplier
   const supplier = await getRewardSupplier(
+    event.chainId,
     reward.id,
     event.params.user,
     context,
@@ -109,9 +116,9 @@ async function handleRewardSupplied(event: any, context: any) {
 
 // Handler logic: Withdrawn (RewardWithdrawn)
 async function handleRewardWithdrawn(event: any, context: any) {
-  const reward = await getReward(event.srcAddress, context);
+  const reward = await getReward(event.chainId, event.srcAddress, context);
 
-  const entityId = `${event.transaction.hash}-${event.logIndex}`;
+  const entityId = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
   context.RewardWithdraw.set({
     id: entityId,
     user: event.params.user,
@@ -124,6 +131,7 @@ async function handleRewardWithdrawn(event: any, context: any) {
 
   // Update supplier
   const supplier = await getRewardSupplier(
+    event.chainId,
     reward.id,
     event.params.user,
     context,
@@ -153,9 +161,9 @@ async function handleRewardWithdrawn(event: any, context: any) {
 
 // Handler logic: Referral (RewardReferral)
 async function handleRewardReferral(event: any, context: any) {
-  const reward = await getReward(event.srcAddress, context);
+  const reward = await getReward(event.chainId, event.srcAddress, context);
 
-  const entityId = `${event.transaction.hash}-${event.logIndex}`;
+  const entityId = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
   const ref = Number(event.params.referral) || 0;
 
   context.RewardReferral.set({

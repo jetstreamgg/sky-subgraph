@@ -15,12 +15,12 @@ export function toDecimal(value: bigint, decimals: number = 18): BigDecimal {
   return new BigDecimal(value.toString()).div(divisor);
 }
 
-export async function getVoter(address: string, context: any) {
-  const normalizedAddress = address.toLowerCase();
-  let voter = await context.Voter.get(normalizedAddress);
+export async function getVoter(address: string, chainId: number, context: any) {
+  const id = `${chainId}-${address.toLowerCase()}`;
+  let voter = await context.Voter.get(id);
   if (!voter) {
     voter = {
-      id: normalizedAddress,
+      id,
       isVoteDelegate: false,
       isVoteProxy: undefined,
       delegateContract_id: undefined,
@@ -47,7 +47,7 @@ export function createExecutiveVotingPowerChange(
   newBalance: bigint,
   voter: string,
 ) {
-  const id = `${event.block.timestamp}-${event.logIndex}`;
+  const id = `${event.chainId}-${event.block.timestamp}-${event.logIndex}`;
   return {
     id,
     amount,
@@ -69,7 +69,7 @@ export function createExecutiveVotingPowerChangeV2(
   newBalance: bigint,
   voter: string,
 ) {
-  const id = `${event.block.timestamp}-${event.logIndex}`;
+  const id = `${event.chainId}-${event.block.timestamp}-${event.logIndex}`;
   return {
     id,
     amount,
@@ -103,18 +103,19 @@ export async function createSlate(
     });
     if (!spellAddress) break;
 
-    const spellId = spellAddress.toLowerCase();
-    if (spellId !== ZERO_ADDRESS) {
+    const spellAddress_ = spellAddress.toLowerCase();
+    if (spellAddress_ !== ZERO_ADDRESS) {
+      const spellId = `${chainId}-${spellAddress_}`;
       let spell = await context.Spell.get(spellId);
       if (!spell) {
         const [description, expiryTime] = await Promise.all([
           context.effect(readSpellDescriptionEffect, {
             chainId,
-            spellAddress: spellId,
+            spellAddress: spellAddress_,
           }),
           context.effect(readSpellExpirationEffect, {
             chainId,
-            spellAddress: spellId,
+            spellAddress: spellAddress_,
           }),
         ]);
         // Only save the spell if expiration() didn't revert
@@ -149,7 +150,7 @@ export async function createSlate(
   }
 
   const slate = {
-    id: slateID,
+    id: `${chainId}-${slateID}`,
     yays,
     txnHash: event.transaction.hash,
     creationBlock: BigInt(event.block.number),
@@ -179,18 +180,19 @@ export async function createSlateV2(
     });
     if (!spellAddress) break;
 
-    const spellId = spellAddress.toLowerCase();
-    if (spellId !== ZERO_ADDRESS) {
+    const spellAddress_ = spellAddress.toLowerCase();
+    if (spellAddress_ !== ZERO_ADDRESS) {
+      const spellId = `${chainId}-${spellAddress_}`;
       let spell = await context.SpellV2.get(spellId);
       if (!spell) {
         const [description, expiryTime] = await Promise.all([
           context.effect(readSpellDescriptionEffect, {
             chainId,
-            spellAddress: spellId,
+            spellAddress: spellAddress_,
           }),
           context.effect(readSpellExpirationEffect, {
             chainId,
-            spellAddress: spellId,
+            spellAddress: spellAddress_,
           }),
         ]);
         // Only save the spell if expiration() didn't revert
@@ -225,7 +227,7 @@ export async function createSlateV2(
   }
 
   const slate = {
-    id: slateID,
+    id: `${chainId}-${slateID}`,
     yays,
     txnHash: event.transaction.hash,
     creationBlock: BigInt(event.block.number),
