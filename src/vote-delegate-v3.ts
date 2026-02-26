@@ -38,10 +38,6 @@ VoteDelegateV3.Lock.handler(async ({ event, context }) => {
       timestamp: BigInt(event.block.timestamp),
       delegate_id: delegate.id,
     };
-    updatedDelegate = {
-      ...updatedDelegate,
-      delegations: [...updatedDelegate.delegations, delegationId],
-    };
   }
 
   // If previous delegation amount was 0, increment the delegators count
@@ -78,7 +74,6 @@ VoteDelegateV3.Lock.handler(async ({ event, context }) => {
 
   context.Delegate.set({
     ...updatedDelegate,
-    delegationHistory: [...updatedDelegate.delegationHistory, historyId],
     totalDelegated: updatedDelegate.totalDelegated + amount,
   });
 });
@@ -108,10 +103,6 @@ VoteDelegateV3.Free.handler(async ({ event, context }) => {
       amount: 0n,
       timestamp: BigInt(event.block.timestamp),
       delegate_id: delegate.id,
-    };
-    updatedDelegate = {
-      ...updatedDelegate,
-      delegations: [...updatedDelegate.delegations, delegationId],
     };
   }
 
@@ -150,7 +141,6 @@ VoteDelegateV3.Free.handler(async ({ event, context }) => {
 
   context.Delegate.set({
     ...updatedDelegate,
-    delegationHistory: [...updatedDelegate.delegationHistory, historyId],
     totalDelegated: updatedDelegate.totalDelegated - amount,
   });
 });

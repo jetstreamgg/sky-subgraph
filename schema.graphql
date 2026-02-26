@@ -142,10 +142,10 @@ type Delegate {
   voter: Voter!
   "Address of the delegate owner"
   ownerAddress: String! @index
-  "Delegations that this contract has received (stored as delegation IDs)"
-  delegations: [String!]!
-  "Delegation history (stored as delegation history IDs)"
-  delegationHistory: [String!]!
+  "Delegations that this contract has received"
+  delegations: [Delegation!]! @derivedFrom(field: "delegate")
+  "Delegation history"
+  delegationHistory: [DelegationHistory!]! @derivedFrom(field: "delegate")
   "Total amount delegated"
   totalDelegated: BigInt!
   "Number of token holders delegate represents"
@@ -441,38 +441,6 @@ type ArbitrumPoll {
   url: String
   "Poll votes associated to this poll"
   votes: [ArbitrumPollVote!]! @derivedFrom(field: "poll")
-}
-
-type ContentHashRegistry {
-  id: ID!
-  chainId: Int! @index
-  blockNumber: Int!
-  transactionID: String!
-  hash: String!
-  address: String!
-  node: String!
-  nodeHexString: String!
-  hashHexString: String!
-  cid: String!
-}
-
-
-type VotingStrategy {
-  id: String!
-  chainId: Int! @index
-  name: String!
-  description: String!
-  delegates: [String!]!
-}
-
-type VotingCommittee {
-  id: String!
-  chainId: Int! @index
-  name: String!
-  description: String
-  image: String
-  externalProfileURL: String
-  strategies: [String!]!
 }
 
 type Reward {
@@ -800,34 +768,6 @@ type SealDeny {
   id: ID!
   chainId: Int! @index
   usr: String!
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: String!
-}
-
-type SealFile {
-  id: ID!
-  chainId: Int! @index
-  what: String!
-  data: String!
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: String!
-}
-
-type SealAddReward {
-  id: ID!
-  chainId: Int! @index
-  reward: String!
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: String!
-}
-
-type SealDelReward {
-  id: ID!
-  chainId: Int! @index
-  reward: String!
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: String!

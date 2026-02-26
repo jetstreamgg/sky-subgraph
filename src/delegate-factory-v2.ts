@@ -49,13 +49,11 @@ DelegateFactoryV2.CreateVoteDelegate.handler(async ({ event, context }) => {
       id: delegateId,
       ownerAddress: delegateOwnerAddress,
       voter_id: voterId,
-      delegations: [],
       delegators: 0,
       blockTimestamp: BigInt(event.block.timestamp),
       blockNumber: BigInt(event.block.number),
       txnHash: event.transaction.hash,
       totalDelegated: 0n,
-      delegationHistory: [],
       version: '2',
       chainId: event.chainId,
     };

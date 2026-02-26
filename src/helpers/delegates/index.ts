@@ -81,12 +81,9 @@ export async function delegationLockHandler(
     isStakingEngine,
   };
 
-  // Add the delegation history to the delegate and increase total delegated
+  // Increase total delegated on the delegate
   updatedDelegate = {
     ...updatedDelegate,
-    delegationHistory: updatedDelegate.delegationHistory.concat([
-      delegationHistoryId,
-    ]),
     totalDelegated: updatedDelegate.totalDelegated + amount,
   };
 
@@ -159,12 +156,9 @@ export async function delegationFreeHandler(
     isStakingEngine,
   };
 
-  // Add the delegation history to the delegate and decrease total delegated
+  // Decrease total delegated on the delegate
   updatedDelegate = {
     ...updatedDelegate,
-    delegationHistory: updatedDelegate.delegationHistory.concat([
-      delegationHistoryId,
-    ]),
     totalDelegated: updatedDelegate.totalDelegated - amount,
   };
 
@@ -195,10 +189,6 @@ export async function getDelegation(
       delegate_id: delegate.id,
       amount: 0n,
       timestamp: blockTimestamp,
-    };
-    updatedDelegate = {
-      ...delegate,
-      delegations: delegate.delegations.concat([delegationId]),
     };
   }
   return { delegation, updatedDelegate };
