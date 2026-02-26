@@ -69,6 +69,8 @@ type Spell {
   totalVotes: BigInt!
   "Weighted voting power for the Spell"
   totalWeightedVotes: BigInt!
+  "Votes associated to this spell"
+  votes: [ExecutiveVote!]! @derivedFrom(field: "spell")
 }
 
 # Also referred to as Executive Proposal
@@ -112,6 +114,8 @@ type SpellV2 {
   totalVotes: BigInt!
   "Weighted voting power for the Spell"
   totalWeightedVotes: BigInt!
+  "Votes associated to this spell"
+  votes: [ExecutiveVoteV2!]! @derivedFrom(field: "spell")
 }
 
 enum SpellState {
@@ -198,6 +202,18 @@ type Voter {
   numberPollVotes: Int!
   "Last time voted"
   lastVotedTimestamp: BigInt!
+  "Votes that a voter has made in different spells for the v1 chief"
+  executiveVotes: [ExecutiveVote!]! @derivedFrom(field: "voter")
+  "Votes that a voter has made in different spells for the v2 chief"
+  executiveVotesV2: [ExecutiveVoteV2!]! @derivedFrom(field: "voter")
+  "Poll votes associated to this voter"
+  pollVotes: [PollVote!]! @derivedFrom(field: "voter")
+  "Voting power changes for this voter"
+  votingPowerChanges: [ExecutiveVotingPowerChange!]!
+    @derivedFrom(field: "voter")
+  "V2 voting power changes for this voter"
+  v2VotingPowerChanges: [ExecutiveVotingPowerChangeV2!]!
+    @derivedFrom(field: "voter")
 }
 
 type ArbitrumVoter {
@@ -208,6 +224,8 @@ type ArbitrumVoter {
   lastVotedTimestamp: BigInt!
   "Number of polls voted on"
   numberPollVotes: Int!
+  "Poll votes associated to this voter"
+  pollVotes: [ArbitrumPollVote!]! @derivedFrom(field: "voter")
 }
 
 type Delegation {
@@ -397,6 +415,8 @@ type Poll {
   multiHash: String
   "Poll URL"
   url: String
+  "Poll votes associated to this poll"
+  votes: [PollVote!]! @derivedFrom(field: "poll")
 }
 
 type ArbitrumPoll {
@@ -419,6 +439,8 @@ type ArbitrumPoll {
   multiHash: String
   "Poll URL"
   url: String
+  "Poll votes associated to this poll"
+  votes: [ArbitrumPollVote!]! @derivedFrom(field: "poll")
 }
 
 type ContentHashRegistry {
@@ -460,6 +482,11 @@ type Reward {
   totalRewardsClaimed: BigInt!
   lockstakeActive: Boolean!
   stakingEngineActive: Boolean!
+  suppliers: [RewardSupplier!]! @derivedFrom(field: "reward")
+  supplyInstances: [RewardSupply!]! @derivedFrom(field: "reward")
+  withdrawals: [RewardWithdraw!]! @derivedFrom(field: "reward")
+  rewardClaims: [RewardClaim!]! @derivedFrom(field: "reward")
+  tvl: [TvlUpdate!]! @derivedFrom(field: "reward")
 }
 
 type RewardSupplier {
@@ -1005,6 +1032,20 @@ type SealUrn {
   usdsDebt: BigInt!
   skyLocked: BigInt!
   auctionsCount: BigInt!
+  locks: [SealLock!]! @derivedFrom(field: "urn")
+  frees: [SealFree!]! @derivedFrom(field: "urn")
+  freeNoFees: [SealFreeNoFee!]! @derivedFrom(field: "urn")
+  skyLocks: [SealLockSky!]! @derivedFrom(field: "urn")
+  skyFrees: [SealFreeSky!]! @derivedFrom(field: "urn")
+  wipes: [SealWipe!]! @derivedFrom(field: "urn")
+  draws: [SealDraw!]! @derivedFrom(field: "urn")
+  selectVoteDelegates: [SealSelectVoteDelegate!]! @derivedFrom(field: "urn")
+  selectRewards: [SealSelectReward!]! @derivedFrom(field: "urn")
+  getRewards: [SealGetReward!]! @derivedFrom(field: "urn")
+  onKicks: [SealOnKick!]! @derivedFrom(field: "urn")
+  onTakes: [SealOnTake!]! @derivedFrom(field: "urn")
+  onRemoves: [SealOnRemove!]! @derivedFrom(field: "urn")
+  barks: [Bark!]! @derivedFrom(field: "sealUrn")
 }
 
 type LockstakeMigrate {
@@ -1150,6 +1191,16 @@ type StakingUrn {
   usdsDebt: BigInt!
   skyLocked: BigInt!
   auctionsCount: BigInt!
+  locks: [StakingLock!]! @derivedFrom(field: "urn")
+  frees: [StakingFree!]! @derivedFrom(field: "urn")
+  freeNoFees: [StakingFreeNoFee!]! @derivedFrom(field: "urn")
+  wipes: [StakingWipe!]! @derivedFrom(field: "urn")
+  draws: [StakingDraw!]! @derivedFrom(field: "urn")
+  selectVoteDelegates: [StakingSelectVoteDelegate!]! @derivedFrom(field: "urn")
+  selectRewards: [StakingSelectReward!]! @derivedFrom(field: "urn")
+  getRewards: [StakingGetReward!]! @derivedFrom(field: "urn")
+  onKicks: [StakingOnKick!]! @derivedFrom(field: "urn")
+  barks: [Bark!]! @derivedFrom(field: "stakingUrn")
 }
 
 type Bark {
