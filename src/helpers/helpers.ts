@@ -6,7 +6,7 @@ import {
 } from './contractCalls';
 import { SpellState, ZERO_ADDRESS } from './constants';
 
-export function hexToNumberString(hex: string): bigint {
+export function hexToBigInt(hex: string): bigint {
   return BigInt(hex);
 }
 
@@ -16,10 +16,11 @@ export function toDecimal(value: bigint, decimals: number = 18): BigDecimal {
 }
 
 export async function getVoter(address: string, context: any) {
-  let voter = await context.Voter.get(address);
+  const normalizedAddress = address.toLowerCase();
+  let voter = await context.Voter.get(normalizedAddress);
   if (!voter) {
     voter = {
-      id: address,
+      id: normalizedAddress,
       isVoteDelegate: false,
       isVoteProxy: undefined,
       delegateContract_id: undefined,

@@ -5,7 +5,7 @@ import {
   createExecutiveVotingPowerChange,
   createSlate,
   getVoter,
-  hexToNumberString,
+  hexToBigInt,
   removeWeightFromSpells,
   toDecimal,
 } from './helpers/helpers';
@@ -32,7 +32,7 @@ DSChief.LogNote.handler(async ({ event, context }) => {
 
 async function handleLock(event: any, context: any): Promise<void> {
   const sender = event.params.guy; // guy is the sender
-  const amount = hexToNumberString(event.params.foo); // foo is the amount being locked
+  const amount = hexToBigInt(event.params.foo); // foo is the amount being locked
 
   const voter = await getVoter(sender, context);
 
@@ -61,7 +61,7 @@ async function handleLock(event: any, context: any): Promise<void> {
 
 async function handleFree(event: any, context: any): Promise<void> {
   const sender = event.params.guy; // guy is the sender
-  const amount = hexToNumberString(event.params.foo); // foo is the amount being freed
+  const amount = hexToBigInt(event.params.foo); // foo is the amount being freed
 
   const voter = await getVoter(sender, context);
 

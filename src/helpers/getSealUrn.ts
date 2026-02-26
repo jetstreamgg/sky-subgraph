@@ -1,10 +1,11 @@
 import { ZERO_ADDRESS } from './constants';
 
 export async function getSealUrn(urnAddress: string, context: any) {
-  let urn = await context.SealUrn.get(urnAddress);
+  const normalizedAddress = urnAddress.toLowerCase();
+  let urn = await context.SealUrn.get(normalizedAddress);
   if (!urn) {
     urn = {
-      id: urnAddress,
+      id: normalizedAddress,
       owner: ZERO_ADDRESS,
       index: 0n,
       blockNumber: 0n,

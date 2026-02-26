@@ -205,7 +205,7 @@ export async function getDelegate(
   if (!delegateAddress) {
     return null;
   }
-  const delegate = await context.Delegate.get(delegateAddress);
+  const delegate = await context.Delegate.get(delegateAddress.toLowerCase());
   if (!delegate) {
     return null;
   }
