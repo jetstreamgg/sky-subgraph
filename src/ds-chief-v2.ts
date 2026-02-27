@@ -1,4 +1,5 @@
 import { DSChiefV2 } from 'generated';
+import type { handlerContext } from 'generated';
 import { SpellState } from './helpers/constants';
 import {
   addWeightToSpellsV2,
@@ -75,7 +76,7 @@ async function _handleSlateVote(
   sender: string,
   slateId: string,
   event: any,
-  context: any,
+  context: handlerContext,
 ): Promise<void> {
   const voter = await getVoter(sender, event.chainId, context);
   let slate = await context.SlateV2.get(`${event.chainId}-${slateId}`);

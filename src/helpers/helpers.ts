@@ -1,4 +1,5 @@
 import { BigDecimal } from 'generated';
+import type { handlerContext, Voter, Slate, SlateV2 } from 'generated';
 import {
   readDSChiefSlateEffect,
   readSpellDescriptionEffect,
@@ -15,7 +16,7 @@ export function toDecimal(value: bigint, decimals: number = 18): BigDecimal {
   return new BigDecimal(value.toString()).div(divisor);
 }
 
-export async function getVoter(address: string, chainId: number, context: any) {
+export async function getVoter(address: string, chainId: number, context: handlerContext): Promise<Voter> {
   const id = `${chainId}-${address.toLowerCase()}`;
   let voter = await context.Voter.get(id);
   if (!voter) {
@@ -91,8 +92,8 @@ export function createExecutiveVotingPowerChangeV2(
 export async function createSlate(
   slateID: string,
   event: any,
-  context: any,
-): Promise<any> {
+  context: handlerContext,
+): Promise<Slate> {
   const yays: string[] = [];
   const chiefAddress = event.srcAddress;
   const chainId = event.chainId;
@@ -170,8 +171,8 @@ export async function createSlate(
 export async function createSlateV2(
   slateID: string,
   event: any,
-  context: any,
-): Promise<any> {
+  context: handlerContext,
+): Promise<SlateV2> {
   const yays: string[] = [];
   const chiefAddress = event.srcAddress;
   const chainId = event.chainId;
@@ -250,7 +251,7 @@ export async function createSlateV2(
 export async function addWeightToSpells(
   spellIDs: string[],
   weight: bigint,
-  context: any,
+  context: handlerContext,
 ): Promise<void> {
   for (let i = 0; i < spellIDs.length; i++) {
     const spell = await context.Spell.get(spellIDs[i]);
@@ -266,7 +267,7 @@ export async function addWeightToSpells(
 export async function addWeightToSpellsV2(
   spellIDs: string[],
   weight: bigint,
-  context: any,
+  context: handlerContext,
 ): Promise<void> {
   for (let i = 0; i < spellIDs.length; i++) {
     const spell = await context.SpellV2.get(spellIDs[i]);
@@ -282,7 +283,7 @@ export async function addWeightToSpellsV2(
 export async function removeWeightFromSpells(
   spellIDs: string[],
   weight: bigint,
-  context: any,
+  context: handlerContext,
 ): Promise<void> {
   for (let i = 0; i < spellIDs.length; i++) {
     const spell = await context.Spell.get(spellIDs[i]);
@@ -298,7 +299,7 @@ export async function removeWeightFromSpells(
 export async function removeWeightFromSpellsV2(
   spellIDs: string[],
   weight: bigint,
-  context: any,
+  context: handlerContext,
 ): Promise<void> {
   for (let i = 0; i < spellIDs.length; i++) {
     const spell = await context.SpellV2.get(spellIDs[i]);

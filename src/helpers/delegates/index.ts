@@ -1,4 +1,4 @@
-import type { delegate as Delegate, delegation as Delegation } from 'generated';
+import type { delegate as Delegate, delegation as Delegation, handlerContext } from 'generated';
 
 function getLseAddresses(): string[] {
   return [
@@ -24,7 +24,7 @@ function isAddressInList(address: string, addresses: string[]): boolean {
 }
 
 export async function delegationLockHandler(
-  delegate: any,
+  delegate: Delegate,
   address: string,
   amount: bigint,
   blockTimestamp: bigint,
@@ -34,7 +34,7 @@ export async function delegationLockHandler(
   isStakingEngine: boolean,
   logIndex: string,
   chainId: number,
-  context: any,
+  context: handlerContext,
 ): Promise<void> {
   const { delegation, updatedDelegate: delegateWithDelegation } =
     await getDelegation(delegate, address, blockTimestamp, chainId, context);
@@ -97,7 +97,7 @@ export async function delegationLockHandler(
 }
 
 export async function delegationFreeHandler(
-  delegate: any,
+  delegate: Delegate,
   address: string,
   amount: bigint,
   blockTimestamp: bigint,
@@ -107,7 +107,7 @@ export async function delegationFreeHandler(
   isStakingEngine: boolean,
   logIndex: string,
   chainId: number,
-  context: any,
+  context: handlerContext,
 ): Promise<void> {
   const { delegation, updatedDelegate: delegateWithDelegation } =
     await getDelegation(delegate, address, blockTimestamp, chainId, context);
@@ -176,7 +176,7 @@ export async function getDelegation(
   address: string,
   blockTimestamp: bigint,
   chainId: number,
-  context: any,
+  context: handlerContext,
 ): Promise<{ delegation: Delegation; updatedDelegate: Delegate }> {
   const delegationId = delegate.id + '-' + address;
   let delegation = await context.Delegation.get(delegationId);
@@ -197,8 +197,8 @@ export async function getDelegation(
 export async function getDelegate(
   delegateAddress: string | null | undefined,
   chainId: number,
-  context: any,
-): Promise<any | null> {
+  context: handlerContext,
+): Promise<Delegate | null> {
   if (!delegateAddress) {
     return null;
   }
