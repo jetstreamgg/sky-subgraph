@@ -1,5 +1,14 @@
 import { BigDecimal } from 'generated';
-import type { handlerContext, Voter, Slate, SlateV2 } from 'generated';
+import type {
+  handlerContext,
+  Voter,
+  Slate,
+  SlateV2,
+  DSChief_LogNote_event,
+  DSChiefV2_Lock_event,
+  DSChiefV2_Free_event,
+  DSChiefV2_Vote_event,
+} from 'generated';
 import {
   readDSChiefSlateEffect,
   readSpellDescriptionEffect,
@@ -16,7 +25,11 @@ export function toDecimal(value: bigint, decimals: number = 18): BigDecimal {
   return new BigDecimal(value.toString()).div(divisor);
 }
 
-export async function getVoter(address: string, chainId: number, context: handlerContext): Promise<Voter> {
+export async function getVoter(
+  address: string,
+  chainId: number,
+  context: handlerContext,
+): Promise<Voter> {
   const id = `${chainId}-${address.toLowerCase()}`;
   let voter = await context.Voter.get(id);
   if (!voter) {
@@ -44,7 +57,7 @@ export async function getVoter(address: string, chainId: number, context: handle
 }
 
 export function createExecutiveVotingPowerChange(
-  event: any,
+  event: DSChief_LogNote_event,
   amount: bigint,
   previousBalance: bigint,
   newBalance: bigint,
@@ -67,7 +80,7 @@ export function createExecutiveVotingPowerChange(
 }
 
 export function createExecutiveVotingPowerChangeV2(
-  event: any,
+  event: DSChiefV2_Lock_event | DSChiefV2_Free_event,
   amount: bigint,
   previousBalance: bigint,
   newBalance: bigint,
@@ -91,7 +104,7 @@ export function createExecutiveVotingPowerChangeV2(
 
 export async function createSlate(
   slateID: string,
-  event: any,
+  event: DSChief_LogNote_event,
   context: handlerContext,
 ): Promise<Slate> {
   const yays: string[] = [];
@@ -170,7 +183,7 @@ export async function createSlate(
 
 export async function createSlateV2(
   slateID: string,
-  event: any,
+  event: DSChiefV2_Vote_event,
   context: handlerContext,
 ): Promise<SlateV2> {
   const yays: string[] = [];

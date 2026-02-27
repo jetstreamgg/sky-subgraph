@@ -7,7 +7,14 @@ import {
   RewardsLsskySky,
   RewardsUsdsClePoints,
 } from 'generated';
-import type { handlerContext, Reward } from 'generated';
+import type {
+  handlerContext,
+  Reward,
+  RewardsUsdsSky_RewardPaid_event,
+  RewardsUsdsSky_Staked_event,
+  RewardsUsdsSky_Withdrawn_event,
+  RewardsUsdsSky_Referral_event,
+} from 'generated';
 
 // Helper: get or initialize a Reward entity
 async function getReward(
@@ -53,7 +60,10 @@ async function getRewardSupplier(
 }
 
 // Handler logic: RewardPaid (RewardClaimed)
-async function handleRewardClaimed(event: any, context: handlerContext) {
+async function handleRewardClaimed(
+  event: RewardsUsdsSky_RewardPaid_event,
+  context: handlerContext,
+) {
   const reward = await getReward(event.chainId, event.srcAddress, context);
 
   const entityId = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
@@ -75,7 +85,10 @@ async function handleRewardClaimed(event: any, context: handlerContext) {
 }
 
 // Handler logic: Staked (RewardSupplied)
-async function handleRewardSupplied(event: any, context: handlerContext) {
+async function handleRewardSupplied(
+  event: RewardsUsdsSky_Staked_event,
+  context: handlerContext,
+) {
   const reward = await getReward(event.chainId, event.srcAddress, context);
 
   const entityId = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
@@ -122,7 +135,10 @@ async function handleRewardSupplied(event: any, context: handlerContext) {
 }
 
 // Handler logic: Withdrawn (RewardWithdrawn)
-async function handleRewardWithdrawn(event: any, context: handlerContext) {
+async function handleRewardWithdrawn(
+  event: RewardsUsdsSky_Withdrawn_event,
+  context: handlerContext,
+) {
   const reward = await getReward(event.chainId, event.srcAddress, context);
 
   const entityId = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
@@ -169,7 +185,10 @@ async function handleRewardWithdrawn(event: any, context: handlerContext) {
 }
 
 // Handler logic: Referral (RewardReferral)
-async function handleRewardReferral(event: any, context: handlerContext) {
+async function handleRewardReferral(
+  event: RewardsUsdsSky_Referral_event,
+  context: handlerContext,
+) {
   const reward = await getReward(event.chainId, event.srcAddress, context);
 
   const entityId = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
