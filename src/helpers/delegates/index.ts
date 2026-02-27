@@ -1,4 +1,8 @@
-import type { delegate as Delegate, delegation as Delegation, handlerContext } from 'generated';
+import type {
+  delegate as Delegate,
+  delegation as Delegation,
+  handlerContext,
+} from 'generated';
 
 function getLseAddresses(): string[] {
   return [
@@ -202,7 +206,9 @@ export async function getDelegate(
   if (!delegateAddress) {
     return null;
   }
-  const delegate = await context.Delegate.get(`${chainId}-${delegateAddress.toLowerCase()}`);
+  const delegate = await context.Delegate.get(
+    `${chainId}-${delegateAddress.toLowerCase()}`,
+  );
   if (!delegate) {
     return null;
   }

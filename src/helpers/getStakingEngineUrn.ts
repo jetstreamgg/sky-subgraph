@@ -1,7 +1,11 @@
 import type { handlerContext, StakingUrn } from 'generated';
 import { ZERO_ADDRESS } from './constants';
 
-export async function getStakingEngineUrn(urnAddress: string, chainId: number, context: handlerContext): Promise<StakingUrn> {
+export async function getStakingEngineUrn(
+  urnAddress: string,
+  chainId: number,
+  context: handlerContext,
+): Promise<StakingUrn> {
   const id = `${chainId}-${urnAddress.toLowerCase()}`;
   let urn = await context.StakingUrn.get(id);
   if (!urn) {

@@ -1,6 +1,10 @@
 import type { handlerContext, Reward } from 'generated';
 
-export async function getReward(rewardAddress: string, chainId: number, context: handlerContext): Promise<Reward> {
+export async function getReward(
+  rewardAddress: string,
+  chainId: number,
+  context: handlerContext,
+): Promise<Reward> {
   const id = `${chainId}-${rewardAddress.toLowerCase()}`;
   let reward = await context.Reward.get(id);
   if (!reward) {
