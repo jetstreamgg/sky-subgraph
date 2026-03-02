@@ -3,6 +3,10 @@ import { DelegateFactoryV3, BigDecimal } from 'generated';
 // Register dynamic contract for VoteDelegateV3 when CreateVoteDelegate is emitted
 DelegateFactoryV3.CreateVoteDelegate.contractRegister(({ event, context }) => {
   context.addVoteDelegateV3(event.params.voteDelegate);
+
+  context.log.debug(
+    `Registered a new DelegateV3 at ${event.params.voteDelegate}`,
+  );
 });
 
 DelegateFactoryV3.CreateVoteDelegate.handler(async ({ event, context }) => {

@@ -20,6 +20,9 @@ VoteDelegateV3.Lock.handler(async ({ event, context }) => {
   const delegate = await context.Delegate.get(
     `${event.chainId}-${delegateAddress}`,
   );
+  context.log.debug(
+    `Hitting the DelegateV3 Lock handler ${event.params.usr} ${event.params.wad}`,
+  );
   if (!delegate) return;
 
   // Staking engine delegations are already handled in the lockstake engine handlers
