@@ -827,6 +827,14 @@ networks:
         address:
           - 0x4f4e551b4920a5417F8d4e7f8f099660dAdadcEC
 
+  # Arbitrum Sepolia (HyperSync)
+  - id: 421614
+    start_block: 130000000
+    contracts:
+      - name: PollingEmitterArbitrum
+        address:
+          - 0xE63329692fA90B3efd5eB675c601abeDB2DF715a
+
   # Unichain (HyperSync)
   - id: 130
     start_block: 16411311

@@ -4,7 +4,7 @@ import {
   type PublicClient,
   type Address,
 } from 'viem';
-import { mainnet, base, optimism, arbitrum, unichain } from 'viem/chains';
+import { mainnet } from 'viem/chains';
 import type { Chain } from 'viem';
 import { createEffect, S } from 'envio';
 
@@ -72,25 +72,13 @@ const curveCoinsAbi = [
   },
 ] as const;
 
-// RPC URLs per chain
+// RPC URLs per chain (only chains with contract calls need RPCs)
 const RPC_URLS: Record<number, string> = {
   1:
     process.env.MAINNET_RPC_URL ||
     'https://mainnet.gateway.tenderly.co/2fWPiJ0Gnu8RsOBx7YzxQ4',
   314310:
     'https://virtual.rpc.tenderly.co/jetstreamgg/jetstream/public/jetstream-testnet',
-  8453:
-    process.env.BASE_RPC_URL ||
-    'https://base.gateway.tenderly.co/24BjVbbeeSyjlZAzD0CAKj',
-  10:
-    process.env.OPTIMISM_RPC_URL ||
-    'https://optimism.gateway.tenderly.co/1A96AkuGadycEK3KNUgdJW',
-  42161:
-    process.env.ARBITRUM_RPC_URL ||
-    'https://arbitrum.gateway.tenderly.co/5R5UVFaPyITIBobelen0Mt',
-  130:
-    process.env.UNICHAIN_RPC_URL ||
-    'https://unichain.gateway.tenderly.co/39xHYqwyuwCNH6Y89IFWeS',
 };
 
 // Tenderly fork inherits mainnet config but with its own chain ID
@@ -104,10 +92,6 @@ const tenderly: Chain = {
 const CHAINS: Record<number, Chain> = {
   1: mainnet,
   314310: tenderly,
-  8453: base,
-  10: optimism,
-  42161: arbitrum,
-  130: unichain,
 };
 
 // Pre-create public clients per chain at module level
@@ -203,7 +187,7 @@ export const readCurvePoolCoinEffect = createEffect(
     rateLimit: { calls: 5, per: 'second' as const },
     cache: true,
   },
-  async ({ input, context }) => {
+  async ({ input }) => {
     try {
       const client = getClient(input.chainId);
       const result = await client.readContract({
