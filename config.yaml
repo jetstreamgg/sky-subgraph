@@ -634,7 +634,7 @@ contracts:
 networks:
   # Ethereum Mainnet (HyperSync)
   - id: 1
-    start_block: 22368737
+    start_block: 8122207
     contracts:
       - name: DSChief
         address:
@@ -808,29 +808,29 @@ networks:
   #       address:
   #         - 0x1601843c5E9bC251A3272907010AFa41Fa18347E
 
-  # # Optimism (HyperSync)
-  # - id: 10
-  #   start_block: 135509927
-  #   contracts:
-  #     - name: Psm3
-  #       address:
-  #         - 0xe0F9978b907853F354d79188A3dEfbD41978af62
+  # Optimism (HyperSync)
+  - id: 10
+    start_block: 135509927
+    contracts:
+      - name: Psm3
+        address:
+          - 0xe0F9978b907853F354d79188A3dEfbD41978af62
 
-  # # Arbitrum (HyperSync)
-  # - id: 42161
-  #   start_block: 24755861
-  #   contracts:
-  #     - name: Psm3
-  #       address:
-  #         - 0x2B05F8e1cACC6974fD79A673a341Fe1f58d27266
-  #     - name: PollingEmitterArbitrum
-  #       address:
-  #         - 0x4f4e551b4920a5417F8d4e7f8f099660dAdadcEC
+  # Arbitrum (HyperSync)
+  - id: 42161
+    start_block: 24755861
+    contracts:
+      - name: Psm3
+        address:
+          - 0x2B05F8e1cACC6974fD79A673a341Fe1f58d27266
+      - name: PollingEmitterArbitrum
+        address:
+          - 0x4f4e551b4920a5417F8d4e7f8f099660dAdadcEC
 
-  # # Unichain (HyperSync)
-  # - id: 130
-  #   start_block: 16411311
-  #   contracts:
-  #     - name: Psm3
-  #       address:
-  #         - 0x7b42Ed932f26509465F7cE3FAF76FfCe1275312f
+  # Unichain (HyperSync)
+  - id: 130
+    start_block: 16411311
+    contracts:
+      - name: Psm3
+        address:
+          - 0x7b42Ed932f26509465F7cE3FAF76FfCe1275312f
