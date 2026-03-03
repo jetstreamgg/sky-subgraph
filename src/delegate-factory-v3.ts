@@ -10,7 +10,7 @@ DelegateFactoryV3.CreateVoteDelegate.contractRegister(({ event, context }) => {
 });
 
 DelegateFactoryV3.CreateVoteDelegate.handler(async ({ event, context }) => {
-  const delegateOwnerAddress = event.params.delegate;
+  const delegateOwnerAddress = event.params.usr;
   const delegateContractAddress = event.params.voteDelegate;
 
   const delegateId = `${event.chainId}-${delegateContractAddress.toLowerCase()}`;
