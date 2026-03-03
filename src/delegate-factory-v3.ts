@@ -3,19 +3,15 @@ import { DelegateFactoryV3, BigDecimal } from 'generated';
 // Register dynamic contract for VoteDelegateV3 when CreateVoteDelegate is emitted
 DelegateFactoryV3.CreateVoteDelegate.contractRegister(({ event, context }) => {
   context.addVoteDelegateV3(event.params.voteDelegate);
-
-  context.log.debug(
-    `Registered a new DelegateV3 at ${event.params.voteDelegate}`,
-  );
 });
 
 DelegateFactoryV3.CreateVoteDelegate.handler(async ({ event, context }) => {
   const delegateOwnerAddress = event.params.usr;
   const delegateContractAddress = event.params.voteDelegate;
 
-  const delegateId = `${event.chainId}-${delegateContractAddress.toLowerCase()}`;
-  const voterId = `${event.chainId}-${delegateContractAddress.toLowerCase()}`;
-  const adminId = `${event.chainId}-${delegateOwnerAddress.toLowerCase()}`;
+  const delegateId = `${event.chainId}-${delegateContractAddress}`;
+  const voterId = `${event.chainId}-${delegateContractAddress}`;
+  const adminId = `${event.chainId}-${delegateOwnerAddress}`;
 
   // Create the voter entity
   let voter = await context.Voter.get(voterId);
@@ -23,7 +19,7 @@ DelegateFactoryV3.CreateVoteDelegate.handler(async ({ event, context }) => {
     voter = {
       id: voterId,
       chainId: event.chainId,
-      address: delegateContractAddress.toLowerCase(),
+      address: delegateContractAddress,
       isVoteDelegate: false,
       isVoteProxy: false,
       mkrLockedInChiefRaw: 0n,
@@ -42,7 +38,7 @@ DelegateFactoryV3.CreateVoteDelegate.handler(async ({ event, context }) => {
   }
   context.Voter.set({
     ...voter,
-    address: delegateContractAddress.toLowerCase(),
+    address: delegateContractAddress,
     isVoteDelegate: true,
     isVoteProxy: false,
     delegateContract_id: delegateId,
@@ -53,7 +49,7 @@ DelegateFactoryV3.CreateVoteDelegate.handler(async ({ event, context }) => {
   if (!delegate) {
     delegate = {
       id: delegateId,
-      address: delegateContractAddress.toLowerCase(),
+      address: delegateContractAddress,
       ownerAddress: delegateOwnerAddress,
       voter_id: voterId,
       delegators: 0,

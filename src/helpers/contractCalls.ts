@@ -153,7 +153,7 @@ export const readOwnerUrnsEffect = createEffect(
         functionName: 'ownerUrns',
         args: [input.owner as Address, input.index],
       });
-      return (result as string).toLowerCase();
+      return result as string;
     } catch (error) {
       context.log.error('Failed to read ownerUrns', {
         engineAddress: input.engineAddress,
@@ -212,7 +212,7 @@ export const readCurvePoolCoinEffect = createEffect(
         functionName: 'coins',
         args: [input.index],
       });
-      return (result as string).toLowerCase();
+      return result as string;
     } catch {
       return '0x0000000000000000000000000000000000000000';
     }
