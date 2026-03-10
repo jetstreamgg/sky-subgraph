@@ -3,7 +3,7 @@ description: Sky Protocol Governance & DeFi Indexer
 unordered_multichain_mode: true
 rollback_on_reorg: true
 preload_handlers: true
-address_format: checksum
+address_format: lowercase
 schema: schema.graphql
 contracts:
   # === Governance: DSChief (V1) ===
