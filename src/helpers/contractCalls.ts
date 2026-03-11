@@ -137,7 +137,7 @@ export const readOwnerUrnsEffect = createEffect(
         functionName: 'ownerUrns',
         args: [input.owner as Address, input.index],
       });
-      return result as string;
+      return (result as string).toLowerCase();
     } catch (error) {
       context.log.error('Failed to read ownerUrns', {
         engineAddress: input.engineAddress,
@@ -196,7 +196,7 @@ export const readCurvePoolCoinEffect = createEffect(
         functionName: 'coins',
         args: [input.index],
       });
-      return result as string;
+      return (result as string).toLowerCase();
     } catch {
       return '0x0000000000000000000000000000000000000000';
     }
@@ -227,7 +227,7 @@ export const readDSChiefSlateEffect = createEffect(
         functionName: 'slates',
         args: [input.slateId as `0x${string}`, input.index],
       });
-      return result as string;
+      return (result as string).toLowerCase();
     } catch {
       // Index out of bounds = end of slate
       return '';
