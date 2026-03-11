@@ -1,46 +1,139 @@
-import { Delegate } from '../generated/schema';
-import { Lock, Free } from '../generated/DSChief/VoteDelegate';
-import {
-  delegationLockHandler,
-  delegationFreeHandler,
-} from './helpers/delegates';
+import { VoteDelegate } from 'generated';
+import { shouldIgnoreDelegator } from './helpers/constants';
 
-export function handleDelegateLock(event: Lock): void {
-  const sender = event.params.usr.toHexString();
+VoteDelegate.Lock.handler(async ({ event, context }) => {
+  const sender = event.params.usr;
+  const delegateAddress = event.srcAddress;
+  const amount = event.params.wad;
 
-  const delegateAddress = event.address;
-  const delegate = Delegate.load(delegateAddress.toHexString());
+  const delegate = await context.Delegate.get(
+    `${event.chainId}-${delegateAddress}`,
+  );
+  if (!delegate) return;
 
-  if (delegate) {
-    delegationLockHandler(
-      delegate,
-      sender,
-      event.params.wad,
-      event.block,
-      event.transaction,
-      false,
-      false,
-      event.logIndex.toString(),
-    );
+  // Check if the delegator should be ignored (LSE or Staking Engine)
+  if (shouldIgnoreDelegator(sender)) return;
+
+  // Get or create delegation
+  const delegationId = `${delegate.id}-${sender}`;
+  let delegation = await context.Delegation.get(delegationId);
+
+  let updatedDelegate = { ...delegate };
+
+  if (!delegation) {
+    delegation = {
+      id: delegationId,
+      chainId: event.chainId,
+      delegator: sender,
+      amount: 0n,
+      timestamp: BigInt(event.block.timestamp),
+      delegate_id: delegate.id,
+    };
   }
-}
 
-export function handleDelegateFree(event: Free): void {
-  const sender = event.params.usr.toHexString();
-
-  const delegateAddress = event.address;
-  const delegate = Delegate.load(delegateAddress.toHexString());
-
-  if (delegate) {
-    delegationFreeHandler(
-      delegate,
-      sender,
-      event.params.wad,
-      event.block,
-      event.transaction,
-      false,
-      false,
-      event.logIndex.toString(),
-    );
+  // If previous delegation amount was 0, increment the delegators count
+  if (delegation.amount === 0n) {
+    updatedDelegate = {
+      ...updatedDelegate,
+      delegators: updatedDelegate.delegators + 1,
+    };
   }
-}
+
+  // Increase the total amount delegated
+  const newAmount = delegation.amount + amount;
+  context.Delegation.set({
+    ...delegation,
+    amount: newAmount,
+    timestamp: BigInt(event.block.timestamp),
+  });
+
+  // Create delegation history
+  const historyId = `${delegationId}-${event.block.number}-${event.logIndex}`;
+  context.DelegationHistory.set({
+    id: historyId,
+    delegator: sender,
+    amount: amount,
+    accumulatedAmount: newAmount,
+    timestamp: BigInt(event.block.timestamp),
+    blockNumber: BigInt(event.block.number),
+    txnHash: event.transaction.hash,
+    delegate_id: delegate.id,
+    isLockstake: false,
+    isStakingEngine: false,
+    chainId: event.chainId,
+  });
+
+  context.Delegate.set({
+    ...updatedDelegate,
+    totalDelegated: updatedDelegate.totalDelegated + amount,
+  });
+});
+
+VoteDelegate.Free.handler(async ({ event, context }) => {
+  const sender = event.params.usr;
+  const delegateAddress = event.srcAddress;
+  const amount = event.params.wad;
+
+  const delegate = await context.Delegate.get(
+    `${event.chainId}-${delegateAddress}`,
+  );
+  if (!delegate) return;
+
+  // Check if the delegator should be ignored (LSE or Staking Engine)
+  if (shouldIgnoreDelegator(sender)) return;
+
+  // Get or create delegation
+  const delegationId = `${delegate.id}-${sender}`;
+  let delegation = await context.Delegation.get(delegationId);
+
+  let updatedDelegate = { ...delegate };
+
+  if (!delegation) {
+    delegation = {
+      id: delegationId,
+      chainId: event.chainId,
+      delegator: sender,
+      amount: 0n,
+      timestamp: BigInt(event.block.timestamp),
+      delegate_id: delegate.id,
+    };
+  }
+
+  // Decrease the total amount delegated
+  const newAmount = delegation.amount - amount;
+
+  // If the delegation amount is 0, decrement the delegators count
+  if (newAmount === 0n) {
+    updatedDelegate = {
+      ...updatedDelegate,
+      delegators: updatedDelegate.delegators - 1,
+    };
+  }
+
+  context.Delegation.set({
+    ...delegation,
+    amount: newAmount,
+    timestamp: BigInt(event.block.timestamp),
+  });
+
+  // Create delegation history (amount is negative for free events)
+  const historyId = `${delegationId}-${event.block.number}-${event.logIndex}`;
+  context.DelegationHistory.set({
+    id: historyId,
+    delegator: sender,
+    amount: -amount,
+    accumulatedAmount: newAmount,
+    timestamp: BigInt(event.block.timestamp),
+    blockNumber: BigInt(event.block.number),
+    txnHash: event.transaction.hash,
+    delegate_id: delegate.id,
+    isLockstake: false,
+    isStakingEngine: false,
+    chainId: event.chainId,
+  });
+
+  context.Delegate.set({
+    ...updatedDelegate,
+    totalDelegated: updatedDelegate.totalDelegated - amount,
+  });
+});

@@ -1,22 +1,20 @@
-import { Swap as SwapEvent } from '../generated/Psm3/Psm3';
-import { Swap } from '../generated/schema';
+import { Psm3 } from 'generated';
 
-export function handleSwap(event: SwapEvent): void {
-  const id =
-    event.transaction.hash.toHexString() + '-' + event.logIndex.toString();
+Psm3.Swap.handler(async ({ event, context }) => {
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
-  const swap = new Swap(id);
-
-  swap.assetIn = event.params.assetIn;
-  swap.assetOut = event.params.assetOut;
-  swap.sender = event.params.sender;
-  swap.receiver = event.params.receiver;
-  swap.amountIn = event.params.amountIn;
-  swap.amountOut = event.params.amountOut;
-  swap.referralCode = event.params.referralCode;
-  swap.blockNumber = event.block.number;
-  swap.blockTimestamp = event.block.timestamp;
-  swap.transactionHash = event.transaction.hash;
-
-  swap.save();
-}
+  context.Swap.set({
+    id,
+    chainId: event.chainId,
+    assetIn: event.params.assetIn,
+    assetOut: event.params.assetOut,
+    sender: event.params.sender,
+    receiver: event.params.receiver,
+    amountIn: event.params.amountIn,
+    amountOut: event.params.amountOut,
+    referralCode: event.params.referralCode,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});

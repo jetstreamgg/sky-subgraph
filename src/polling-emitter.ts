@@ -1,78 +1,155 @@
-import {
-  PollCreated,
-  PollWithdrawn,
-  Voted,
-} from '../generated/PollingEmitter/PollingEmitter';
-import { Poll, PollVote } from '../generated/schema';
+import { PollingEmitter, PollingEmitterV2 } from 'generated';
+import type {
+  handlerContext,
+  PollingEmitter_PollCreated_event,
+  PollingEmitter_PollWithdrawn_event,
+  PollingEmitter_Voted_event,
+} from 'generated';
 import { getVoter } from './helpers/helpers';
 
-export function handlePollCreated(event: PollCreated): void {
-  const creator = event.params.creator.toHexString();
+// Helper: create a default Poll entity with all required fields
+function createDefaultPoll(pollId: string, chainId: number, pollIdNum: bigint) {
+  return {
+    id: pollId,
+    chainId,
+    pollId: pollIdNum,
+    blockCreated: undefined,
+    blockWithdrawn: undefined,
+    creator: undefined,
+    endDate: undefined,
+    multiHash: undefined,
+    startDate: undefined,
+    url: undefined,
+    withdrawnBy: undefined,
+  };
+}
+
+// Handler logic: PollCreated
+async function handlePollCreated(
+  event: PollingEmitter_PollCreated_event,
+  context: handlerContext,
+) {
+  const creator = event.params.creator;
   const blockCreated = event.params.blockCreated;
-  const pollId = event.params.pollId;
+  const pollId = `${event.chainId}-${event.params.pollId.toString()}`;
   const startDate = event.params.startDate;
   const endDate = event.params.endDate;
   const multiHash = event.params.multiHash;
-  const url = event.params.url;
 
-  let poll = Poll.load(pollId.toString());
+  let poll = await context.Poll.get(pollId);
 
   if (!poll) {
-    poll = new Poll(pollId.toString());
+    poll = createDefaultPoll(
+      pollId,
+      event.chainId,
+      event.params.pollId,
+    );
   }
-  //always update poll properties, in case it was previously created with just an id in the vote handler
-  poll.creator = creator;
-  poll.blockCreated = blockCreated;
-  poll.startDate = startDate;
-  poll.endDate = endDate;
-  poll.multiHash = multiHash;
-  poll.save();
+
+  // Always update poll properties, in case it was previously created with just an id in the vote handler
+  context.Poll.set({
+    ...poll,
+    creator: creator,
+    blockCreated: blockCreated,
+    startDate: startDate,
+    endDate: endDate,
+    multiHash: multiHash,
+  });
 }
 
-export function handlePollWithdrawn(event: PollWithdrawn): void {
-  const creator = event.params.creator.toHexString();
+// Handler logic: PollWithdrawn
+async function handlePollWithdrawn(
+  event: PollingEmitter_PollWithdrawn_event,
+  context: handlerContext,
+) {
+  const creator = event.params.creator;
   const blockWithdrawn = event.params.blockWithdrawn;
-  const pollId = event.params.pollId;
+  const pollId = `${event.chainId}-${event.params.pollId.toString()}`;
 
-  let poll = Poll.load(pollId.toString());
+  let poll = await context.Poll.get(pollId);
 
   if (poll) {
-    poll.blockWithdrawn = blockWithdrawn;
-    poll.withdrawnBy = creator;
-    poll.save();
+    context.Poll.set({
+      ...poll,
+      blockWithdrawn: blockWithdrawn,
+      withdrawnBy: creator,
+    });
   }
 }
 
-export function handlePollVote(event: Voted): void {
-  const sender = event.params.voter.toHexString();
-  const pollId = event.params.pollId.toString();
+// Handler logic: Voted
+async function handlePollVote(
+  event: PollingEmitter_Voted_event,
+  context: handlerContext,
+) {
+  const sender = event.params.voter;
+  const pollId = `${event.chainId}-${event.params.pollId.toString()}`;
   const optionId = event.params.optionId;
 
-  const voter = getVoter(sender);
+  const voter = await getVoter(sender, event.chainId, context);
 
-  let poll = Poll.load(pollId);
-  if (!poll) { //poll won't exist if it was created on arbitrum
-    poll = new Poll(pollId);
-    poll.save();
+  let poll = await context.Poll.get(pollId);
+  if (!poll) {
+    // Poll won't exist if it was created on arbitrum
+    poll = createDefaultPoll(
+      pollId,
+      event.chainId,
+      event.params.pollId,
+    );
+    context.Poll.set(poll);
   }
-
-  voter.lastVotedTimestamp = event.block.timestamp;
 
   const voteId = `${pollId}-${sender}-${event.block.number}`;
 
-  let pollVote = PollVote.load(voteId);
+  let pollVote = await context.PollVote.get(voteId);
+  let updatedVoter = {
+    ...voter,
+    lastVotedTimestamp: BigInt(event.block.timestamp),
+  };
+
   if (!pollVote) {
-    pollVote = new PollVote(voteId);
-    pollVote.voter = voter.id;
-    pollVote.poll = poll.id;
-    voter.numberPollVotes = voter.numberPollVotes + 1;
+    updatedVoter = {
+      ...updatedVoter,
+      numberPollVotes: updatedVoter.numberPollVotes + 1,
+    };
   }
 
-  pollVote.choice = optionId;
-  pollVote.block = event.block.number;
-  pollVote.blockTime = event.block.timestamp;
-  pollVote.txnHash = event.transaction.hash.toHexString();
-  pollVote.save();
+  context.PollVote.set({
+    id: voteId,
+    chainId: event.chainId,
+    voter_id: voter.id,
+    poll_id: poll.id,
+    choice: optionId,
+    block: BigInt(event.block.number),
+    blockTime: BigInt(event.block.timestamp),
+    txnHash: event.transaction.hash,
+  });
 
-  voter.save();
+  context.Voter.set(updatedVoter);
 }
+
+// --- PollingEmitter ---
+PollingEmitter.PollCreated.handler(async ({ event, context }) => {
+  await handlePollCreated(event, context);
+});
+
+PollingEmitter.PollWithdrawn.handler(async ({ event, context }) => {
+  await handlePollWithdrawn(event, context);
+});
+
+PollingEmitter.Voted.handler(async ({ event, context }) => {
+  await handlePollVote(event, context);
+});
+
+// --- PollingEmitterV2 ---
+PollingEmitterV2.PollCreated.handler(async ({ event, context }) => {
+  await handlePollCreated(event, context);
+});
+
+PollingEmitterV2.PollWithdrawn.handler(async ({ event, context }) => {
+  await handlePollWithdrawn(event, context);
+});
+
+PollingEmitterV2.Voted.handler(async ({ event, context }) => {
+  await handlePollVote(event, context);
+});

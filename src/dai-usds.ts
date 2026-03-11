@@ -1,50 +1,47 @@
-import {
-  DaiToUsds as DaiToUsdsEvent,
-  UsdsToDai as UsdsToDaiEvent,
-} from '../generated/DaiUsds/DaiUsds';
-import { DaiToUsdsUpgrade, UsdsToDaiRevert, Total } from '../generated/schema';
-import { BIGINT_ZERO } from './helpers/constants';
+import { DaiUsds } from 'generated';
 
-export function handleDaiToUsdsUpgrade(event: DaiToUsdsEvent): void {
-  let entity = new DaiToUsdsUpgrade(
-    event.transaction.hash.concatI32(event.logIndex.toI32()),
-  );
-  entity.caller = event.params.caller;
-  entity.usr = event.params.usr;
-  entity.wad = event.params.wad;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
+DaiUsds.DaiToUsds.handler(async ({ event, context }) => {
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
+
+  context.DaiToUsdsUpgrade.set({
+    id,
+    chainId: event.chainId,
+    caller: event.params.caller,
+    usr: event.params.usr,
+    wad: event.params.wad,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
 
   // Add to running total of daiUpgraded
-  let totalDaiUpgraded = Total.load('daiUpgraded');
-  if (!totalDaiUpgraded) {
-    totalDaiUpgraded = new Total('daiUpgraded');
-    totalDaiUpgraded.total = BIGINT_ZERO;
+  const totalId = `${event.chainId}-daiUpgraded`;
+  let total = await context.Total.get(totalId);
+  if (!total) {
+    total = { id: totalId, chainId: event.chainId, total: 0n };
   }
-  totalDaiUpgraded.total = totalDaiUpgraded.total.plus(entity.wad);
-  totalDaiUpgraded.save();
-}
+  context.Total.set({ ...total, total: total.total + event.params.wad });
+});
 
-export function handleUsdsToDaiRevert(event: UsdsToDaiEvent): void {
-  let entity = new UsdsToDaiRevert(
-    event.transaction.hash.concatI32(event.logIndex.toI32()),
-  );
-  entity.caller = event.params.caller;
-  entity.usr = event.params.usr;
-  entity.wad = event.params.wad;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
+DaiUsds.UsdsToDai.handler(async ({ event, context }) => {
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
+
+  context.UsdsToDaiRevert.set({
+    id,
+    chainId: event.chainId,
+    caller: event.params.caller,
+    usr: event.params.usr,
+    wad: event.params.wad,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
 
   // Subtract from running total of daiUpgraded (since DAI is being reverted back)
-  let totalDaiUpgraded = Total.load('daiUpgraded');
-  if (!totalDaiUpgraded) {
-    totalDaiUpgraded = new Total('daiUpgraded');
-    totalDaiUpgraded.total = BIGINT_ZERO;
+  const totalId = `${event.chainId}-daiUpgraded`;
+  let total = await context.Total.get(totalId);
+  if (!total) {
+    total = { id: totalId, chainId: event.chainId, total: 0n };
   }
-  totalDaiUpgraded.total = totalDaiUpgraded.total.minus(entity.wad);
-  totalDaiUpgraded.save();
-}
+  context.Total.set({ ...total, total: total.total - event.params.wad });
+});

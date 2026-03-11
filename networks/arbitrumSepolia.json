@@ -1,9 +1,0 @@
-{
-    "networks": "arbitrum-testnet",
-    "contracts": {
-      "PollingEmitterArbitrum": {
-        "address": "0xE63329692fA90B3efd5eB675c601abeDB2DF715a",
-        "startBlock": 130000000
-      }
-    }
-}

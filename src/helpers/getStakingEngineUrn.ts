@@ -1,32 +1,29 @@
-import { Address, BigInt, Bytes } from '@graphprotocol/graph-ts';
-import { StakingUrn } from '../../generated/schema';
-import { BIGINT_ZERO, ZERO_ADDRESS } from './constants';
-import { StakingEngine } from '../../generated/StakingEngine/StakingEngine';
+import type { handlerContext, StakingUrn } from 'generated';
+import { ZERO_ADDRESS } from './constants';
 
-export function getStakingEngineUrn(urnAddress: Address): StakingUrn {
-  let urn = StakingUrn.load(urnAddress);
+export async function getStakingEngineUrn(
+  urnAddress: string,
+  chainId: number,
+  context: handlerContext,
+): Promise<StakingUrn> {
+  const id = `${chainId}-${urnAddress}`;
+  let urn = await context.StakingUrn.get(id);
   if (!urn) {
-    urn = new StakingUrn(urnAddress);
-    urn.owner = Address.fromString(ZERO_ADDRESS);
-    urn.index = BIGINT_ZERO;
-    urn.blockNumber = BIGINT_ZERO;
-    urn.blockTimestamp = BIGINT_ZERO;
-    urn.transactionHash = Bytes.empty();
-    urn.usdsDebt = BIGINT_ZERO;
-    urn.skyLocked = BIGINT_ZERO;
-    urn.auctionsCount = BIGINT_ZERO;
-    urn.save();
+    urn = {
+      id,
+      chainId,
+      address: urnAddress,
+      owner: ZERO_ADDRESS,
+      index: 0n,
+      blockNumber: 0n,
+      blockTimestamp: 0n,
+      transactionHash: '0x',
+      usdsDebt: 0n,
+      skyLocked: 0n,
+      auctionsCount: 0n,
+      voteDelegate_id: undefined,
+      reward_id: undefined,
+    };
   }
   return urn;
-}
-
-export function getUrnAddress(
-  stakingEngineContractAddress: Address,
-  ownerAddress: Address,
-  urnIndex: BigInt,
-): Address {
-  const stakingEngineContract = StakingEngine.bind(stakingEngineContractAddress);
-  const urnAddress = stakingEngineContract.ownerUrns(ownerAddress, urnIndex);
-
-  return urnAddress;
 }

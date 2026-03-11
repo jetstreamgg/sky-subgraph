@@ -1,65 +1,60 @@
-import {
-  Deposit as SupplyEvent,
-  Withdraw as WithdrawEvent,
-  Referral as ReferralEvent,
-} from '../generated/SavingsUsds/SavingsUsds';
-import {
-  SavingsSupply,
-  SavingsWithdraw,
-  SavingsReferral,
-  SavingsSupplier,
-} from '../generated/schema';
+import { SavingsUsds } from 'generated';
 
-export function handleSavingsSupplied(event: SupplyEvent): void {
-  let entity = new SavingsSupply(
-    event.transaction.hash.concatI32(event.logIndex.toI32()),
-  );
-  entity.sender = event.params.sender;
-  entity.owner = event.params.owner;
-  entity.assets = event.params.assets;
-  entity.shares = event.params.shares;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
+SavingsUsds.Deposit.handler(async ({ event, context }) => {
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
+
+  context.SavingsSupply.set({
+    id,
+    chainId: event.chainId,
+    sender: event.params.sender,
+    owner: event.params.owner,
+    assets: event.params.assets,
+    shares: event.params.shares,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
 
   // Track unique suppliers
-  let supplier = SavingsSupplier.load(event.params.owner);
-  if (supplier === null) {
-    supplier = new SavingsSupplier(event.params.owner);
-    supplier.save();
+  const owner = event.params.owner;
+  const supplierId = `${event.chainId}-${owner}`;
+  let supplier = await context.SavingsSupplier.get(supplierId);
+  if (!supplier) {
+    context.SavingsSupplier.set({ id: supplierId, chainId: event.chainId });
   }
-}
+});
 
-export function handleSavingsWithdrawn(event: WithdrawEvent): void {
-  let entity = new SavingsWithdraw(
-    event.transaction.hash.concatI32(event.logIndex.toI32()),
-  );
-  entity.sender = event.params.sender;
-  entity.receiver = event.params.receiver;
-  entity.owner = event.params.owner;
-  entity.assets = event.params.assets;
-  entity.shares = event.params.shares;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
-}
+SavingsUsds.Withdraw.handler(async ({ event, context }) => {
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
-export function handleSavingsReferral(event: ReferralEvent): void {
-  let entity = new SavingsReferral(
-    event.transaction.hash.concatI32(event.logIndex.toI32()),
-  );
-  let ref = event.params.referral;
-  if (!ref) {
-    ref = 0;
-  }
-  entity.referral = ref;
-  entity.owner = event.params.owner;
-  entity.assets = event.params.assets;
-  entity.shares = event.params.shares;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
-}
+  context.SavingsWithdraw.set({
+    id,
+    chainId: event.chainId,
+    sender: event.params.sender,
+    receiver: event.params.receiver,
+    owner: event.params.owner,
+    assets: event.params.assets,
+    shares: event.params.shares,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});
+
+SavingsUsds.Referral.handler(async ({ event, context }) => {
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
+
+  const ref = Number(event.params.referral) || 0;
+
+  context.SavingsReferral.set({
+    id,
+    chainId: event.chainId,
+    referral: ref,
+    owner: event.params.owner,
+    assets: event.params.assets,
+    shares: event.params.shares,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});

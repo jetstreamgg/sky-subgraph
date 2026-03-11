@@ -1,124 +1,121 @@
-import {
-  Rely,
-  Deny,
-  FileUint,
-  FileAddress,
-  Kick,
-  Take,
-  Redo,
-  Yank,
-} from '../generated/schema';
-import {
-  Rely as RelyEvent,
-  Deny as DenyEvent,
-  File as FileUintEvent,
-  File1 as FileAddressEvent,
-  Kick as KickEvent,
-  Take as TakeEvent,
-  Redo as RedoEvent,
-  Yank as YankEvent,
-} from '../generated/LockstakeClipper/LockstakeClipper';
+import { LockstakeClipper } from 'generated';
 
-export function handleRely(event: RelyEvent): void {
-  let entity = new Rely(
-    event.transaction.hash.concatI32(event.logIndex.toI32()),
-  );
-  entity.usr = event.params.usr;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
-}
+LockstakeClipper.Rely.handler(async ({ event, context }) => {
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
-export function handleDeny(event: DenyEvent): void {
-  let entity = new Deny(
-    event.transaction.hash.concatI32(event.logIndex.toI32()),
-  );
-  entity.usr = event.params.usr;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
-}
+  context.Rely.set({
+    id,
+    chainId: event.chainId,
+    usr: event.params.usr,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});
 
-export function handleFileUint(event: FileUintEvent): void {
-  let entity = new FileUint(
-    event.transaction.hash.concatI32(event.logIndex.toI32()),
-  );
-  entity.what = event.params.what;
-  entity.data = event.params.data;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
-}
+LockstakeClipper.Deny.handler(async ({ event, context }) => {
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
-export function handleFileAddress(event: FileAddressEvent): void {
-  let entity = new FileAddress(
-    event.transaction.hash.concatI32(event.logIndex.toI32()),
-  );
-  entity.what = event.params.what;
-  entity.data = event.params.data;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
-}
+  context.Deny.set({
+    id,
+    chainId: event.chainId,
+    usr: event.params.usr,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});
 
-export function handleKick(event: KickEvent): void {
-  let entity = new Kick(
-    event.transaction.hash.concatI32(event.logIndex.toI32()),
-  );
-  entity.top = event.params.top;
-  entity.tab = event.params.tab;
-  entity.lot = event.params.lot;
-  entity.usr = event.params.usr;
-  entity.kpr = event.params.kpr;
-  entity.coin = event.params.coin;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
-}
+LockstakeClipper.FileUint.handler(async ({ event, context }) => {
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
-export function handleTake(event: TakeEvent): void {
-  let entity = new Take(
-    event.transaction.hash.concatI32(event.logIndex.toI32()),
-  );
-  entity.max = event.params.max;
-  entity.price = event.params.price;
-  entity.owe = event.params.owe;
-  entity.tab = event.params.tab;
-  entity.lot = event.params.lot;
-  entity.usr = event.params.usr;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
-}
+  context.FileUint.set({
+    id,
+    chainId: event.chainId,
+    what: event.params.what,
+    data: event.params.data,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});
 
-export function handleRedo(event: RedoEvent): void {
-  let entity = new Redo(
-    event.transaction.hash.concatI32(event.logIndex.toI32()),
-  );
-  entity.top = event.params.top;
-  entity.tab = event.params.tab;
-  entity.lot = event.params.lot;
-  entity.usr = event.params.usr;
-  entity.kpr = event.params.kpr;
-  entity.coin = event.params.coin;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
-}
+LockstakeClipper.FileAddress.handler(async ({ event, context }) => {
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
-export function handleYank(event: YankEvent): void {
-  let entity = new Yank(
-    event.transaction.hash.concatI32(event.logIndex.toI32()),
-  );
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
-}
+  context.FileAddress.set({
+    id,
+    chainId: event.chainId,
+    what: event.params.what,
+    data: event.params.data,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});
+
+LockstakeClipper.Kick.handler(async ({ event, context }) => {
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
+
+  context.Kick.set({
+    id,
+    chainId: event.chainId,
+    top: event.params.top,
+    tab: event.params.tab,
+    lot: event.params.lot,
+    usr: event.params.usr,
+    kpr: event.params.kpr,
+    coin: event.params.coin,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});
+
+LockstakeClipper.Take.handler(async ({ event, context }) => {
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
+
+  context.Take.set({
+    id,
+    chainId: event.chainId,
+    max: event.params.max,
+    price: event.params.price,
+    owe: event.params.owe,
+    tab: event.params.tab,
+    lot: event.params.lot,
+    usr: event.params.usr,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});
+
+LockstakeClipper.Redo.handler(async ({ event, context }) => {
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
+
+  context.Redo.set({
+    id,
+    chainId: event.chainId,
+    top: event.params.top,
+    tab: event.params.tab,
+    lot: event.params.lot,
+    usr: event.params.usr,
+    kpr: event.params.kpr,
+    coin: event.params.coin,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});
+
+LockstakeClipper.Yank.handler(async ({ event, context }) => {
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
+
+  context.Yank.set({
+    id,
+    chainId: event.chainId,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});

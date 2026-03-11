@@ -42,6 +42,15 @@ In another window, run `yarn create-local:mainnet`, then `yarn deploy-local:main
 
 To query the local indexer, you can access GraphiQL at `http://localhost:8000/subgraphs/name/jetstream-local/sky-subgraph-mainnet`
 
+## Setting up Graph CLI
+
+1. Install Graph CLI
+   `yarn global add @graphprotocol/graph-cli`
+
+2. Authenticate
+   `graph auth <deploy key>`
+   You can find the deploy key in the dashboard for any subgraph in the Subgraph Studio
+
 ## Deploying
 
 To deploy to mainnet:
@@ -49,6 +58,8 @@ To deploy to mainnet:
 
 To deploy to testnet:
 `yarn deploy:testnet`
+
+Once you run the deploy command, the CLI will ask you for the subgraph version. Although any string can be used for the version, it is recommended to follow SemVer. You can check the latest deployed subgraph version in the Subgraph Studio
 
 Note: See internal documentation for testnet subgraph management information.
 

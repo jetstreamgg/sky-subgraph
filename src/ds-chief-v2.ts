@@ -1,11 +1,6 @@
-import { Bytes, ethereum } from '@graphprotocol/graph-ts';
-import { Lock, Free, Vote, Lift } from '../generated/DSChiefV2/DSChiefV2';
-import {
-  ExecutiveVoteV2,
-  SlateV2,
-  SpellV2,
-} from '../generated/schema';
-import { BIGINT_ONE, SpellState } from './helpers/constants';
+import { DSChiefV2 } from 'generated';
+import type { handlerContext, DSChiefV2_Vote_event } from 'generated';
+import { SpellState } from './helpers/constants';
 import {
   addWeightToSpellsV2,
   createExecutiveVotingPowerChangeV2,
@@ -15,113 +10,133 @@ import {
   toDecimal,
 } from './helpers/helpers';
 
-export function handleChiefV2Lock(event: Lock): void {
+DSChiefV2.Lock.handler(async ({ event, context }) => {
   const sender = event.params.usr;
   const amount = event.params.wad;
 
-  const voter = getVoter(sender.toHexString());
+  const voter = await getVoter(sender, event.chainId, context);
 
   // Track the change of SKY locked in chief for the user
-  const ExecutiveVotingPowerChangeV2 = createExecutiveVotingPowerChangeV2(
+  const votingPowerChange = createExecutiveVotingPowerChangeV2(
     event,
     amount,
     voter.skyLockedInChiefRaw,
-    voter.skyLockedInChiefRaw.plus(amount),
+    voter.skyLockedInChiefRaw + amount,
     voter.id,
   );
 
-  ExecutiveVotingPowerChangeV2.save();
+  context.ExecutiveVotingPowerChangeV2.set(votingPowerChange);
 
   // Update the amount of SKY locked in chief for the voter
-  voter.skyLockedInChiefRaw = voter.skyLockedInChiefRaw.plus(amount);
-  voter.skyLockedInChief = toDecimal(voter.skyLockedInChiefRaw);
-  voter.save();
+  context.Voter.set({
+    ...voter,
+    skyLockedInChiefRaw: voter.skyLockedInChiefRaw + amount,
+    skyLockedInChief: toDecimal(voter.skyLockedInChiefRaw + amount),
+  });
 
   // Update the weight in all the executives supported
-  addWeightToSpellsV2(voter.currentSpellsV2, amount);
-}
+  await addWeightToSpellsV2(voter.currentSpellsV2, amount, context);
+});
 
-export function handleChiefV2Free(event: Free): void {
+DSChiefV2.Free.handler(async ({ event, context }) => {
   const sender = event.params.usr;
   const amount = event.params.wad;
 
-  const voter = getVoter(sender.toHexString());
+  const voter = await getVoter(sender, event.chainId, context);
 
   // Track the change of SKY locked in chief for the user
-  const ExecutiveVotingPowerChangeV2 = createExecutiveVotingPowerChangeV2(
+  const votingPowerChange = createExecutiveVotingPowerChangeV2(
     event,
     amount,
     voter.skyLockedInChiefRaw,
-    voter.skyLockedInChiefRaw.minus(amount),
+    voter.skyLockedInChiefRaw - amount,
     voter.id,
   );
 
-  ExecutiveVotingPowerChangeV2.save();
+  context.ExecutiveVotingPowerChangeV2.set(votingPowerChange);
 
   // Update the amount of SKY locked in chief for the voter
-  voter.skyLockedInChiefRaw = voter.skyLockedInChiefRaw.minus(amount);
-  voter.skyLockedInChief = toDecimal(voter.skyLockedInChiefRaw);
-  voter.save();
+  context.Voter.set({
+    ...voter,
+    skyLockedInChiefRaw: voter.skyLockedInChiefRaw - amount,
+    skyLockedInChief: toDecimal(voter.skyLockedInChiefRaw - amount),
+  });
 
   // Update the weight in all the executives supported
-  removeWeightFromSpellsV2(voter.currentSpellsV2, amount);
-}
+  await removeWeightFromSpellsV2(voter.currentSpellsV2, amount, context);
+});
 
-export function handleChiefV2Vote(event: Vote): void {
-  const sender = event.params.usr.toHexString();
+DSChiefV2.Vote.handler(async ({ event, context }) => {
+  const sender = event.params.usr;
   const slateId = event.params.slate;
-  _handleSlateVote(sender, slateId, event);
-}
+  await _handleSlateVote(sender, slateId, event, context);
+});
 
-function _handleSlateVote(
+async function _handleSlateVote(
   sender: string,
-  slateId: Bytes,
-  event: ethereum.Event,
-): void {
-  const voter = getVoter(sender);
-  let slate = SlateV2.load(slateId.toHexString());
+  slateId: string,
+  event: DSChiefV2_Vote_event,
+  context: handlerContext,
+): Promise<void> {
+  const voter = await getVoter(sender, event.chainId, context);
+  let slate = await context.SlateV2.get(`${event.chainId}-${slateId}`);
   if (!slate) {
-    slate = createSlateV2(slateId, event);
+    slate = await createSlateV2(slateId, event, context);
   }
+
   // Remove votes from previous spells
-  removeWeightFromSpellsV2(voter.currentSpellsV2, voter.skyLockedInChiefRaw);
+  await removeWeightFromSpellsV2(
+    voter.currentSpellsV2,
+    voter.skyLockedInChiefRaw,
+    context,
+  );
+
   for (let i = 0; i < slate.yays.length; i++) {
     const spellId = slate.yays[i];
-    const spell = SpellV2.load(spellId);
+    const spell = await context.SpellV2.get(spellId);
     if (spell) {
-      const voteId = spellId.concat('-').concat(sender);
-      const vote = new ExecutiveVoteV2(voteId);
-      vote.weight = voter.skyLockedInChiefRaw;
-      vote.reason = '';
-      vote.voter = sender;
-      vote.spell = spellId;
-      vote.block = event.block.number;
-      vote.blockTime = event.block.timestamp;
-      vote.txnHash = event.transaction.hash.toHexString();
-      vote.logIndex = event.logIndex;
-      vote.save();
-      spell.totalVotes = spell.totalVotes.plus(BIGINT_ONE);
-      spell.totalWeightedVotes = spell.totalWeightedVotes.plus(
-        voter.skyLockedInChiefRaw,
-      );
-      spell.save();
+      const voteId = `${spellId}-${sender}`;
+      context.ExecutiveVoteV2.set({
+        id: voteId,
+        chainId: event.chainId,
+        weight: voter.skyLockedInChiefRaw,
+        reason: '',
+        voter_id: voter.id,
+        spell_id: spellId,
+        block: BigInt(event.block.number),
+        blockTime: BigInt(event.block.timestamp),
+        txnHash: event.transaction.hash,
+        logIndex: BigInt(event.logIndex),
+      });
+      context.SpellV2.set({
+        ...spell,
+        totalVotes: spell.totalVotes + 1n,
+        totalWeightedVotes:
+          spell.totalWeightedVotes + voter.skyLockedInChiefRaw,
+      });
     }
   }
-  voter.currentSpellsV2 = slate.yays;
-  voter.numberExecutiveVotesV2 = voter.numberExecutiveVotesV2 + 1;
-  voter.lastVotedTimestamp = event.block.timestamp;
-  voter.save();
+
+  context.Voter.set({
+    ...voter,
+    currentSpellsV2: slate.yays,
+    numberExecutiveVotesV2: voter.numberExecutiveVotesV2 + 1,
+    lastVotedTimestamp: BigInt(event.block.timestamp),
+  });
 }
 
-export function handleChiefV2Lift(event: Lift): void {
-  const spellId = event.params.whom;
+DSChiefV2.Lift.handler(async ({ event, context }) => {
+  const spellId = `${event.chainId}-${event.params.whom}`;
 
-  const spell = SpellV2.load(spellId.toHexString());
+  const spell = await context.SpellV2.get(spellId);
   if (!spell) return;
-  spell.state = SpellState.LIFTED;
-  spell.liftedTxnHash = event.transaction.hash.toHexString();
-  spell.liftedBlock = event.block.number;
-  spell.liftedTime = event.block.timestamp;
-  spell.liftedWith = spell.totalWeightedVotes;
-  spell.save();
-}
+
+  context.SpellV2.set({
+    ...spell,
+    state: SpellState.LIFTED,
+    liftedTxnHash: event.transaction.hash,
+    liftedBlock: BigInt(event.block.number),
+    liftedTime: BigInt(event.block.timestamp),
+    liftedWith: spell.totalWeightedVotes,
+  });
+});

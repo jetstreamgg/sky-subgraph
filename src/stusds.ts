@@ -1,53 +1,50 @@
-import {
-  Deposit as StusdsDepositEvent,
-  Withdraw as StusdsWithdrawEvent,
-  Referral as StusdsReferralEvent,
-} from '../generated/Stusds/Stusds';
-import {
-  StusdsDeposit,
-  StusdsWithdraw,
-  StusdsReferral,
-} from '../generated/schema';
+import { Stusds } from 'generated';
 
-export function handleStusdsDeposit(event: StusdsDepositEvent): void {
-  let entity = new StusdsDeposit(
-    event.transaction.hash.concatI32(event.logIndex.toI32()),
-  );
-  entity.sender = event.params.sender;
-  entity.owner = event.params.owner;
-  entity.assets = event.params.assets;
-  entity.shares = event.params.shares;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
-}
+Stusds.Deposit.handler(async ({ event, context }) => {
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
-export function handleStusdsWithdraw(event: StusdsWithdrawEvent): void {
-  let entity = new StusdsWithdraw(
-    event.transaction.hash.concatI32(event.logIndex.toI32()),
-  );
-  entity.sender = event.params.sender;
-  entity.receiver = event.params.receiver;
-  entity.owner = event.params.owner;
-  entity.assets = event.params.assets;
-  entity.shares = event.params.shares;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
-}
+  context.StusdsDeposit.set({
+    id,
+    chainId: event.chainId,
+    sender: event.params.sender,
+    owner: event.params.owner,
+    assets: event.params.assets,
+    shares: event.params.shares,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});
 
-export function handleStusdsReferral(event: StusdsReferralEvent): void {
-  let entity = new StusdsReferral(
-    event.transaction.hash.concatI32(event.logIndex.toI32()),
-  );
-  entity.referral = event.params.referral;
-  entity.owner = event.params.owner;
-  entity.assets = event.params.assets;
-  entity.shares = event.params.shares;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
-} 
+Stusds.Withdraw.handler(async ({ event, context }) => {
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
+
+  context.StusdsWithdraw.set({
+    id,
+    chainId: event.chainId,
+    sender: event.params.sender,
+    receiver: event.params.receiver,
+    owner: event.params.owner,
+    assets: event.params.assets,
+    shares: event.params.shares,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});
+
+Stusds.Referral.handler(async ({ event, context }) => {
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
+
+  context.StusdsReferral.set({
+    id,
+    chainId: event.chainId,
+    referral: Number(event.params.referral),
+    owner: event.params.owner,
+    assets: event.params.assets,
+    shares: event.params.shares,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  });
+});

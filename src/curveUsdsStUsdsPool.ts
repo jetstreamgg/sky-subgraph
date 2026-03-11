@@ -1,31 +1,35 @@
-import { TokenExchange as CurveTokenExchangeEvent } from '../generated/CurveUsdsStUsdsPool/CurveStableSwapNG';
-import { CurveTokenExchange } from '../generated/schema';
-import { getCurvePoolToken } from './helpers/getCurvePoolToken';
+import { CurveUsdsStUsdsPool } from 'generated';
+import { readCurvePoolCoinEffect } from './helpers/contractCalls';
 
-export function handleTokenExchange(event: CurveTokenExchangeEvent): void {
-  let entity = new CurveTokenExchange(
-    event.transaction.hash.concatI32(event.logIndex.toI32()),
-  );
-  entity.buyer = event.params.buyer;
-  entity.soldId = event.params.sold_id;
-  entity.amountSold = event.params.tokens_sold;
-  entity.boughtId = event.params.bought_id;
-  entity.amountBought = event.params.tokens_bought;
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
+CurveUsdsStUsdsPool.TokenExchange.handler(async ({ event, context }) => {
+  const entityId = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
 
-  const soldTokenAddress = getCurvePoolToken(
-    event.address,
-    event.params.sold_id,
-  );
-  const boughtTokenAddress = getCurvePoolToken(
-    event.address,
-    event.params.bought_id,
-  );
+  // Kick off both contract calls in parallel at the top of the handler
+  const [soldTokenAddress, boughtTokenAddress] = await Promise.all([
+    context.effect(readCurvePoolCoinEffect, {
+      chainId: event.chainId,
+      poolAddress: event.srcAddress,
+      index: event.params.sold_id,
+    }),
+    context.effect(readCurvePoolCoinEffect, {
+      chainId: event.chainId,
+      poolAddress: event.srcAddress,
+      index: event.params.bought_id,
+    }),
+  ]);
 
-  entity.soldTokenAddress = soldTokenAddress;
-  entity.boughtTokenAddress = boughtTokenAddress;
-
-  entity.save();
-}
+  context.CurveTokenExchange.set({
+    id: entityId,
+    chainId: event.chainId,
+    buyer: event.params.buyer,
+    soldId: event.params.sold_id,
+    amountSold: event.params.tokens_sold,
+    boughtId: event.params.bought_id,
+    amountBought: event.params.tokens_bought,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+    soldTokenAddress,
+    boughtTokenAddress,
+  });
+});

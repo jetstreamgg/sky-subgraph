@@ -1,254 +1,324 @@
-import { BigDecimal, BigInt, Bytes, ethereum } from '@graphprotocol/graph-ts';
-import {
-  Spell,
-  SpellV2,
+import { BigDecimal } from 'generated';
+import type {
+  handlerContext,
+  Voter,
   Slate,
   SlateV2,
-  ExecutiveVotingPowerChange,
-  ExecutiveVotingPowerChangeV2,
-  Voter,
-} from '../../generated/schema';
-import { DSChief } from '../../generated/DSChief/DSChief';
-import { DSChiefV2 } from '../../generated/DSChiefV2/DSChiefV2';
-import { DSSpell } from '../../generated/DSChief/DSSpell';
-import { DSSpellV2 } from '../../generated/DSChiefV2/DSSpellV2';
+  DSChief_LogNote_event,
+  DSChiefV2_Lock_event,
+  DSChiefV2_Free_event,
+  DSChiefV2_Vote_event,
+} from 'generated';
 import {
-  BIGDECIMAL_ZERO,
-  BIGINT_ZERO,
-  SpellState,
-  ZERO_ADDRESS,
-} from './constants';
-import { DSSpell as DSSpellTemplate } from '../../generated/templates';
+  readDSChiefSlateEffect,
+  readSpellDescriptionEffect,
+  readSpellExpirationEffect,
+} from './contractCalls';
+import { SpellState, ZERO_ADDRESS } from './constants';
 
-export function hexToNumberString(hex: string): string {
-  let hexNumber = BigInt.fromI32(0);
-  if (hex.startsWith('0x')) {
-    hex = hex.slice(2);
-  }
-  for (let i = 0; i < hex.length; i += 1) {
-    const character = hex.substr(hex.length - 1 - i, 1);
-    const digit = parseInt(character, 16) as u8;
-    if (digit) {
-      hexNumber = hexNumber.plus(
-        BigInt.fromI32(digit).times(BigInt.fromI32(16).pow(i as u8)),
-      );
-    }
-  }
-
-  return hexNumber.toString();
+export function hexToBigInt(hex: string): bigint {
+  return BigInt(hex);
 }
 
-export function toDecimal(value: BigInt, decimals: number = 18): BigDecimal {
-  return value.divDecimal(
-    BigInt.fromI32(10)
-      .pow(<u8>decimals)
-      .toBigDecimal(),
-  );
+export function toDecimal(value: bigint, decimals: number = 18): BigDecimal {
+  const divisor = new BigDecimal(10).pow(decimals);
+  return new BigDecimal(value.toString()).div(divisor);
 }
 
-export function getVoter(address: string): Voter {
-  let voter = Voter.load(address);
+export async function getVoter(
+  address: string,
+  chainId: number,
+  context: handlerContext,
+): Promise<Voter> {
+  const id = `${chainId}-${address}`;
+  let voter = await context.Voter.get(id);
   if (!voter) {
-    voter = new Voter(address);
-    voter.isVoteDelegate = false;
-    voter.mkrLockedInChiefRaw = BIGINT_ZERO;
-    voter.mkrLockedInChief = BIGDECIMAL_ZERO;
-    voter.skyLockedInChiefRaw = BIGINT_ZERO;
-    voter.skyLockedInChief = BIGDECIMAL_ZERO;
-    voter.currentSpells = [];
-    voter.currentSpellsV2 = [];
-    voter.numberExecutiveVotes = 0;
-    voter.numberExecutiveVotesV2 = 0;
-    voter.numberPollVotes = 0;
-    voter.lastVotedTimestamp = BIGINT_ZERO;
+    voter = {
+      id,
+      chainId,
+      address,
+      isVoteDelegate: false,
+      isVoteProxy: undefined,
+      delegateContract_id: undefined,
+      proxyContract_id: undefined,
+      mkrLockedInChiefRaw: 0n,
+      mkrLockedInChief: new BigDecimal('0'),
+      skyLockedInChiefRaw: 0n,
+      skyLockedInChief: new BigDecimal('0'),
+      currentSpells: [] as string[],
+      currentSpellsV2: [] as string[],
+      numberExecutiveVotes: 0,
+      numberExecutiveVotesV2: 0,
+      numberPollVotes: 0,
+      lastVotedTimestamp: 0n,
+    };
   }
   return voter;
 }
 
 export function createExecutiveVotingPowerChange(
-  event: ethereum.Event,
-  amount: BigInt,
-  previousBalance: BigInt,
-  newBalance: BigInt,
+  event: DSChief_LogNote_event,
+  amount: bigint,
+  previousBalance: bigint,
+  newBalance: bigint,
   voter: string,
-): ExecutiveVotingPowerChange {
-  const id = `${event.block.timestamp.toI64()}-${event.logIndex}`;
-  const chiefMKRChange = new ExecutiveVotingPowerChange(id);
-  chiefMKRChange.amount = amount;
-  chiefMKRChange.previousBalance = previousBalance;
-  chiefMKRChange.newBalance = newBalance;
-  chiefMKRChange.voter = voter;
-  chiefMKRChange.tokenAddress = event.address.toHexString();
-  chiefMKRChange.txnHash = event.transaction.hash.toHexString();
-  chiefMKRChange.blockTimestamp = event.block.timestamp;
-  chiefMKRChange.logIndex = event.logIndex;
-  chiefMKRChange.blockNumber = event.block.number;
-  return chiefMKRChange;
+) {
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
+  return {
+    id,
+    chainId: event.chainId,
+    amount,
+    previousBalance,
+    newBalance,
+    voter_id: voter,
+    tokenAddress: event.srcAddress,
+    txnHash: event.transaction.hash,
+    blockTimestamp: BigInt(event.block.timestamp),
+    logIndex: BigInt(event.logIndex),
+    blockNumber: BigInt(event.block.number),
+  };
 }
 
 export function createExecutiveVotingPowerChangeV2(
-  event: ethereum.Event,
-  amount: BigInt,
-  previousBalance: BigInt,
-  newBalance: BigInt,
+  event: DSChiefV2_Lock_event | DSChiefV2_Free_event,
+  amount: bigint,
+  previousBalance: bigint,
+  newBalance: bigint,
   voter: string,
-): ExecutiveVotingPowerChangeV2 {
-  const id = `${event.block.timestamp.toI64()}-${event.logIndex}`;
-  const chiefSKYChange = new ExecutiveVotingPowerChangeV2(id);
-  chiefSKYChange.amount = amount;
-  chiefSKYChange.previousBalance = previousBalance;
-  chiefSKYChange.newBalance = newBalance;
-  chiefSKYChange.voter = voter;
-  chiefSKYChange.tokenAddress = event.address.toHexString();
-  chiefSKYChange.txnHash = event.transaction.hash.toHexString();
-  chiefSKYChange.blockTimestamp = event.block.timestamp;
-  chiefSKYChange.logIndex = event.logIndex;
-  chiefSKYChange.blockNumber = event.block.number;
-  return chiefSKYChange;
+) {
+  const id = `${event.chainId}-${event.transaction.hash}-${event.logIndex}`;
+  return {
+    id,
+    chainId: event.chainId,
+    amount,
+    previousBalance,
+    newBalance,
+    voter_id: voter,
+    tokenAddress: event.srcAddress,
+    txnHash: event.transaction.hash,
+    blockTimestamp: BigInt(event.block.timestamp),
+    logIndex: BigInt(event.logIndex),
+    blockNumber: BigInt(event.block.number),
+  };
 }
 
-export function createSlate(slateID: Bytes, event: ethereum.Event): Slate {
-  const slate = new Slate(slateID.toHexString());
-  slate.yays = [];
-  slate.txnHash = event.transaction.hash.toHexString();
-  slate.creationBlock = event.block.number;
-  slate.creationTime = event.block.timestamp;
+export async function createSlate(
+  slateID: string,
+  event: DSChief_LogNote_event,
+  context: handlerContext,
+): Promise<Slate> {
+  const yays: string[] = [];
+  const chiefAddress = event.srcAddress;
+  const chainId = event.chainId;
 
-  let newSpellCount = 0;
-  let i = 0;
-  const dsChief = DSChief.bind(event.address);
-  let slateResponse = dsChief.try_slates(slateID, BigInt.fromI32(i));
-  while (!slateResponse.reverted) {
-    const spellAddress = slateResponse.value;
+  // Read slate contents by iterating until empty string is returned (index out of bounds)
+  for (let i = 0n; ; i++) {
+    const spellAddress = await context.effect(readDSChiefSlateEffect, {
+      chainId,
+      chiefAddress,
+      slateId: slateID,
+      index: i,
+    });
+    if (!spellAddress) break;
 
-    const spellID = spellAddress.toHexString();
-    let spell = Spell.load(spellID);
-    if (!spell && spellID != ZERO_ADDRESS) {
-      spell = new Spell(spellID);
-      spell.description = '';
-      spell.state = SpellState.ACTIVE;
-      spell.creationBlock = event.block.number;
-      spell.creationTime = event.block.timestamp;
-
-      const dsSpell = DSSpell.bind(spellAddress);
-      const dsDescription = dsSpell.try_description();
-      if (!dsDescription.reverted) {
-        spell.description = dsDescription.value;
+    if (spellAddress !== ZERO_ADDRESS) {
+      const spellId = `${chainId}-${spellAddress}`;
+      let spell = await context.Spell.get(spellId);
+      if (!spell) {
+        const [description, expiryTime] = await Promise.all([
+          context.effect(readSpellDescriptionEffect, {
+            chainId,
+            spellAddress,
+          }),
+          context.effect(readSpellExpirationEffect, {
+            chainId,
+            spellAddress,
+          }),
+        ]);
+        // Only save the spell if expiration() didn't revert
+        // (matches original subgraph behavior)
+        if (expiryTime !== undefined) {
+          spell = {
+            id: spellId,
+            chainId,
+            description,
+            state: SpellState.ACTIVE,
+            creationBlock: BigInt(event.block.number),
+            creationTime: BigInt(event.block.timestamp),
+            expiryTime,
+            totalVotes: 0n,
+            totalWeightedVotes: 0n,
+            castBlock: undefined,
+            castTime: undefined,
+            castTxnHash: undefined,
+            castWith: undefined,
+            liftedBlock: undefined,
+            liftedTime: undefined,
+            liftedTxnHash: undefined,
+            liftedWith: undefined,
+            scheduledBlock: undefined,
+            scheduledTime: undefined,
+            scheduledTxnHash: undefined,
+          };
+          context.Spell.set(spell);
+        }
       }
-      const expiration = dsSpell.try_expiration();
-      if (!expiration.reverted) {
-        spell.expiryTime = expiration.value;
-        spell.totalVotes = BIGINT_ZERO;
-        spell.totalWeightedVotes = BIGINT_ZERO;
-        spell.save();
-
-        // Track this new spell
-        DSSpellTemplate.create(spellAddress);
-
-        newSpellCount = newSpellCount + 1;
-      }
+      yays.push(spellId);
     }
-    slate.yays = slate.yays.concat([spellID]);
-    // loop through slate indices until a revert breaks it
-    slateResponse = dsChief.try_slates(slateID, BigInt.fromI32(++i));
   }
 
-  slate.save();
+  const slate = {
+    id: `${chainId}-${slateID}`,
+    chainId,
+    yays,
+    txnHash: event.transaction.hash,
+    creationBlock: BigInt(event.block.number),
+    creationTime: BigInt(event.block.timestamp),
+  };
+
+  context.Slate.set(slate);
   return slate;
 }
 
-export function createSlateV2(slateID: Bytes, event: ethereum.Event): SlateV2 {
-  const slate = new SlateV2(slateID.toHexString());
-  slate.yays = [];
-  slate.txnHash = event.transaction.hash.toHexString();
-  slate.creationBlock = event.block.number;
-  slate.creationTime = event.block.timestamp;
+export async function createSlateV2(
+  slateID: string,
+  event: DSChiefV2_Vote_event,
+  context: handlerContext,
+): Promise<SlateV2> {
+  const yays: string[] = [];
+  const chiefAddress = event.srcAddress;
+  const chainId = event.chainId;
 
-  let newSpellCount = 0;
-  let i = 0;
-  const dsChief = DSChiefV2.bind(event.address);
-  let slateResponse = dsChief.try_slates(slateID, BigInt.fromI32(i));
-  while (!slateResponse.reverted) {
-    const spellAddress = slateResponse.value;
+  // Read slate contents by iterating until empty string is returned (index out of bounds)
+  for (let i = 0n; ; i++) {
+    const spellAddress = await context.effect(readDSChiefSlateEffect, {
+      chainId,
+      chiefAddress,
+      slateId: slateID,
+      index: i,
+    });
+    if (!spellAddress) break;
 
-    const spellID = spellAddress.toHexString();
-    let spell = SpellV2.load(spellID);
-    if (!spell && spellID != ZERO_ADDRESS) {
-      spell = new SpellV2(spellID);
-      spell.description = '';
-      spell.state = SpellState.ACTIVE;
-      spell.creationBlock = event.block.number;
-      spell.creationTime = event.block.timestamp;
-
-      const dsSpell = DSSpellV2.bind(spellAddress);
-      const dsDescription = dsSpell.try_description();
-      if (!dsDescription.reverted) {
-        spell.description = dsDescription.value;
+    if (spellAddress !== ZERO_ADDRESS) {
+      const spellId = `${chainId}-${spellAddress}`;
+      let spell = await context.SpellV2.get(spellId);
+      if (!spell) {
+        const [description, expiryTime] = await Promise.all([
+          context.effect(readSpellDescriptionEffect, {
+            chainId,
+            spellAddress,
+          }),
+          context.effect(readSpellExpirationEffect, {
+            chainId,
+            spellAddress,
+          }),
+        ]);
+        // Only save the spell if expiration() didn't revert
+        // (matches original subgraph behavior)
+        if (expiryTime !== undefined) {
+          spell = {
+            id: spellId,
+            chainId,
+            address: spellAddress,
+            description,
+            state: SpellState.ACTIVE,
+            creationBlock: BigInt(event.block.number),
+            creationTime: BigInt(event.block.timestamp),
+            expiryTime,
+            totalVotes: 0n,
+            totalWeightedVotes: 0n,
+            castBlock: undefined,
+            castTime: undefined,
+            castTxnHash: undefined,
+            castWith: undefined,
+            liftedBlock: undefined,
+            liftedTime: undefined,
+            liftedTxnHash: undefined,
+            liftedWith: undefined,
+            scheduledBlock: undefined,
+            scheduledTime: undefined,
+            scheduledTxnHash: undefined,
+          };
+          context.SpellV2.set(spell);
+        }
       }
-      const expiration = dsSpell.try_expiration();
-      if (!expiration.reverted) {
-        spell.expiryTime = expiration.value;
-        spell.totalVotes = BIGINT_ZERO;
-        spell.totalWeightedVotes = BIGINT_ZERO;
-        spell.save();
-
-        // Track this new spell
-        DSSpellTemplate.create(spellAddress);
-
-        newSpellCount = newSpellCount + 1;
-      }
+      yays.push(spellId);
     }
-    slate.yays = slate.yays.concat([spellID]);
-    // loop through slate indices until a revert breaks it
-    slateResponse = dsChief.try_slates(slateID, BigInt.fromI32(++i));
   }
 
-  slate.save();
+  const slate = {
+    id: `${chainId}-${slateID}`,
+    chainId,
+    yays,
+    txnHash: event.transaction.hash,
+    creationBlock: BigInt(event.block.number),
+    creationTime: BigInt(event.block.timestamp),
+  };
+
+  context.SlateV2.set(slate);
   return slate;
 }
 
-export function addWeightToSpells(spellIDs: string[], weight: BigInt): void {
-  for (let i = 0; i < spellIDs.length; i++) {
-    const spell = Spell.load(spellIDs[i]);
-    if (spell) {
-      spell.totalWeightedVotes = spell.totalWeightedVotes.plus(weight);
-      spell.save();
-    }
-  }
-}
-
-export function addWeightToSpellsV2(spellIDs: string[], weight: BigInt): void {
-  for (let i = 0; i < spellIDs.length; i++) {
-    const spell = SpellV2.load(spellIDs[i]);
-    if (spell) {
-      spell.totalWeightedVotes = spell.totalWeightedVotes.plus(weight);
-      spell.save();
-    }
-  }
-}
-
-export function removeWeightFromSpells(
+export async function addWeightToSpells(
   spellIDs: string[],
-  weight: BigInt,
-): void {
+  weight: bigint,
+  context: handlerContext,
+): Promise<void> {
   for (let i = 0; i < spellIDs.length; i++) {
-    const spell = Spell.load(spellIDs[i]);
+    const spell = await context.Spell.get(spellIDs[i]);
     if (spell) {
-      spell.totalWeightedVotes = spell.totalWeightedVotes.minus(weight);
-      spell.save();
+      context.Spell.set({
+        ...spell,
+        totalWeightedVotes: spell.totalWeightedVotes + weight,
+      });
     }
   }
 }
 
-export function removeWeightFromSpellsV2(
+export async function addWeightToSpellsV2(
   spellIDs: string[],
-  weight: BigInt,
-): void {
+  weight: bigint,
+  context: handlerContext,
+): Promise<void> {
   for (let i = 0; i < spellIDs.length; i++) {
-    const spell = SpellV2.load(spellIDs[i]);
+    const spell = await context.SpellV2.get(spellIDs[i]);
     if (spell) {
-      spell.totalWeightedVotes = spell.totalWeightedVotes.minus(weight);
-      spell.save();
+      context.SpellV2.set({
+        ...spell,
+        totalWeightedVotes: spell.totalWeightedVotes + weight,
+      });
+    }
+  }
+}
+
+export async function removeWeightFromSpells(
+  spellIDs: string[],
+  weight: bigint,
+  context: handlerContext,
+): Promise<void> {
+  for (let i = 0; i < spellIDs.length; i++) {
+    const spell = await context.Spell.get(spellIDs[i]);
+    if (spell) {
+      context.Spell.set({
+        ...spell,
+        totalWeightedVotes: spell.totalWeightedVotes - weight,
+      });
+    }
+  }
+}
+
+export async function removeWeightFromSpellsV2(
+  spellIDs: string[],
+  weight: bigint,
+  context: handlerContext,
+): Promise<void> {
+  for (let i = 0; i < spellIDs.length; i++) {
+    const spell = await context.SpellV2.get(spellIDs[i]);
+    if (spell) {
+      context.SpellV2.set({
+        ...spell,
+        totalWeightedVotes: spell.totalWeightedVotes - weight,
+      });
     }
   }
 }

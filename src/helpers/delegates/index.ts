@@ -1,177 +1,174 @@
-import {
-  Delegate,
-  Delegation,
-  DelegationHistory,
-} from '../../../generated/schema';
-import { BIGINT_ZERO } from '../../helpers/constants';
-import { BigInt, ethereum } from '@graphprotocol/graph-ts';
+import type {
+  delegate as Delegate,
+  delegation as Delegation,
+  handlerContext,
+} from 'generated';
+import { shouldIgnoreDelegator } from '../constants';
 
-function getLseAddresses(): string[] {
-  return [
-    '0x2b16C07D5fD5cC701a0a871eae2aad6DA5fc8f12', // Tenderly LSE address
-    '0x2b16C07D5fD5cC701a0a871eae2aad6DA5fc8f12', // Mainnet LSE address
-  ];
-}
-
-function getStakingEngineAddresses(): string[] {
-  return [
-    '0xCe01C90dE7FD1bcFa39e237FE6D8D9F569e8A6a3', // Tenderly Staking Engine address
-    '0xCe01C90dE7FD1bcFa39e237FE6D8D9F569e8A6a3', // Mainnet Staking Engine address
-  ];
-}
-
-function isAddressInList(address: string, addresses: string[]): boolean {
-  for (let i = 0; i < addresses.length; i++) {
-    if (addresses[i].toLowerCase() === address.toLowerCase()) {
-      return true;
-    }
-  }
-  return false;
-}
-
-export function delegationLockHandler(
+export async function delegationLockHandler(
   delegate: Delegate,
   address: string,
-  amount: BigInt,
-  block: ethereum.Block,
-  transaction: ethereum.Transaction,
+  amount: bigint,
+  blockTimestamp: bigint,
+  blockNumber: bigint,
+  txnHash: string,
   isLockstake: boolean,
   isStakingEngine: boolean,
   logIndex: string,
-): void {
-  const delegation = getDelegation(delegate, address);
+  chainId: number,
+  context: handlerContext,
+): Promise<void> {
+  const { delegation, updatedDelegate: delegateWithDelegation } =
+    await getDelegation(delegate, address, blockTimestamp, chainId, context);
 
-  const lseAddresses = getLseAddresses();
-  const stakingEngineAddresses = getStakingEngineAddresses();
-
-  // Check if the delegator matches any of the LSE or Staking Engine addresses
-  const delegatorAddress = delegation.delegator.toLowerCase();
-  const shouldIgnore =
-    isAddressInList(delegatorAddress, lseAddresses) ||
-    isAddressInList(delegatorAddress, stakingEngineAddresses);
-
-  if (shouldIgnore) {
+  if (shouldIgnoreDelegator(delegation.delegator)) {
     return;
   }
-
-  // Update timestamp of the delegation
-  delegation.timestamp = block.timestamp;
 
   // If previous delegation amount was 0, increment the delegators count
-  if (delegation.amount.equals(BIGINT_ZERO)) {
-    delegate.delegators = delegate.delegators + 1;
+  let updatedDelegate = { ...delegateWithDelegation };
+  if (delegation.amount === 0n) {
+    updatedDelegate = {
+      ...updatedDelegate,
+      delegators: updatedDelegate.delegators + 1,
+    };
   }
 
   // Increase the total amount delegated to the delegate
-  delegation.amount = delegation.amount.plus(amount);
+  const newAmount = delegation.amount + amount;
 
   // Create a new delegation history entity
   const delegationHistoryId =
-    delegation.id + '-' + block.number.toString() + '-' + logIndex;
-  const delegationHistory = new DelegationHistory(delegationHistoryId);
-  delegationHistory.delegator = delegation.delegator;
-  delegationHistory.delegate = delegation.delegate;
-  delegationHistory.amount = amount;
-  delegationHistory.accumulatedAmount = delegation.amount;
-  delegationHistory.blockNumber = block.number;
-  delegationHistory.txnHash = transaction.hash.toHexString();
-  delegationHistory.timestamp = block.timestamp;
-  delegationHistory.isLockstake = isLockstake;
-  delegationHistory.isStakingEngine = isStakingEngine;
-  // Add the delegation history to the delegate
-  delegate.delegationHistory = delegate.delegationHistory.concat([
-    delegationHistoryId,
-  ]);
+    delegation.id + '-' + blockNumber.toString() + '-' + logIndex;
+  const delegationHistory = {
+    id: delegationHistoryId,
+    chainId,
+    delegator: delegation.delegator,
+    delegate_id: delegation.delegate_id,
+    amount,
+    accumulatedAmount: newAmount,
+    blockNumber,
+    txnHash,
+    timestamp: blockTimestamp,
+    isLockstake,
+    isStakingEngine,
+  };
 
-  // Increase the total amount delegated to the delegate
-  delegate.totalDelegated = delegate.totalDelegated.plus(amount);
+  // Increase total delegated on the delegate
+  updatedDelegate = {
+    ...updatedDelegate,
+    totalDelegated: updatedDelegate.totalDelegated + amount,
+  };
 
-  delegate.save();
-  delegation.save();
-  delegationHistory.save();
+  context.Delegate.set(updatedDelegate);
+  context.Delegation.set({
+    ...delegation,
+    amount: newAmount,
+    timestamp: blockTimestamp,
+  });
+  context.DelegationHistory.set(delegationHistory);
 }
 
-export function delegationFreeHandler(
+export async function delegationFreeHandler(
   delegate: Delegate,
   address: string,
-  amount: BigInt,
-  block: ethereum.Block,
-  transaction: ethereum.Transaction,
+  amount: bigint,
+  blockTimestamp: bigint,
+  blockNumber: bigint,
+  txnHash: string,
   isLockstake: boolean,
   isStakingEngine: boolean,
   logIndex: string,
-): void {
-  const delegation = getDelegation(delegate, address);
+  chainId: number,
+  context: handlerContext,
+): Promise<void> {
+  const { delegation, updatedDelegate: delegateWithDelegation } =
+    await getDelegation(delegate, address, blockTimestamp, chainId, context);
 
-  const lseAddresses = getLseAddresses();
-  const stakingEngineAddresses = getStakingEngineAddresses();
-
-  // Check if the delegator matches any of the LSE or Staking Engine addresses
-  const delegatorAddress = delegation.delegator.toLowerCase();
-  const shouldIgnore =
-    isAddressInList(delegatorAddress, lseAddresses) ||
-    isAddressInList(delegatorAddress, stakingEngineAddresses);
-
-  if (shouldIgnore) {
+  if (shouldIgnoreDelegator(delegation.delegator)) {
     return;
   }
 
-  // Update timestamp of the delegation
-  delegation.timestamp = block.timestamp;
-
   // Decrease the total amount delegated to the delegate
-  delegation.amount = delegation.amount.minus(amount);
+  const newAmount = delegation.amount - amount;
+
+  let updatedDelegate = { ...delegateWithDelegation };
 
   // If the delegation amount is 0, decrement the delegators count
-  if (delegation.amount.equals(BIGINT_ZERO)) {
-    delegate.delegators = delegate.delegators - 1;
+  if (newAmount === 0n) {
+    updatedDelegate = {
+      ...updatedDelegate,
+      delegators: updatedDelegate.delegators - 1,
+    };
   }
 
   // Create a new delegation history entity
   const delegationHistoryId =
-    delegation.id + '-' + block.number.toString() + '-' + logIndex;
-  const delegationHistory = new DelegationHistory(delegationHistoryId);
-  delegationHistory.delegator = delegation.delegator;
-  delegationHistory.delegate = delegation.delegate;
-  // Amount is negative because it is a free event
-  delegationHistory.amount = amount.times(BigInt.fromI64(-1));
-  delegationHistory.accumulatedAmount = delegation.amount;
-  delegationHistory.blockNumber = block.number;
-  delegationHistory.txnHash = transaction.hash.toHexString();
-  delegationHistory.timestamp = block.timestamp;
-  delegationHistory.isLockstake = isLockstake;
-  delegationHistory.isStakingEngine = isStakingEngine;
-  // Add the delegation history to the delegate
-  delegate.delegationHistory = delegate.delegationHistory.concat([
-    delegationHistoryId,
-  ]);
+    delegation.id + '-' + blockNumber.toString() + '-' + logIndex;
+  const delegationHistory = {
+    id: delegationHistoryId,
+    chainId,
+    delegator: delegation.delegator,
+    delegate_id: delegation.delegate_id,
+    // Amount is negative because it is a free event
+    amount: -amount,
+    accumulatedAmount: newAmount,
+    blockNumber,
+    txnHash,
+    timestamp: blockTimestamp,
+    isLockstake,
+    isStakingEngine,
+  };
 
-  // Decrease the total amount delegated to the delegate
-  delegate.totalDelegated = delegate.totalDelegated.minus(amount);
+  // Decrease total delegated on the delegate
+  updatedDelegate = {
+    ...updatedDelegate,
+    totalDelegated: updatedDelegate.totalDelegated - amount,
+  };
 
-  delegation.save();
-  delegate.save();
-  delegationHistory.save();
+  context.Delegation.set({
+    ...delegation,
+    amount: newAmount,
+    timestamp: blockTimestamp,
+  });
+  context.Delegate.set(updatedDelegate);
+  context.DelegationHistory.set(delegationHistory);
 }
 
-export function getDelegation(delegate: Delegate, address: string): Delegation {
+export async function getDelegation(
+  delegate: Delegate,
+  address: string,
+  blockTimestamp: bigint,
+  chainId: number,
+  context: handlerContext,
+): Promise<{ delegation: Delegation; updatedDelegate: Delegate }> {
   const delegationId = delegate.id + '-' + address;
-  let delegation = Delegation.load(delegationId);
+  let delegation = await context.Delegation.get(delegationId);
+  let updatedDelegate = delegate;
   if (!delegation) {
-    delegation = new Delegation(delegationId);
-    delegation.delegator = address;
-    delegation.delegate = delegate.id;
-    delegation.amount = BIGINT_ZERO;
-    delegate.delegations = delegate.delegations.concat([delegationId]);
+    delegation = {
+      id: delegationId,
+      chainId,
+      delegator: address,
+      delegate_id: delegate.id,
+      amount: 0n,
+      timestamp: blockTimestamp,
+    };
   }
-  return delegation;
+  return { delegation, updatedDelegate };
 }
 
-export function getDelegate(delegateAddress: string | null): Delegate | null {
+export async function getDelegate(
+  delegateAddress: string | null | undefined,
+  chainId: number,
+  context: handlerContext,
+): Promise<Delegate | null> {
   if (!delegateAddress) {
     return null;
   }
-  let delegate = Delegate.load(delegateAddress as string);
+  const delegate = await context.Delegate.get(
+    `${chainId}-${delegateAddress}`,
+  );
   if (!delegate) {
     return null;
   }

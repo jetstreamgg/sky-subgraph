@@ -1,44 +1,80 @@
-import { CreateVoteDelegate } from '../generated/DelegateFactoryV2/DelegateFactoryV2';
-import { Delegate, DelegateAdmin } from '../generated/schema';
-import { BIGINT_ZERO } from './helpers/constants';
-import { VoteDelegateV2 as VoteDelegateV2Template } from '../generated/templates';
-import { getVoter } from './helpers/helpers';
+import { DelegateFactoryV2, BigDecimal } from 'generated';
 
-export function handleCreateVoteDelegateV2(event: CreateVoteDelegate): void {
-  const delegateOwnerAddress = event.params.usr.toHexString();
+// Register dynamic contract for VoteDelegateV2 when CreateVoteDelegate is emitted
+DelegateFactoryV2.CreateVoteDelegate.contractRegister(({ event, context }) => {
+  context.addVoteDelegateV2(event.params.voteDelegate);
+});
+
+DelegateFactoryV2.CreateVoteDelegate.handler(async ({ event, context }) => {
+  const delegateOwnerAddress = event.params.usr;
   const delegateContractAddress = event.params.voteDelegate;
 
-  const voter = getVoter(delegateContractAddress.toHexString());
-  voter.isVoteDelegate = true;
-  voter.isVoteProxy = false;
-  // Assign the delegate contract to the voter
-  voter.delegateContract = delegateContractAddress.toHexString();
-  voter.save();
+  const delegateId = `${event.chainId}-${delegateContractAddress}`;
+  const voterId = `${event.chainId}-${delegateContractAddress}`;
+  const adminId = `${event.chainId}-${delegateOwnerAddress}`;
 
-  let delegate = Delegate.load(delegateContractAddress.toHexString());
+  // Create the voter entity
+  let voter = await context.Voter.get(voterId);
+  if (!voter) {
+    voter = {
+      id: voterId,
+      chainId: event.chainId,
+      address: delegateContractAddress,
+      isVoteDelegate: false,
+      isVoteProxy: false,
+      mkrLockedInChiefRaw: 0n,
+      mkrLockedInChief: new BigDecimal('0.0'),
+      skyLockedInChiefRaw: 0n,
+      skyLockedInChief: new BigDecimal('0.0'),
+      currentSpells: [],
+      currentSpellsV2: [],
+      numberExecutiveVotes: 0,
+      numberExecutiveVotesV2: 0,
+      numberPollVotes: 0,
+      lastVotedTimestamp: 0n,
+      delegateContract_id: undefined,
+      proxyContract_id: undefined,
+    };
+  }
+  context.Voter.set({
+    ...voter,
+    address: delegateContractAddress,
+    isVoteDelegate: true,
+    isVoteProxy: false,
+    delegateContract_id: delegateId,
+  });
+
+  // Create the delegate contract
+  let delegate = await context.Delegate.get(delegateId);
   if (!delegate) {
-    delegate = new Delegate(delegateContractAddress.toHexString());
-    delegate.ownerAddress = delegateOwnerAddress;
-    delegate.voter = voter.id;
-    delegate.delegations = [];
-    delegate.delegators = 0;
-    delegate.blockTimestamp = event.block.timestamp;
-    delegate.blockNumber = event.block.number;
-    delegate.txnHash = event.transaction.hash.toHexString();
-    delegate.totalDelegated = BIGINT_ZERO;
-    delegate.delegationHistory = [];
-    delegate.version = '2';
-    delegate.save();
+    delegate = {
+      id: delegateId,
+      address: delegateContractAddress,
+      ownerAddress: delegateOwnerAddress,
+      voter_id: voterId,
+      delegators: 0,
+      blockTimestamp: BigInt(event.block.timestamp),
+      blockNumber: BigInt(event.block.number),
+      txnHash: event.transaction.hash,
+      totalDelegated: 0n,
+      version: '2',
+      chainId: event.chainId,
+    };
+    context.Delegate.set(delegate);
   }
 
-  let delegateAdmin = DelegateAdmin.load(delegateOwnerAddress);
-
+  // Create delegate admin entity
+  let delegateAdmin = await context.DelegateAdmin.get(adminId);
   if (!delegateAdmin) {
-    delegateAdmin = new DelegateAdmin(delegateOwnerAddress);
+    context.DelegateAdmin.set({
+      id: adminId,
+      delegateContract_id: delegate.id,
+      chainId: event.chainId,
+    });
+  } else {
+    context.DelegateAdmin.set({
+      ...delegateAdmin,
+      delegateContract_id: delegate.id,
+    });
   }
-  delegateAdmin.delegateContract = delegate.id;
-  delegateAdmin.save();
-
-  // Track this new vote delegate contract
-  VoteDelegateV2Template.create(delegateContractAddress);
-}
+});

@@ -1,15 +1,22 @@
-import { Reward } from '../../generated/schema';
-import { BigInt, Address } from '@graphprotocol/graph-ts';
+import type { handlerContext, Reward } from 'generated';
 
-export function getReward(rewardAddress: Address): Reward {
-  let reward = Reward.load(rewardAddress);
-  if (reward === null) {
-    reward = new Reward(rewardAddress);
-    reward.totalSupplied = BigInt.fromI32(0);
-    reward.totalRewardsClaimed = BigInt.fromI32(0);
-    reward.lockstakeActive = false;
-    reward.stakingEngineActive = false;
-    reward.save();
+export async function getReward(
+  rewardAddress: string,
+  chainId: number,
+  context: handlerContext,
+): Promise<Reward> {
+  const id = `${chainId}-${rewardAddress}`;
+  let reward = await context.Reward.get(id);
+  if (!reward) {
+    reward = {
+      id,
+      chainId,
+      address: rewardAddress,
+      totalSupplied: 0n,
+      totalRewardsClaimed: 0n,
+      lockstakeActive: false,
+      stakingEngineActive: false,
+    };
   }
-  return reward as Reward;
+  return reward;
 }
