@@ -71,5 +71,9 @@
   "devDependencies": {
     "matchstick-as": "0.6.0",
     "mustache": "^4.2.0"
+  },
+  "resolutions": {
+    "axios@1.14.1": "1.13.2",
+    "axios@0.30.4": "0.21.4"
   }
 }
